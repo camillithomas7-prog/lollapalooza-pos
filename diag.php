@@ -5,6 +5,18 @@ ini_set('display_errors', '1');
 error_reporting(E_ALL);
 header('Content-Type: text/plain; charset=utf-8');
 
+echo "=== FILE CHECK ===\n";
+$cfgFile = __DIR__ . '/includes/config.local.php';
+echo "Path: $cfgFile\n";
+echo "Exists: " . (file_exists($cfgFile) ? 'YES' : 'NO') . "\n";
+if (file_exists($cfgFile)) {
+    echo "Size: " . filesize($cfgFile) . " bytes\n";
+    echo "Readable: " . (is_readable($cfgFile) ? 'YES' : 'NO') . "\n";
+    echo "First 200 chars:\n" . substr(file_get_contents($cfgFile), 0, 200) . "\n";
+    $r = @include $cfgFile;
+    echo "Loaded: " . (is_array($r) ? 'OK ' . print_r($r, true) : 'FAIL (not array)') . "\n";
+}
+echo "\n";
 require_once __DIR__ . '/includes/config.php';
 echo "=== CONFIG ===\nDriver: " . DB_DRIVER . "\nDB: " . DB_NAME . "\nUser: " . DB_USER . "\n\n";
 
