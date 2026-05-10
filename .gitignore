@@ -1,0 +1,28 @@
+# Database (creato al primo avvio da install.php)
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal
+data/*.db
+
+# Upload utenti
+assets/uploads/*
+!assets/uploads/.gitkeep
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
+*.bak
+*.swp
+
+# IDE
+.vscode/
+.idea/
+
+# Env / config locali
+.env
+.env.local
+config.local.php
+
+# Cookies/test
+*.cookies
