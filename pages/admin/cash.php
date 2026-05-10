@@ -43,23 +43,33 @@
     <!-- Storico -->
     <div class="card p-5 mt-4">
         <h3 class="font-bold mb-3">📊 Storico chiusure</h3>
-        <table class="w-full text-sm">
-            <thead class="text-xs uppercase text-slate-400">
-                <tr><th class="text-left p-2">Data</th><th class="text-left p-2">Operatore</th><th class="text-right p-2">Apertura</th><th class="text-right p-2">Atteso</th><th class="text-right p-2">Reale</th><th class="text-right p-2">Diff</th></tr>
-            </thead>
-            <tbody>
-                <template x-for="s in history" :key="s.id">
-                    <tr class="border-t border-white/5">
-                        <td class="p-2 text-xs" x-text="fmtDate(s.opened_at)"></td>
-                        <td class="p-2" x-text="s.user_name||'—'"></td>
-                        <td class="p-2 text-right" x-text="'€'+parseFloat(s.open_amount||0).toFixed(2)"></td>
-                        <td class="p-2 text-right" x-text="'€'+parseFloat(s.expected||0).toFixed(2)"></td>
-                        <td class="p-2 text-right" x-text="s.close_amount?'€'+parseFloat(s.close_amount).toFixed(2):'—'"></td>
-                        <td class="p-2 text-right" :class="parseFloat(s.diff||0)>=0?'text-emerald-400':'text-rose-400'" x-text="s.diff!=null?'€'+parseFloat(s.diff).toFixed(2):'—'"></td>
+        <div class="overflow-x-auto -mx-5 px-5 scrollbar-thin">
+            <table class="w-full text-sm min-w-[640px]">
+                <thead class="text-xs uppercase text-slate-400">
+                    <tr>
+                        <th class="text-left p-2 whitespace-nowrap">Data</th>
+                        <th class="text-left p-2 whitespace-nowrap">Operatore</th>
+                        <th class="text-right p-2 whitespace-nowrap">Apertura</th>
+                        <th class="text-right p-2 whitespace-nowrap">Atteso</th>
+                        <th class="text-right p-2 whitespace-nowrap">Reale</th>
+                        <th class="text-right p-2 whitespace-nowrap">Diff</th>
                     </tr>
-                </template>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <template x-for="s in history" :key="s.id">
+                        <tr class="border-t border-white/5">
+                            <td class="p-2 text-xs whitespace-nowrap" x-text="fmtDate(s.opened_at)"></td>
+                            <td class="p-2 whitespace-nowrap" x-text="s.user_name||'—'"></td>
+                            <td class="p-2 text-right whitespace-nowrap tabular-nums" x-text="'€'+parseFloat(s.open_amount||0).toFixed(2)"></td>
+                            <td class="p-2 text-right whitespace-nowrap tabular-nums" x-text="'€'+parseFloat(s.expected||0).toFixed(2)"></td>
+                            <td class="p-2 text-right whitespace-nowrap tabular-nums" x-text="s.close_amount?'€'+parseFloat(s.close_amount).toFixed(2):'—'"></td>
+                            <td class="p-2 text-right whitespace-nowrap tabular-nums font-semibold" :class="parseFloat(s.diff||0)>=0?'text-emerald-400':'text-rose-400'" x-text="s.diff!=null?'€'+parseFloat(s.diff).toFixed(2):'—'"></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            <div x-show="!history.length" class="text-center py-6 text-slate-400 text-sm">Nessuna chiusura ancora</div>
+        </div>
     </div>
 </main>
 

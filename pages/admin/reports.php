@@ -31,7 +31,8 @@
     <div class="grid lg:grid-cols-2 gap-4">
         <div class="card p-5">
             <h3 class="font-bold mb-3">🏆 Top prodotti</h3>
-            <table class="w-full text-sm">
+            <div class="overflow-x-auto -mx-5 px-5 scrollbar-thin">
+            <table class="w-full text-sm min-w-[480px]">
                 <thead class="text-xs uppercase text-slate-400">
                     <tr><th class="text-left p-2">Prodotto</th><th class="text-right p-2">Q.tà</th><th class="text-right p-2">Ricavi</th><th class="text-right p-2">Margine</th></tr>
                 </thead>
@@ -39,28 +40,31 @@
                     <template x-for="p in stats.top_products||[]" :key="p.name">
                         <tr class="border-t border-white/5">
                             <td class="p-2" x-text="p.name"></td>
-                            <td class="p-2 text-right" x-text="parseFloat(p.qty).toFixed(0)"></td>
-                            <td class="p-2 text-right text-emerald-400 font-semibold" x-text="'€'+parseFloat(p.revenue||0).toFixed(2)"></td>
-                            <td class="p-2 text-right text-sky-400" x-text="'€'+parseFloat(p.margin||0).toFixed(2)"></td>
+                            <td class="p-2 text-right tabular-nums" x-text="parseFloat(p.qty).toFixed(0)"></td>
+                            <td class="p-2 text-right text-emerald-400 font-semibold tabular-nums whitespace-nowrap" x-text="'€'+parseFloat(p.revenue||0).toFixed(2)"></td>
+                            <td class="p-2 text-right text-sky-400 tabular-nums whitespace-nowrap" x-text="'€'+parseFloat(p.margin||0).toFixed(2)"></td>
                         </tr>
                     </template>
                 </tbody>
             </table>
+            </div>
         </div>
         <div class="card p-5">
             <h3 class="font-bold mb-3">🪑 Tavoli più redditizi</h3>
-            <table class="w-full text-sm">
+            <div class="overflow-x-auto -mx-5 px-5 scrollbar-thin">
+            <table class="w-full text-sm min-w-[360px]">
                 <thead class="text-xs uppercase text-slate-400"><tr><th class="text-left p-2">Tavolo</th><th class="text-right p-2">Ordini</th><th class="text-right p-2">Ricavi</th></tr></thead>
                 <tbody>
                     <template x-for="t in stats.tables||[]" :key="t.code">
                         <tr class="border-t border-white/5">
-                            <td class="p-2 font-bold" x-text="t.code"></td>
-                            <td class="p-2 text-right" x-text="t.orders_count||0"></td>
-                            <td class="p-2 text-right text-emerald-400 font-semibold" x-text="'€'+parseFloat(t.revenue||0).toFixed(2)"></td>
+                            <td class="p-2 font-bold whitespace-nowrap" x-text="t.code"></td>
+                            <td class="p-2 text-right tabular-nums" x-text="t.orders_count||0"></td>
+                            <td class="p-2 text-right text-emerald-400 font-semibold tabular-nums whitespace-nowrap" x-text="'€'+parseFloat(t.revenue||0).toFixed(2)"></td>
                         </tr>
                     </template>
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </main>
