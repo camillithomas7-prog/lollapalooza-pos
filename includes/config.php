@@ -1,5 +1,5 @@
 <?php
-// Lollab POS - Config
+// Lollapalooza POS - Config
 session_start();
 date_default_timezone_set('Europe/Rome');
 mb_internal_encoding('UTF-8');
@@ -7,7 +7,6 @@ mb_internal_encoding('UTF-8');
 define('APP_NAME', 'Lollapalooza POS');
 define('APP_VER', '1.0.0');
 define('BASE_PATH', dirname(__DIR__));
-define('DB_PATH', BASE_PATH . '/data/lollab.sqlite');
 define('UPLOAD_PATH', BASE_PATH . '/assets/uploads');
 define('BASE_URL', '');
 define('JWT_SECRET', 'lollab-' . hash('sha256', __DIR__));
@@ -15,17 +14,46 @@ define('JWT_SECRET', 'lollab-' . hash('sha256', __DIR__));
 if (!is_dir(BASE_PATH . '/data')) mkdir(BASE_PATH . '/data', 0775, true);
 if (!is_dir(UPLOAD_PATH)) mkdir(UPLOAD_PATH, 0775, true);
 
+// Carica config locale se presente (credenziali MySQL su Hostinger)
+$_local_conf = file_exists(__DIR__ . '/config.local.php') ? require __DIR__ . '/config.local.php' : [];
+
+define('DB_DRIVER', $_local_conf['db']['driver'] ?? 'sqlite');
+define('DB_HOST', $_local_conf['db']['host'] ?? 'localhost');
+define('DB_NAME', $_local_conf['db']['database'] ?? '');
+define('DB_USER', $_local_conf['db']['username'] ?? '');
+define('DB_PASS', $_local_conf['db']['password'] ?? '');
+define('DB_CHARSET', $_local_conf['db']['charset'] ?? 'utf8mb4');
+define('DB_PATH', BASE_PATH . '/data/lollab.sqlite');
+
 function db(): PDO {
     static $pdo = null;
     if ($pdo === null) {
-        $pdo = new PDO('sqlite:' . DB_PATH, null, null, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        ]);
-        $pdo->exec('PRAGMA foreign_keys=ON');
-        $pdo->exec('PRAGMA journal_mode=WAL');
+        if (DB_DRIVER === 'mysql') {
+            $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=' . DB_CHARSET;
+            $pdo = new PDO($dsn, DB_USER, DB_PASS, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET sql_mode='NO_ENGINE_SUBSTITUTION'",
+            ]);
+        } else {
+            $pdo = new PDO('sqlite:' . DB_PATH, null, null, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ]);
+            $pdo->exec('PRAGMA foreign_keys=ON');
+            $pdo->exec('PRAGMA journal_mode=WAL');
+        }
     }
     return $pdo;
+}
+
+// Helper per query SQL portable tra MySQL e SQLite
+function sql_hour(string $col): string {
+    return DB_DRIVER === 'mysql' ? "DATE_FORMAT($col,'%H')" : "strftime('%H',$col)";
+}
+function sql_date(string $col): string {
+    return DB_DRIVER === 'mysql' ? "DATE($col)" : "date($col)";
 }
 
 function user(): ?array { return $_SESSION['user'] ?? null; }

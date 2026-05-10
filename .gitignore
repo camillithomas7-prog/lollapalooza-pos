@@ -23,6 +23,7 @@ Thumbs.db
 .env
 .env.local
 config.local.php
+includes/config.local.php
 
 # Cookies/test
 *.cookies

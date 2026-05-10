@@ -118,7 +118,8 @@ switch ($action) {
         $waiters = db()->prepare('SELECT u.name, COUNT(o.id) orders_count, SUM(o.total) revenue FROM users u LEFT JOIN orders o ON o.waiter_id=u.id AND o.status="closed" AND date(o.closed_at) BETWEEN ? AND ? WHERE u.role="cameriere" AND u.tenant_id=? GROUP BY u.id ORDER BY revenue DESC');
         $waiters->execute([$from, $to, $t]);
         // Vendite per ora
-        $byHour = db()->prepare('SELECT strftime("%H", o.closed_at) h, SUM(o.total) tot, COUNT(*) c FROM orders o WHERE o.tenant_id=? AND o.status="closed" AND date(o.closed_at) BETWEEN ? AND ? GROUP BY h ORDER BY h');
+        $hourExpr = sql_hour('o.closed_at');
+        $byHour = db()->prepare("SELECT $hourExpr h, SUM(o.total) tot, COUNT(*) c FROM orders o WHERE o.tenant_id=? AND o.status=\"closed\" AND date(o.closed_at) BETWEEN ? AND ? GROUP BY h ORDER BY h");
         $byHour->execute([$t, $from, $to]);
         // Tavoli redditizi
         $tables = db()->prepare('SELECT tb.code, COUNT(o.id) orders_count, SUM(o.total) revenue FROM tables tb LEFT JOIN orders o ON o.table_id=tb.id AND o.status="closed" AND date(o.closed_at) BETWEEN ? AND ? WHERE tb.tenant_id=? GROUP BY tb.id ORDER BY revenue DESC LIMIT 20');

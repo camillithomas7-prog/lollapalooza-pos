@@ -2,8 +2,19 @@
 require_once __DIR__ . '/config.php';
 
 $pdo = db();
-$schema = file_get_contents(__DIR__ . '/schema.sql');
-$pdo->exec($schema);
+$schemaFile = DB_DRIVER === 'mysql' ? 'schema_mysql.sql' : 'schema.sql';
+$schema = file_get_contents(__DIR__ . '/' . $schemaFile);
+
+// Esegui statement uno alla volta (compatibile MySQL e SQLite)
+$statements = array_filter(array_map('trim', preg_split('/;\s*$/m', $schema)));
+foreach ($statements as $stmt) {
+    if ($stmt && !preg_match('/^\s*--/', $stmt)) {
+        try { $pdo->exec($stmt); } catch (PDOException $e) {
+            echo "⚠ Errore SQL: " . $e->getMessage() . "\nQuery: " . substr($stmt, 0, 100) . "...\n";
+        }
+    }
+}
+echo "Schema $schemaFile applicato (driver: " . DB_DRIVER . ")\n";
 
 // Demo tenant
 $st = $pdo->prepare('SELECT COUNT(*) c FROM tenants');
