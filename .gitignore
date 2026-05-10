@@ -27,3 +27,5 @@ includes/config.local.php
 
 # Cookies/test
 *.cookies
+
+.deploy/
