@@ -33,7 +33,8 @@
             <h3 class="font-bold">📅 Turni settimana</h3>
             <button @click="addShift" class="px-3 py-1.5 rounded-lg btn-primary text-xs">+ Turno</button>
         </div>
-        <div class="grid grid-cols-7 gap-2 text-xs">
+        <div class="overflow-x-auto scrollbar-thin">
+        <div class="grid grid-cols-7 gap-2 text-xs min-w-[640px]">
             <template x-for="d in weekDays()" :key="d">
                 <div>
                     <div class="font-semibold mb-1 text-center" x-text="fmtDay(d)"></div>

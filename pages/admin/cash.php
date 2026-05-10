@@ -43,8 +43,8 @@
     <!-- Storico -->
     <div class="card p-5 mt-4">
         <h3 class="font-bold mb-3">📊 Storico chiusure</h3>
-        <div class="overflow-x-auto -mx-5 px-5 scrollbar-thin">
-            <table class="w-full text-sm min-w-[640px]">
+        <div class="overflow-x-auto scrollbar-thin">
+            <table class="w-full text-sm">
                 <thead class="text-xs uppercase text-slate-400">
                     <tr>
                         <th class="text-left p-2 whitespace-nowrap">Data</th>

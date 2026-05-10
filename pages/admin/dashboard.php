@@ -4,22 +4,22 @@
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
         <div class="card p-5">
             <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Incassi oggi</div>
-            <div class="text-2xl md:text-3xl font-bold text-emerald-400" x-text="fmt(s.revenue_today)"></div>
+            <div class="text-lg md:text-3xl font-bold break-words text-emerald-400" x-text="fmt(s.revenue_today)"></div>
             <div class="text-xs text-slate-500 mt-1" x-text="`${s.orders_today||0} ordini`"></div>
         </div>
         <div class="card p-5">
             <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Utile oggi</div>
-            <div class="text-2xl md:text-3xl font-bold" :class="(s.profit_today||0) >= 0 ? 'text-sky-400' : 'text-rose-400'" x-text="fmt(s.profit_today)"></div>
+            <div class="text-lg md:text-3xl font-bold break-words" :class="(s.profit_today||0) >= 0 ? 'text-sky-400' : 'text-rose-400'" x-text="fmt(s.profit_today)"></div>
             <div class="text-xs text-slate-500 mt-1" x-text="`Costi: ${fmt((s.cogs_today||0)+(s.expenses_today||0))}`"></div>
         </div>
         <div class="card p-5">
             <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Tavoli occupati</div>
-            <div class="text-2xl md:text-3xl font-bold text-amber-400" x-text="`${s.tables?.occupied||0}/${s.tables?.total||0}`"></div>
+            <div class="text-lg md:text-3xl font-bold break-words text-amber-400" x-text="`${s.tables?.occupied||0}/${s.tables?.total||0}`"></div>
             <div class="text-xs text-slate-500 mt-1" x-text="`${Math.round(((s.tables?.occupied||0)/(s.tables?.total||1))*100)}% occupazione`"></div>
         </div>
         <div class="card p-5">
             <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Ordini attivi</div>
-            <div class="text-2xl md:text-3xl font-bold text-brand-400" x-text="s.active_orders||0"></div>
+            <div class="text-lg md:text-3xl font-bold break-words text-brand-400" x-text="s.active_orders||0"></div>
             <div class="text-xs text-slate-500 mt-1">In corso ora</div>
         </div>
     </div>

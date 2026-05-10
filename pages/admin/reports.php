@@ -31,8 +31,8 @@
     <div class="grid lg:grid-cols-2 gap-4">
         <div class="card p-5">
             <h3 class="font-bold mb-3">🏆 Top prodotti</h3>
-            <div class="overflow-x-auto -mx-5 px-5 scrollbar-thin">
-            <table class="w-full text-sm min-w-[480px]">
+            <div class="overflow-x-auto scrollbar-thin">
+            <table class="w-full text-sm">
                 <thead class="text-xs uppercase text-slate-400">
                     <tr><th class="text-left p-2">Prodotto</th><th class="text-right p-2">Q.tà</th><th class="text-right p-2">Ricavi</th><th class="text-right p-2">Margine</th></tr>
                 </thead>
@@ -51,8 +51,8 @@
         </div>
         <div class="card p-5">
             <h3 class="font-bold mb-3">🪑 Tavoli più redditizi</h3>
-            <div class="overflow-x-auto -mx-5 px-5 scrollbar-thin">
-            <table class="w-full text-sm min-w-[360px]">
+            <div class="overflow-x-auto scrollbar-thin">
+            <table class="w-full text-sm">
                 <thead class="text-xs uppercase text-slate-400"><tr><th class="text-left p-2">Tavolo</th><th class="text-right p-2">Ordini</th><th class="text-right p-2">Ricavi</th></tr></thead>
                 <tbody>
                     <template x-for="t in stats.tables||[]" :key="t.code">

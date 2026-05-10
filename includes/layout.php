@@ -56,7 +56,13 @@ tailwind.config = {
     --shadow: 0 4px 16px -2px rgba(15,23,42,0.08);
     color-scheme: light;
   }
+  html, body { overflow-x: hidden; max-width: 100vw; }
   body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.2s, color 0.2s; }
+  /* Anti-overflow rules */
+  main, header, .card { max-width: 100%; min-width: 0; }
+  .card { overflow: hidden; }
+  /* Charts responsive (lascia altezza gestita da Chart.js) */
+  canvas { max-width: 100% !important; }
   .glass { backdrop-filter: blur(16px); background: var(--glass); border-color: var(--border)!important; }
   .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
   .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.3); border-radius: 3px; }
@@ -101,8 +107,11 @@ tailwind.config = {
 
   /* Theme switcher pill */
   .theme-toggle { display:inline-flex; align-items:center; gap:2px; padding:3px; border-radius:999px; background: var(--surface-2); border: 1px solid var(--border); }
-  .theme-toggle button { width:30px; height:30px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:14px; color: var(--text-muted); transition: all 0.15s; }
+  .theme-toggle button { width:28px; height:28px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:13px; color: var(--text-muted); transition: all 0.15s; }
   .theme-toggle button.active { background: linear-gradient(135deg,#7c3aed,#8b5cf6); color:#fff; box-shadow: 0 2px 8px -2px rgba(139,92,246,0.4); }
+  @media (max-width: 480px) {
+    .theme-toggle button { width:26px; height:26px; font-size:12px; }
+  }
 </style>
 </head>
 <body class="min-h-screen grad-bg">
@@ -220,28 +229,28 @@ function layout_topbar(string $title = '', string $subtitle = '', string $extra 
     $u = user();
 ?>
 <header class="md:ml-64 lg:ml-72 sticky top-0 z-30 glass border-b border-white/5">
-    <div class="flex items-center justify-between px-4 md:px-8 py-4">
-        <div class="flex items-center gap-3 md:hidden">
-            <img src="/assets/img/logo.jpeg" class="w-8 h-8 rounded-lg object-cover" alt="Lollapalooza">
-            <div class="font-bold">Lollapalooza</div>
+    <div class="flex items-center justify-between gap-2 px-3 md:px-8 py-3 md:py-4">
+        <div class="flex items-center gap-2 md:hidden min-w-0 flex-1">
+            <img src="/assets/img/logo.jpeg" class="w-8 h-8 rounded-lg object-cover flex-shrink-0" alt="Lollapalooza">
+            <div class="font-bold text-sm truncate"><?= e($title ?: 'Lollapalooza') ?></div>
         </div>
-        <div class="hidden md:block">
-            <h1 class="text-xl font-bold tracking-tight"><?= e($title) ?></h1>
-            <?php if ($subtitle): ?><p class="text-xs text-slate-400 mt-0.5"><?= e($subtitle) ?></p><?php endif; ?>
+        <div class="hidden md:block min-w-0">
+            <h1 class="text-xl font-bold tracking-tight truncate"><?= e($title) ?></h1>
+            <?php if ($subtitle): ?><p class="text-xs text-slate-400 mt-0.5 truncate"><?= e($subtitle) ?></p><?php endif; ?>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
             <?= $extra ?>
-            <div x-data="{ n: 0, items: [] }" x-init="
-                async function load(){ const r = await fetch('/api/notifications.php?action=unread'); const d = await r.json(); n = d.count || 0; items = d.items || []; }
+            <div x-data="{ n: 0 }" x-init="
+                async function load(){ const r = await fetch('/api/notifications.php?action=unread'); const d = await r.json(); n = d.count || 0; }
                 load(); setInterval(load, 8000);"
                 class="relative">
-                <button @click="$dispatch('toggle-notif')" class="relative p-2 rounded-xl bg-white/5 hover:bg-white/10">
+                <button class="relative p-1.5 md:p-2 rounded-xl bg-white/5 hover:bg-white/10 text-sm md:text-base">
                     🔔
-                    <span x-show="n>0" x-text="n" class="absolute -top-1 -right-1 bg-rose-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"></span>
+                    <span x-show="n>0" x-text="n" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold"></span>
                 </button>
             </div>
             <?= theme_switcher() ?>
-            <a href="/index.php?p=logout" class="md:hidden p-2 rounded-xl bg-white/5 hover:bg-white/10">⏻</a>
+            <a href="/index.php?p=logout" class="md:hidden p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-sm" title="Esci">⏻</a>
         </div>
     </div>
 </header>
