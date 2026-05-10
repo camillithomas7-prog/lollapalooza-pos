@@ -43,10 +43,11 @@ echo "</pre>";
 echo "<h3>3️⃣ Schema tabelle</h3><pre>";
 $schemaFile = DB_DRIVER === 'mysql' ? 'schema_mysql.sql' : 'schema.sql';
 $schema = file_get_contents(__DIR__ . '/includes/' . $schemaFile);
+$schema = preg_replace('/^\s*--.*$/m', '', $schema); // strip SQL comments
 $statements = array_filter(array_map('trim', preg_split('/;\s*$/m', $schema)));
 $created = 0;
 foreach ($statements as $stmt) {
-    if ($stmt && !preg_match('/^\s*--/', $stmt)) {
+    if ($stmt) {
         try { $pdo->exec($stmt); $created++; }
         catch (PDOException $e) { echo "<span class='err'>✗ " . htmlspecialchars($e->getMessage()) . "</span>\n"; }
     }
