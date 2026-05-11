@@ -119,16 +119,17 @@ function qrPoster(){
 </script>
 
 <style>
-/* Poster: formato verticale 600x900 (~A4 ratio) */
+/* Poster: formato quadrato compatto */
 .poster {
-    width: 600px;
-    aspect-ratio: 2/3;
+    width: 560px;
+    aspect-ratio: 1/1;
     max-width: 100%;
-    padding: 50px 40px;
-    border-radius: 24px;
+    padding: 40px 36px;
+    border-radius: 28px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
     box-shadow: 0 20px 60px -10px rgba(0,0,0,0.3);
     position: relative;
     overflow: hidden;
@@ -206,25 +207,19 @@ function qrPoster(){
 
 /* Common */
 .poster-header { text-align: center; position: relative; z-index: 1; width: 100%; }
-.poster-logo { width: 80px; height: 80px; border-radius: 20px; object-fit: cover; margin: 0 auto 16px; display: block; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
-.poster-title { font-size: 42px; font-weight: 800; letter-spacing: -0.02em; margin: 0; line-height: 1.05; }
-.poster-divider { width: 60px; height: 2px; margin: 16px auto; border-radius: 1px; }
-.poster-subtitle { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.25em; margin: 0; }
-.poster-qr-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px 0; position: relative; z-index: 1; width: 100%; }
+.poster-logo { width: 64px; height: 64px; border-radius: 16px; object-fit: cover; margin: 0 auto 12px; display: block; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+.poster-title { font-size: 36px; font-weight: 800; letter-spacing: -0.02em; margin: 0; line-height: 1; }
+.poster-divider { width: 50px; height: 2px; margin: 10px auto 8px; border-radius: 1px; }
+.poster-subtitle { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3em; margin: 0; }
+.poster-qr-wrap { display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; width: 100%; }
 .poster-qr-box { display: inline-block; }
-.poster-qr { display: block; width: 280px; height: 280px; }
-.poster-cta { text-align: center; position: relative; z-index: 1; }
-.poster-cta-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.01em; }
-.poster-cta-sub { font-size: 13px; font-weight: 500; }
-.poster-benefits { display: flex; gap: 8px; margin-top: 24px; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
-.poster-benefit { padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
-.poster-footer { margin-top: 20px; text-align: center; font-size: 11px; opacity: 0.7; position: relative; z-index: 1; display: flex; flex-direction: column; gap: 4px; }
+.poster-qr { display: block; width: 340px; height: 340px; }
 
-@media (max-width: 700px) {
-    .poster { width: 100%; padding: 30px 24px; aspect-ratio: 3/4; }
-    .poster-title { font-size: 32px; }
-    .poster-qr { width: 220px; height: 220px; }
-    .poster-cta-title { font-size: 18px; }
+@media (max-width: 600px) {
+    .poster { padding: 28px 24px; }
+    .poster-logo { width: 56px; height: 56px; }
+    .poster-title { font-size: 28px; }
+    .poster-qr { width: 260px; height: 260px; }
 }
 
 @media print {
