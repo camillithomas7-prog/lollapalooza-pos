@@ -34,8 +34,9 @@ $tableId = (int)($_GET['id'] ?? 0); ?>
     <div class="p-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         <template x-for="p in filteredProducts()" :key="p.id">
             <button @click="addToCart(p)" class="card p-3 text-left hover:scale-[1.02] active:scale-95 transition relative">
-                <div class="aspect-square rounded-xl mb-2 flex items-center justify-center text-3xl" :style="`background:${catColor(p.category_id)}20`">
-                    <span x-text="catIcon(p.category_id)"></span>
+                <div class="aspect-square rounded-xl mb-2 overflow-hidden flex items-center justify-center text-3xl" :style="!p.image ? `background:${catColor(p.category_id)}20` : ''">
+                    <template x-if="p.image"><img :src="p.image" class="w-full h-full object-cover" loading="lazy"></template>
+                    <template x-if="!p.image"><span x-text="catIcon(p.category_id)"></span></template>
                 </div>
                 <div class="font-semibold text-sm leading-tight" x-text="p.name"></div>
                 <div class="font-bold text-emerald-400 mt-1" x-text="'€ '+parseFloat(p.price).toFixed(2)"></div>

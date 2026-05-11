@@ -31,8 +31,11 @@
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <template x-for="p in filteredProds()" :key="p.id">
                     <div class="card p-3" :class="!p.available && 'opacity-40'">
-                        <div class="flex items-start justify-between mb-2">
-                            <div class="text-2xl" x-text="catIcon(p.category_id)"></div>
+                        <div class="aspect-square rounded-lg mb-2 overflow-hidden bg-white/5 flex items-center justify-center" :style="!p.image ? `background:${catColor(p.category_id)}15` : ''">
+                            <template x-if="p.image"><img :src="p.image" class="w-full h-full object-cover" loading="lazy"></template>
+                            <template x-if="!p.image"><span class="text-4xl opacity-60" x-text="catIcon(p.category_id)"></span></template>
+                        </div>
+                        <div class="flex items-start justify-between mb-1">
                             <button @click="toggleAvail(p)" :class="p.available?'text-emerald-400':'text-slate-500'" class="text-xs">
                                 <span x-text="p.available?'✓ Disp.':'✗ Esaurito'"></span>
                             </button>
@@ -75,6 +78,25 @@
         <div class="card p-6 w-full max-w-2xl my-auto">
             <h3 class="text-lg font-bold mb-4">Prodotto</h3>
             <div class="grid grid-cols-2 gap-3">
+                <div class="col-span-2">
+                    <label class="text-xs text-slate-400 mb-1 block">Immagine prodotto</label>
+                    <div class="flex items-center gap-3">
+                        <div class="w-24 h-24 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 relative">
+                            <template x-if="prodModal.image">
+                                <img :src="prodModal.image" class="w-full h-full object-cover">
+                            </template>
+                            <template x-if="!prodModal.image">
+                                <span class="text-3xl opacity-40">🍽</span>
+                            </template>
+                            <div x-show="uploading" class="absolute inset-0 bg-black/60 flex items-center justify-center text-xs">⏳</div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <input type="file" accept="image/*" @change="uploadImage($event)" class="block w-full text-xs file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-brand-500/20 file:text-brand-300 file:cursor-pointer file:font-semibold cursor-pointer">
+                            <p class="text-xs text-slate-500 mt-1">JPG/PNG/WebP, max 5MB</p>
+                            <button type="button" x-show="prodModal.image" @click="prodModal.image=''" class="text-xs text-rose-400 mt-1">✕ Rimuovi immagine</button>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-span-2"><label class="text-xs text-slate-400">Nome</label><input x-model="prodModal.name" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
                 <div class="col-span-2"><label class="text-xs text-slate-400">Descrizione</label><textarea x-model="prodModal.description" rows="2" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></textarea></div>
                 <div><label class="text-xs text-slate-400">Categoria</label><select x-model.number="prodModal.category_id" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"><template x-for="c in categories" :key="c.id"><option :value="c.id" x-text="c.name"></option></template></select></div>
@@ -100,9 +122,22 @@
 
 <script>
 function menuMgr(){return {
-    categories:[], products:[], currentCat:null, search:'', catModal:null, prodModal:null,
+    categories:[], products:[], currentCat:null, search:'', catModal:null, prodModal:null, uploading:false,
     async load(){const r=await fetch('/api/menu.php?action=list');const d=await r.json();this.categories=d.categories;this.products=d.products;},
+    async uploadImage(e){
+        const f=e.target.files[0]; if(!f) return;
+        if(f.size>5*1024*1024){alert('File troppo grande (max 5MB)');e.target.value='';return;}
+        this.uploading=true;
+        const fd=new FormData(); fd.append('file', f);
+        try{
+            const r=await fetch('/api/upload.php?type=products',{method:'POST',body:fd});
+            const d=await r.json();
+            if(d.error){alert('Errore upload: '+d.error);}else{this.prodModal.image=d.url;}
+        }catch(err){alert('Errore di rete: '+err.message);}
+        finally{this.uploading=false; e.target.value='';}
+    },
     catIcon(id){return this.categories.find(c=>c.id===id)?.icon||'🍽';},
+    catColor(id){return this.categories.find(c=>c.id===id)?.color||'#8b5cf6';},
     margin(p){const m=p.price?((p.price-p.cost)/p.price*100):0;return m.toFixed(0);},
     filteredProds(){let p=this.products;if(this.currentCat)p=p.filter(x=>x.category_id===this.currentCat);if(this.search){const s=this.search.toLowerCase();p=p.filter(x=>x.name.toLowerCase().includes(s));}return p;},
     editCat(c){this.catModal={id:c.id,name:c.name||'',icon:c.icon||'🍽',color:c.color||'#0ea5e9',destination:c.destination||'kitchen'};},

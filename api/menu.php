@@ -31,6 +31,7 @@ switch ($action) {
             'category_id' => $in['category_id'] ?? null,
             'name' => $in['name'],
             'description' => $in['description'] ?? '',
+            'image' => $in['image'] ?? null,
             'price' => (float)$in['price'],
             'cost' => (float)($in['cost'] ?? 0),
             'vat' => (float)($in['vat'] ?? 22),

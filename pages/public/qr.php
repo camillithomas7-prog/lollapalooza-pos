@@ -84,13 +84,18 @@ document.addEventListener('DOMContentLoaded',()=>{var t=localStorage.getItem('lo
             <h2 class="text-2xl font-bold mb-3"><?= e($cat['icon']) ?> <?= e($cat['name']) ?></h2>
             <div class="space-y-2">
                 <?php foreach ($items as $p): ?>
-                <div class="rounded-xl bg-white/5 p-4 flex justify-between gap-3">
+                <div class="rounded-xl bg-white/5 p-3 flex items-center gap-3">
+                    <?php if (!empty($p['image'])): ?>
+                    <img src="<?= e($p['image']) ?>" alt="<?= e($p['name']) ?>" class="w-20 h-20 sm:w-24 sm:h-24 rounded-lg object-cover flex-shrink-0" loading="lazy">
+                    <?php endif; ?>
                     <div class="flex-1 min-w-0">
-                        <h3 class="font-semibold"><?= e($p['name']) ?></h3>
+                        <div class="flex items-start justify-between gap-2">
+                            <h3 class="font-semibold"><?= e($p['name']) ?></h3>
+                            <div class="font-bold text-emerald-400 whitespace-nowrap">€ <?= number_format($p['price'],2,',','.') ?></div>
+                        </div>
                         <?php if ($p['description']): ?><p class="text-sm text-slate-400 mt-0.5"><?= e($p['description']) ?></p><?php endif; ?>
                         <?php if ($p['allergens']): ?><p class="text-xs text-amber-300 mt-1">⚠ <?= e($p['allergens']) ?></p><?php endif; ?>
                     </div>
-                    <div class="font-bold text-emerald-400 whitespace-nowrap">€ <?= number_format($p['price'],2,',','.') ?></div>
                 </div>
                 <?php endforeach; ?>
             </div>
