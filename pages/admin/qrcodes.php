@@ -119,17 +119,18 @@ function qrPoster(){
 </script>
 
 <style>
-/* Poster: formato quadrato compatto */
+/* Poster: formato verticale bilanciato */
 .poster {
-    width: 560px;
-    aspect-ratio: 1/1;
+    width: 520px;
+    aspect-ratio: 4/5;
     max-width: 100%;
-    padding: 40px 36px;
-    border-radius: 28px;
+    padding: 56px 48px;
+    border-radius: 32px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    gap: 36px;
     box-shadow: 0 20px 60px -10px rgba(0,0,0,0.3);
     position: relative;
     overflow: hidden;
@@ -207,19 +208,24 @@ function qrPoster(){
 
 /* Common */
 .poster-header { text-align: center; position: relative; z-index: 1; width: 100%; }
-.poster-logo { width: 64px; height: 64px; border-radius: 16px; object-fit: cover; margin: 0 auto 12px; display: block; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
-.poster-title { font-size: 36px; font-weight: 800; letter-spacing: -0.02em; margin: 0; line-height: 1; }
-.poster-divider { width: 50px; height: 2px; margin: 10px auto 8px; border-radius: 1px; }
-.poster-subtitle { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3em; margin: 0; }
-.poster-qr-wrap { display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; width: 100%; }
+.poster-logo { width: 68px; height: 68px; border-radius: 16px; object-fit: cover; margin: 0 auto 14px; display: block; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+.poster-title { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; margin: 0; line-height: 1; }
+.poster-divider { width: 48px; height: 2px; margin: 12px auto 10px; border-radius: 1px; }
+.poster-subtitle { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.32em; margin: 0; }
+.poster-qr-wrap { display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; }
 .poster-qr-box { display: inline-block; }
-.poster-qr { display: block; width: 340px; height: 340px; }
+.poster-qr { display: block; width: 280px; height: 280px; }
+
+/* Box QR padding ridotto per ottimizzare spazi */
+.poster-dark .poster-qr-box,
+.poster-light .poster-qr-box,
+.poster-gold .poster-qr-box { padding: 14px; border-radius: 16px; }
 
 @media (max-width: 600px) {
-    .poster { padding: 28px 24px; }
+    .poster { padding: 36px 28px; gap: 24px; }
     .poster-logo { width: 56px; height: 56px; }
-    .poster-title { font-size: 28px; }
-    .poster-qr { width: 260px; height: 260px; }
+    .poster-title { font-size: 26px; }
+    .poster-qr { width: 220px; height: 220px; }
 }
 
 @media print {
