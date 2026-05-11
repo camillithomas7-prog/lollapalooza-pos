@@ -1,4 +1,9 @@
+DirectoryIndex index.php index.html
+Options -Indexes
+
 RewriteEngine On
+# Forza index.php sulla root
+RewriteRule ^$ index.php [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]
