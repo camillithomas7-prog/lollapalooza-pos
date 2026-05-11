@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS categories (
     destination ENUM('kitchen','bar','none') DEFAULT 'kitchen',
     sort INT DEFAULT 0,
     active TINYINT DEFAULT 1,
+    translations TEXT,
     INDEX idx_cat_tenant (tenant_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -95,6 +96,7 @@ CREATE TABLE IF NOT EXISTS products (
     stock_min DECIMAL(12,3) DEFAULT 0,
     unit VARCHAR(20) DEFAULT 'pz',
     sort INT DEFAULT 0,
+    translations TEXT,
     created_at DATETIME,
     INDEX idx_prod_cat (category_id, available),
     INDEX idx_prod_tenant (tenant_id)

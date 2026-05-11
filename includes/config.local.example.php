@@ -13,4 +13,6 @@ return [
         'password' => '',
         'charset'  => 'utf8mb4',
     ],
+    // Auto-traduzione menu via OpenAI (gpt-4o-mini)
+    'openai_key' => '', // sk-...
 ];

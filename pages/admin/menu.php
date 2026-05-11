@@ -110,6 +110,26 @@
                     <div><label class="text-xs text-slate-400">Stock</label><input type="number" x-model.number="prodModal.stock" class="w-full px-2 py-1.5 rounded bg-white/5 border border-white/10"></div>
                     <div><label class="text-xs text-slate-400">Min</label><input type="number" x-model.number="prodModal.stock_min" class="w-full px-2 py-1.5 rounded bg-white/5 border border-white/10"></div>
                 </div>
+
+                <!-- Traduzioni multi-lingua -->
+                <div class="col-span-2 p-3 rounded-lg bg-white/5">
+                    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                        <div class="text-sm font-semibold">🌐 Traduzioni</div>
+                        <button type="button" @click="autoTranslate" :disabled="translating" class="text-xs px-3 py-1.5 rounded-lg bg-brand-500/20 text-brand-300 disabled:opacity-50" x-text="translating?'⏳ traduco...':'✨ Auto-traduci con AI'"></button>
+                    </div>
+                    <div class="flex gap-1 mb-3 overflow-x-auto" style="scrollbar-width:thin">
+                        <template x-for="l in langs" :key="l.code">
+                            <button type="button" @click="trLang=l.code" :class="trLang===l.code?'btn-primary':'bg-white/5'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap" x-text="l.flag+' '+l.code.toUpperCase()"></button>
+                        </template>
+                    </div>
+                    <template x-for="l in langs" :key="l.code">
+                        <div x-show="trLang===l.code" class="space-y-2">
+                            <div><label class="text-xs text-slate-400">Nome</label><input x-model="prodModal.translations[l.code].name" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm" :placeholder="'Nome in '+l.code"></div>
+                            <div><label class="text-xs text-slate-400">Descrizione</label><textarea x-model="prodModal.translations[l.code].description" rows="2" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm"></textarea></div>
+                            <div><label class="text-xs text-slate-400">Allergeni</label><input x-model="prodModal.translations[l.code].allergens" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm"></div>
+                        </div>
+                    </template>
+                </div>
                 <div class="col-span-2 flex gap-2 mt-2">
                     <button @click="saveProd" class="flex-1 btn-primary py-3 rounded-lg font-semibold">Salva prodotto</button>
                     <button x-show="prodModal.id" @click="deleteProd" class="px-4 py-3 rounded-lg bg-rose-500/20 text-rose-400">🗑</button>
@@ -123,6 +143,27 @@
 <script>
 function menuMgr(){return {
     categories:[], products:[], currentCat:null, search:'', catModal:null, prodModal:null, uploading:false,
+    langs: [{code:'en',flag:'🇬🇧'},{code:'es',flag:'🇪🇸'},{code:'fr',flag:'🇫🇷'},{code:'de',flag:'🇩🇪'}],
+    trLang: 'en',
+    translating: false,
+    emptyTranslations(){return {en:{name:'',description:'',allergens:''},es:{name:'',description:'',allergens:''},fr:{name:'',description:'',allergens:''},de:{name:'',description:'',allergens:''}};},
+    async autoTranslate(){
+        if (!this.prodModal.name) { alert('Inserisci prima nome e descrizione in italiano'); return; }
+        this.translating = true;
+        try {
+            const r = await fetch('/api/translate.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+                name:this.prodModal.name, description:this.prodModal.description||'', allergens:this.prodModal.allergens||''
+            })});
+            const d = await r.json();
+            if (d.error) alert('Errore: '+d.error);
+            else if (d.translations) {
+                for (const lc of ['en','es','fr','de']) {
+                    if (d.translations[lc]) this.prodModal.translations[lc] = d.translations[lc];
+                }
+            }
+        } catch(e){ alert('Errore: '+e.message); }
+        this.translating = false;
+    },
     async load(){const r=await fetch('/api/menu.php?action=list');const d=await r.json();this.categories=d.categories;this.products=d.products;},
     async uploadImage(e){
         const f=e.target.files[0]; if(!f) return;
@@ -142,7 +183,12 @@ function menuMgr(){return {
     filteredProds(){let p=this.products;if(this.currentCat)p=p.filter(x=>x.category_id===this.currentCat);if(this.search){const s=this.search.toLowerCase();p=p.filter(x=>x.name.toLowerCase().includes(s));}return p;},
     editCat(c){this.catModal={id:c.id,name:c.name||'',icon:c.icon||'🍽',color:c.color||'#0ea5e9',destination:c.destination||'kitchen'};},
     async saveCat(){await fetch('/api/menu.php?action=save_category',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(this.catModal)});this.catModal=null;this.load();},
-    editProd(p){this.prodModal={...p,price:parseFloat(p.price||0),cost:parseFloat(p.cost||0),vat:parseFloat(p.vat||22),stock:parseFloat(p.stock||0),stock_min:parseFloat(p.stock_min||0),available:p.available??1,track_stock:p.track_stock??0,category_id:p.category_id||this.categories[0]?.id};},
+    editProd(p){
+        let tr = this.emptyTranslations();
+        try { if (p.translations) { const parsed = typeof p.translations === 'string' ? JSON.parse(p.translations) : p.translations; for (const lc in tr) tr[lc] = {...tr[lc], ...(parsed[lc]||{})}; } } catch(e){}
+        this.prodModal={...p,price:parseFloat(p.price||0),cost:parseFloat(p.cost||0),vat:parseFloat(p.vat||22),stock:parseFloat(p.stock||0),stock_min:parseFloat(p.stock_min||0),available:p.available??1,track_stock:p.track_stock??0,category_id:p.category_id||this.categories[0]?.id, translations: tr};
+        this.trLang = 'en';
+    },
     async saveProd(){await fetch('/api/menu.php?action=save_product',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(this.prodModal)});this.prodModal=null;this.load();},
     async deleteProd(){if(!confirm('Eliminare?'))return;await fetch('/api/menu.php?action=delete_product',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:this.prodModal.id})});this.prodModal=null;this.load();},
     async toggleAvail(p){await fetch('/api/menu.php?action=toggle_available',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:p.id})});this.load();}

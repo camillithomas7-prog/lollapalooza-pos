@@ -65,7 +65,8 @@ CREATE TABLE IF NOT EXISTS categories (
     color TEXT DEFAULT '#0ea5e9',
     destination TEXT DEFAULT 'kitchen' CHECK(destination IN ('kitchen','bar','none')),
     sort INTEGER DEFAULT 0,
-    active INTEGER DEFAULT 1
+    active INTEGER DEFAULT 1,
+    translations TEXT
 );
 
 CREATE TABLE IF NOT EXISTS products (
@@ -88,6 +89,7 @@ CREATE TABLE IF NOT EXISTS products (
     stock_min REAL DEFAULT 0,
     unit TEXT DEFAULT 'pz',
     sort INTEGER DEFAULT 0,
+    translations TEXT,
     created_at TEXT
 );
 

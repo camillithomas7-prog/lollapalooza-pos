@@ -13,12 +13,13 @@ switch ($action) {
         json_response(['categories' => $cats, 'products' => $prods->fetchAll()]);
 
     case 'save_category':
+        $trJson = isset($in['translations']) ? (is_string($in['translations']) ? $in['translations'] : json_encode($in['translations'])) : null;
         if (!empty($in['id'])) {
-            db()->prepare('UPDATE categories SET name=?, icon=?, color=?, destination=?, active=? WHERE id=? AND tenant_id=?')
-                ->execute([$in['name'], $in['icon'], $in['color'], $in['destination'], (int)($in['active']??1), $in['id'], $t]);
+            db()->prepare('UPDATE categories SET name=?, icon=?, color=?, destination=?, active=?, translations=? WHERE id=? AND tenant_id=?')
+                ->execute([$in['name'], $in['icon'], $in['color'], $in['destination'], (int)($in['active']??1), $trJson, $in['id'], $t]);
         } else {
-            db()->prepare('INSERT INTO categories (tenant_id, name, icon, color, destination, active) VALUES (?,?,?,?,?,1)')
-                ->execute([$t, $in['name'], $in['icon'], $in['color'] ?? '#0ea5e9', $in['destination'] ?? 'kitchen']);
+            db()->prepare('INSERT INTO categories (tenant_id, name, icon, color, destination, active, translations) VALUES (?,?,?,?,?,1,?)')
+                ->execute([$t, $in['name'], $in['icon'], $in['color'] ?? '#0ea5e9', $in['destination'] ?? 'kitchen', $trJson]);
         }
         json_response(['ok' => true]);
 
@@ -42,6 +43,7 @@ switch ($action) {
             'stock' => (float)($in['stock'] ?? 0),
             'stock_min' => (float)($in['stock_min'] ?? 0),
             'unit' => $in['unit'] ?? 'pz',
+            'translations' => isset($in['translations']) ? (is_string($in['translations']) ? $in['translations'] : json_encode($in['translations'])) : null,
         ];
         if (!empty($in['id'])) {
             $sql = 'UPDATE products SET ' . implode(',', array_map(fn($k)=>"$k=?", array_keys($fields))) . ' WHERE id=? AND tenant_id=?';
