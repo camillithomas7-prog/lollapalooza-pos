@@ -155,6 +155,7 @@ function sidebar_links(string $role): array {
             ['reservations', 'Prenotazioni', '📅'],
             ['customers', 'Clienti', '⭐'],
             ['reports', 'Report', '📄'],
+            ['qrcodes', 'QR Tavoli', '📱'],
             ['settings', 'Impostazioni', '⚙️'],
         ],
         'manager' => [
@@ -167,6 +168,7 @@ function sidebar_links(string $role): array {
             ['staff', 'Personale', '👥'],
             ['reservations', 'Prenotazioni', '📅'],
             ['reports', 'Report', '📄'],
+            ['qrcodes', 'QR Tavoli', '📱'],
         ],
         'cassiere' => [
             ['cash', 'Cassa', '💰'],
