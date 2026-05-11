@@ -27,7 +27,7 @@ $tenant = $tn->fetch();
                         <img src="/assets/img/logo.jpeg" alt="Logo" crossorigin="anonymous" class="poster-logo">
                         <h1 class="poster-title"><?= e($tenant['name'] ?? 'Lollapalooza') ?></h1>
                         <div class="poster-divider"></div>
-                        <p class="poster-subtitle">Menu Digitale</p>
+                        <p class="poster-subtitle">Menu</p>
                     </div>
 
                     <!-- CENTER: QR + claim -->
@@ -41,13 +41,6 @@ $tenant = $tn->fetch();
                     <div class="poster-cta">
                         <div class="poster-cta-title">Scansiona con il telefono</div>
                         <div class="poster-cta-sub">📷 Apri la fotocamera · inquadra il codice</div>
-                    </div>
-
-                    <!-- BENEFITS -->
-                    <div class="poster-benefits">
-                        <div class="poster-benefit"><span>📖</span> Menu completo</div>
-                        <div class="poster-benefit"><span>🌿</span> Allergeni</div>
-                        <div class="poster-benefit"><span>💰</span> Prezzi</div>
                     </div>
 
                     <!-- FOOTER -->
