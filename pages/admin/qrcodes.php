@@ -17,7 +17,7 @@ $tenant = $tn->fetch();
                 <button @click="style='dark'" :class="style==='dark'?'btn-primary':'bg-white/5'" class="px-3 py-1.5 rounded-lg text-xs font-semibold">🌙 Scuro</button>
                 <button @click="style='light'" :class="style==='light'?'btn-primary':'bg-white/5'" class="px-3 py-1.5 rounded-lg text-xs font-semibold">☀️ Chiaro</button>
                 <button @click="style='gold'" :class="style==='gold'?'btn-primary':'bg-white/5'" class="px-3 py-1.5 rounded-lg text-xs font-semibold">✨ Gold</button>
-                <button @click="style='minimal'" :class="style==='minimal'?'btn-primary':'bg-white/5'" class="px-3 py-1.5 rounded-lg text-xs font-semibold">⚪ Minimal</button>
+                <button @click="style='silver'" :class="style==='silver'?'btn-primary':'bg-white/5'" class="px-3 py-1.5 rounded-lg text-xs font-semibold">🪙 Silver</button>
             </div>
 
             <div class="flex justify-center">
@@ -194,17 +194,32 @@ function qrPoster(){
 .poster-gold .poster-cta-sub { color: #d6d3d1; }
 .poster-gold .poster-title { background: linear-gradient(180deg, #fef3c7, #eab308); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 
-/* Minimal — bianco totale, zero distrazioni */
-.poster-minimal {
-    background: #fff;
-    color: #18181b;
-    border: 1px solid #e4e4e7;
+/* Silver — argento metallizzato premium */
+.poster-silver {
+    background: linear-gradient(160deg, #2a2a35 0%, #0e0e15 55%, #1e1e2a 100%);
+    color: #f1f5f9;
 }
-.poster-minimal .poster-divider { background: #18181b; height: 1px; }
-.poster-minimal .poster-qr-box { background: #fff; padding: 8px; border-radius: 12px; border: 2px solid #18181b; }
-.poster-minimal .poster-subtitle { color: #71717a; letter-spacing: 0.3em; }
-.poster-minimal .poster-benefit { background: #fafafa; border: 1px solid #e4e4e7; color: #3f3f46; }
-.poster-minimal .poster-cta-sub { color: #71717a; }
+.poster-silver::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 25% 18%, rgba(226,232,240,0.22), transparent 55%),
+        radial-gradient(circle at 75% 82%, rgba(148,163,184,0.18), transparent 55%),
+        linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 40%);
+    pointer-events: none;
+}
+.poster-silver::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.06) 50%, transparent 70%);
+    pointer-events: none;
+}
+.poster-silver .poster-divider { background: linear-gradient(90deg, transparent, #cbd5e1, transparent); }
+.poster-silver .poster-qr-box { background: #fff; padding: 14px; border-radius: 16px; box-shadow: 0 8px 32px rgba(203,213,225,0.35), 0 0 0 1px rgba(255,255,255,0.1); }
+.poster-silver .poster-subtitle { background: linear-gradient(180deg, #f8fafc, #94a3b8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 0.32em; }
+.poster-silver .poster-title { background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 45%, #94a3b8 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 2px 24px rgba(226,232,240,0.15); }
 
 /* Common */
 .poster-header { text-align: center; position: relative; z-index: 1; width: 100%; }
@@ -219,7 +234,8 @@ function qrPoster(){
 /* Box QR padding ridotto per ottimizzare spazi */
 .poster-dark .poster-qr-box,
 .poster-light .poster-qr-box,
-.poster-gold .poster-qr-box { padding: 14px; border-radius: 16px; }
+.poster-gold .poster-qr-box,
+.poster-silver .poster-qr-box { padding: 14px; border-radius: 16px; }
 
 @media (max-width: 600px) {
     .poster { padding: 36px 28px; gap: 24px; }
