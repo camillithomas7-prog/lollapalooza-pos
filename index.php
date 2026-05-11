@@ -74,6 +74,12 @@ if ($page === 'qr' || $page === 'carta') {
     exit;
 }
 
+// Public booking form (pubblico, no auth)
+if ($page === 'prenota' || $page === 'book') {
+    require __DIR__ . '/pages/public/booking.php';
+    exit;
+}
+
 // Auth required
 require_auth();
 
