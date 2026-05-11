@@ -68,8 +68,8 @@ if ($page === 'pin') {
     exit;
 }
 
-// Public QR menu (pubblico, no auth) — accetta sia ?p=menu che ?p=qr (legacy)
-if ($page === 'qr' || $page === 'menu') {
+// Public QR menu (pubblico, no auth) — usa ?p=carta per evitare conflitto con admin/menu
+if ($page === 'qr' || $page === 'carta') {
     require __DIR__ . '/pages/public/qr.php';
     exit;
 }

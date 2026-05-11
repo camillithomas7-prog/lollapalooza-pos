@@ -1,7 +1,7 @@
 <?php layout_head('QR Menu'); layout_sidebar('qrcodes'); layout_topbar('QR Menu', 'Genera, stampa e condividi il QR del menu pubblico');
 
 $baseUrl = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
-$menuUrl = $baseUrl . '/index.php?p=menu';
+$menuUrl = $baseUrl . '/index.php?p=carta';
 
 $tn = db()->prepare('SELECT * FROM tenants WHERE id=?');
 $tn->execute([tenant_id()]);
