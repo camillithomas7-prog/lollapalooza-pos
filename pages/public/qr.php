@@ -39,7 +39,7 @@ $prods = $prods->fetchAll();
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Menu — <?= e($tenant['name']) ?></title>
 <link rel="icon" type="image/jpeg" href="/assets/img/logo.jpeg">
-<script>(function(){var t=localStorage.getItem('lollab-theme')||'dark';if(t==='auto')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);if(t==='dark')document.documentElement.classList.add('dark');})();</script>
+<script>document.documentElement.setAttribute('data-theme','light');</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>tailwind.config={darkMode:'class'}</script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -58,19 +58,8 @@ $prods = $prods->fetchAll();
   .theme-toggle button{width:28px;height:28px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);}
   .theme-toggle button.active{background:linear-gradient(135deg,#7c3aed,#8b5cf6);color:#fff;}
 </style>
-<script>
-function setTheme(t){localStorage.setItem('lollab-theme',t);var a=t==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;document.documentElement.setAttribute('data-theme',a);document.documentElement.classList.toggle('dark',a==='dark');document.querySelectorAll('[data-theme-btn]').forEach(b=>b.classList.toggle('active',b.dataset.themeBtn===t));}
-document.addEventListener('DOMContentLoaded',()=>{var t=localStorage.getItem('lollab-theme')||'dark';document.querySelectorAll('[data-theme-btn]').forEach(b=>b.classList.toggle('active',b.dataset.themeBtn===t));});
-</script>
 </head>
 <body>
-<div class="fixed top-3 right-3 z-50">
-  <div class="theme-toggle">
-    <button data-theme-btn="light" onclick="setTheme('light')">☀️</button>
-    <button data-theme-btn="auto" onclick="setTheme('auto')">🖥</button>
-    <button data-theme-btn="dark" onclick="setTheme('dark')">🌙</button>
-  </div>
-</div>
 <div class="min-h-screen pb-20">
     <header class="sticky top-0 z-30 backdrop-blur bg-black/60 border-b border-white/10 p-4 text-center">
         <img src="/assets/img/logo.jpeg" class="w-14 h-14 mx-auto rounded-2xl object-cover">
