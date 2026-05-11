@@ -29,3 +29,5 @@ includes/config.local.php
 *.cookies
 
 .deploy/
+!assets/uploads/products/
+!assets/uploads/.gitkeep
