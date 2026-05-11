@@ -37,17 +37,6 @@ $tenant = $tn->fetch();
                         </div>
                     </div>
 
-                    <!-- CALL-TO-ACTION -->
-                    <div class="poster-cta">
-                        <div class="poster-cta-title">Scansiona con il telefono</div>
-                        <div class="poster-cta-sub">📷 Apri la fotocamera · inquadra il codice</div>
-                    </div>
-
-                    <!-- FOOTER -->
-                    <div class="poster-footer">
-                        <?php if (!empty($tenant['phone'])): ?><div>📞 <?= e($tenant['phone']) ?></div><?php endif; ?>
-                        <?php if (!empty($tenant['address'])): ?><div>📍 <?= e($tenant['address']) ?></div><?php endif; ?>
-                    </div>
                 </div>
             </div>
         </div>
