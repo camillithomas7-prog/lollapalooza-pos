@@ -324,3 +324,17 @@ CREATE TABLE IF NOT EXISTS settings (
     value TEXT,
     PRIMARY KEY (tenant_id, `key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS print_jobs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id INT,
+    order_id INT,
+    destination VARCHAR(30) DEFAULT 'kitchen',
+    payload LONGTEXT,
+    status VARCHAR(20) DEFAULT 'pending',
+    attempts INT DEFAULT 0,
+    error TEXT,
+    created_at DATETIME,
+    printed_at DATETIME,
+    INDEX idx_print_jobs_status (tenant_id, destination, status, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

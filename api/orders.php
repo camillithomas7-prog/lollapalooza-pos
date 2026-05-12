@@ -1,7 +1,52 @@
 <?php
 require __DIR__ . '/_bootstrap.php';
+require_once __DIR__ . '/../includes/escpos.php';
 $t = tenant_id();
 $in = input();
+
+/**
+ * Crea print_job per ogni destinazione (kitchen/bar) con i nuovi item appena
+ * inviati. Una sola comanda per destinazione, raggruppando gli item.
+ */
+function enqueue_kitchen_prints(int $tenant, int $oid): void {
+    // Recupera intestazione ordine (tavolo, cameriere, note, code)
+    $st = db()->prepare('SELECT o.id, o.code, o.guests, o.notes, t.code AS table_code, u.name AS waiter_name FROM orders o LEFT JOIN tables t ON t.id=o.table_id LEFT JOIN users u ON u.id=o.waiter_id WHERE o.id=?');
+    $st->execute([$oid]);
+    $order = $st->fetch();
+    if (!$order) return;
+
+    // Tenant name per intestazione
+    $ten = db()->prepare('SELECT name FROM tenants WHERE id=?');
+    $ten->execute([$tenant]);
+    $tenantName = ($ten->fetch()['name'] ?? 'Ristorante');
+
+    // Setting: larghezza colonne (32 = 58mm, 48 = 80mm). Default 32.
+    $cset = db()->prepare('SELECT value FROM settings WHERE tenant_id=? AND ' . (DB_DRIVER === 'mysql' ? '`key`' : 'key') . '=?');
+    $cset->execute([$tenant, 'printer_cols']);
+    $cols = (int)($cset->fetch()['value'] ?? 32);
+    if ($cols !== 32 && $cols !== 48) $cols = 32;
+
+    // Per ogni destinazione, raggruppa gli item appena inviati (sent_at recente)
+    $itSt = db()->prepare('SELECT id, name, qty, notes, variants, extras, destination FROM order_items WHERE order_id=? AND status="sent" AND destination!="none"');
+    $itSt->execute([$oid]);
+    $byDest = [];
+    foreach ($itSt->fetchAll() as $it) {
+        $dest = $it['destination'] ?: 'kitchen';
+        $byDest[$dest][] = $it;
+    }
+    foreach ($byDest as $dest => $items) {
+        $label = $dest === 'bar' ? 'BAR' : 'CUCINA';
+        $bytes = LollabEscPos\buildKitchenTicket(
+            (array)$order,
+            $items,
+            $label,
+            ['tenant_name' => $tenantName, 'cols' => $cols, 'beep' => true]
+        );
+        $payload = base64_encode($bytes);
+        db()->prepare('INSERT INTO print_jobs (tenant_id, order_id, destination, payload, status, attempts, created_at) VALUES (?,?,?,?,?,0,?)')
+            ->execute([$tenant, $oid, $dest, $payload, 'pending', date('Y-m-d H:i:s')]);
+    }
+}
 
 function recalc_order(int $oid) {
     $st = db()->prepare('SELECT SUM(qty*price) sub FROM order_items WHERE order_id=? AND status!="cancelled"');
@@ -81,6 +126,8 @@ switch ($action) {
         foreach ($st->fetchAll() as $d) {
             notify($d['destination'], 'Nuovo ordine', "Ordine #$oid", "/index.php?p={$d['destination']}");
         }
+        // Accoda comande di stampa (cucina + bar) — il KDS le invierà alla stampante BT
+        try { enqueue_kitchen_prints($t, $oid); } catch (Throwable $e) { /* non bloccare l'ordine */ }
         audit('send_order', 'orders', $oid);
         json_response(['ok' => true]);
 

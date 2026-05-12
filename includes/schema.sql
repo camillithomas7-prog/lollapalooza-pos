@@ -294,6 +294,20 @@ CREATE TABLE IF NOT EXISTS settings (
     PRIMARY KEY (tenant_id, key)
 );
 
+CREATE TABLE IF NOT EXISTS print_jobs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tenant_id INTEGER,
+    order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
+    destination TEXT DEFAULT 'kitchen',
+    payload TEXT,
+    status TEXT DEFAULT 'pending' CHECK(status IN ('pending','printed','failed')),
+    attempts INTEGER DEFAULT 0,
+    error TEXT,
+    created_at TEXT,
+    printed_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_print_jobs_status ON print_jobs(tenant_id, destination, status, created_at);
+
 CREATE INDEX IF NOT EXISTS idx_orders_tenant_status ON orders(tenant_id, status);
 CREATE INDEX IF NOT EXISTS idx_orders_table ON orders(table_id, status);
 CREATE INDEX IF NOT EXISTS idx_items_order ON order_items(order_id);
