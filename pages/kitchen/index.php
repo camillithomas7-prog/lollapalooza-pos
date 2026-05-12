@@ -1,11 +1,14 @@
-<?php layout_head('Cucina'); ?>
+<?php
+require_once __DIR__ . '/../../includes/i18n.php';
+layout_head(t('kitchen'));
+?>
 <div class="min-h-screen p-4" x-data="kdsBoard('kitchen')" x-init="load(); setInterval(load,3000); initPrinter()">
     <header class="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div class="flex items-center gap-3">
             <img src="/assets/img/logo.jpeg" class="w-10 h-10 rounded-xl object-cover" alt="">
             <div>
-                <div class="text-2xl font-bold">👨‍🍳 Cucina</div>
-                <div class="text-xs text-slate-400" x-text="`${items.length} ordini in coda · ${new Date().toLocaleTimeString('it-IT')}`"></div>
+                <div class="text-2xl font-bold">👨‍🍳 <?= e(t('kitchen')) ?></div>
+                <div class="text-xs text-slate-400" x-text="`${items.length} <?= e(t('orders_in_queue')) ?> · ${new Date().toLocaleTimeString()}`"></div>
             </div>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
@@ -13,9 +16,9 @@
             <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 dark:bg-white/5 text-sm font-medium">
                 <span class="w-2.5 h-2.5 rounded-full"
                       :class="printerStatus === 'ready' ? 'bg-emerald-500 animate-pulse' : (printerStatus === 'connecting' ? 'bg-amber-500 animate-pulse' : 'bg-rose-500')"></span>
-                <span x-show="printerStatus === 'ready'" class="text-emerald-700 dark:text-emerald-300">🖨️ <span x-text="printerName || 'connessa'"></span></span>
-                <span x-show="printerStatus === 'connecting'" class="text-amber-700 dark:text-amber-300">Collegamento…</span>
-                <span x-show="printerStatus === 'disconnected' || printerStatus === 'error'" class="text-rose-700 dark:text-rose-300">Stampante off</span>
+                <span x-show="printerStatus === 'ready'" class="text-emerald-700 dark:text-emerald-300">🖨️ <span x-text="printerName || '<?= e(t('printer_connected')) ?>'"></span></span>
+                <span x-show="printerStatus === 'connecting'" class="text-amber-700 dark:text-amber-300"><?= e(t('printer_connecting')) ?></span>
+                <span x-show="printerStatus === 'disconnected' || printerStatus === 'error'" class="text-rose-700 dark:text-rose-300"><?= e(t('printer_off')) ?></span>
                 <template x-if="printerStatus !== 'ready'">
                     <div class="flex gap-1">
                         <button @click="connectPrinter('bluetooth')" class="px-2 py-1 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold">📶 BT</button>
@@ -23,11 +26,12 @@
                     </div>
                 </template>
                 <template x-if="printerStatus === 'ready'">
-                    <button @click="testPrint()" class="px-2 py-1 rounded-lg bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-200 text-xs font-semibold" title="Stampa di test">Test</button>
+                    <button @click="testPrint()" class="px-2 py-1 rounded-lg bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-200 text-xs font-semibold" title="<?= e(t('printer_test')) ?>"><?= e(t('printer_test')) ?></button>
                 </template>
             </div>
+            <?= lang_switcher(['it','en','ar']) ?>
             <?= theme_switcher() ?>
-            <button onclick="document.documentElement.requestFullscreen?.()" class="px-3 py-2 rounded-xl bg-white/5 text-sm">⛶ Fullscreen</button>
+            <button onclick="document.documentElement.requestFullscreen?.()" class="px-3 py-2 rounded-xl bg-white/5 text-sm">⛶ <?= e(t('fullscreen')) ?></button>
             <a href="/index.php?p=logout" class="px-3 py-2 rounded-xl bg-white/5 text-sm">⏻</a>
         </div>
     </header>
@@ -42,11 +46,11 @@
             <div class="card p-4" :class="ageClass(i.sent_at)">
                 <div class="flex items-start justify-between mb-2">
                     <div>
-                        <div class="text-xs text-slate-400">Tavolo</div>
+                        <div class="text-xs text-slate-400"><?= e(t('order_table')) ?></div>
                         <div class="text-2xl font-bold" x-text="i.table_code || i.order_code"></div>
                     </div>
                     <div class="text-right">
-                        <div class="text-xs text-slate-400">Tempo</div>
+                        <div class="text-xs text-slate-400"><?= e(t('time')) ?></div>
                         <div class="text-lg font-bold tabular-nums" x-text="elapsed(i.sent_at)"></div>
                     </div>
                 </div>
@@ -56,16 +60,16 @@
                         <span class="text-xl font-semibold flex-1" x-text="i.name"></span>
                     </div>
                     <div x-show="i.notes" class="mt-2 p-2 rounded-lg bg-amber-500/10 text-amber-300 text-sm">
-                        <span class="font-bold">⚠ Note:</span> <span x-text="i.notes"></span>
+                        <span class="font-bold">⚠ <?= e(t('notes_short')) ?>:</span> <span x-text="i.notes"></span>
                     </div>
                 </div>
                 <div class="flex items-center justify-between gap-2 mb-3">
-                    <div class="text-xs text-slate-400" x-text="`Cameriere: ${i.waiter_name||'—'}`"></div>
-                    <button @click="reprintTicket(i.order_id)" class="text-xs px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10" title="Ristampa comanda">🖨️</button>
+                    <div class="text-xs text-slate-400" x-text="`<?= e(t('waiter')) ?>: ${i.waiter_name||'—'}`"></div>
+                    <button @click="reprintTicket(i.order_id)" class="text-xs px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10" title="<?= e(t('reprint')) ?>">🖨️</button>
                 </div>
                 <div class="flex gap-2">
-                    <button x-show="i.status==='sent'" @click="setStatus(i,'preparing')" class="flex-1 py-3 rounded-xl bg-orange-500 text-white font-bold text-sm">▶ In preparazione</button>
-                    <button x-show="i.status==='preparing'" @click="setStatus(i,'ready')" class="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-bold text-sm">✓ PRONTO</button>
+                    <button x-show="i.status==='sent'" @click="setStatus(i,'preparing')" class="flex-1 py-3 rounded-xl bg-orange-500 text-white font-bold text-sm">▶ <?= e(t('in_preparation')) ?></button>
+                    <button x-show="i.status==='preparing'" @click="setStatus(i,'ready')" class="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-bold text-sm">✓ <?= e(t('ready')) ?></button>
                 </div>
             </div>
         </template>
@@ -73,7 +77,7 @@
 
     <div x-show="!items.length" class="text-center py-32 text-slate-400 text-xl">
         <div class="text-6xl mb-4">🍽️</div>
-        <div>Nessun ordine in cucina</div>
+        <div><?= e(t('no_orders_kitchen')) ?></div>
     </div>
 </div>
 
@@ -81,6 +85,12 @@
 
 <script src="/assets/js/escpos-printer.js"></script>
 <script>
+const LANG = {
+    print_error: <?= json_encode(t('print_error')) ?>,
+    connect_error: <?= json_encode(t('connect_error')) ?>,
+    test_error: <?= json_encode(t('test_error')) ?>,
+    reprint_error: <?= json_encode(t('reprint_error')) ?>,
+};
 function kdsBoard(dest){return {
     items: [], lastCount: 0, dest,
     // Stampante
@@ -118,7 +128,6 @@ function kdsBoard(dest){return {
     },
 
     // ============ STAMPANTE ============
-
     async initPrinter() {
         if (!window.EscPosPrinter) return;
         EscPosPrinter.on('change', (st) => {
@@ -126,39 +135,28 @@ function kdsBoard(dest){return {
             this.printerName = EscPosPrinter.getDeviceName() || '';
             this.printerError = (st.status === 'error' || st.status === 'disconnected') ? (st.lastError || '') : '';
         });
-        // Tentativo silenzioso di riconnessione (se l'utente aveva già autorizzato un dispositivo)
         try { await EscPosPrinter.reconnect(); } catch(e){}
-        // Avvia il loop di polling per scaricare e stampare i print_jobs pending
         this.startPrintPolling();
     },
-
     async connectPrinter(method) {
         this.printerError = '';
         try {
             if (method === 'bluetooth') await EscPosPrinter.connectBluetooth();
             else                        await EscPosPrinter.connectUSB();
-        } catch (e) {
-            this.printerError = e.message || 'Errore connessione';
-        }
+        } catch (e) { this.printerError = (e.message || LANG.connect_error); }
     },
-
     async testPrint() {
-        try {
-            await fetch('/api/print_jobs.php?action=test&dest=' + this.dest, {method: 'POST'});
-            // Il polling raccoglierà il job entro 2 secondi
-        } catch(e) { this.printerError = 'Errore test: ' + e.message; }
+        try { await fetch('/api/print_jobs.php?action=test&dest=' + this.dest, {method: 'POST'}); }
+        catch(e) { this.printerError = LANG.test_error + ': ' + e.message; }
     },
-
     async reprintTicket(orderId) {
         try {
             await fetch('/api/print_jobs.php?action=reprint', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({order_id: orderId, dest: this.dest})
             });
-        } catch(e) { this.printerError = 'Errore ristampa: ' + e.message; }
+        } catch(e) { this.printerError = LANG.reprint_error + ': ' + e.message; }
     },
-
     startPrintPolling() {
         if (this.printPollTimer) clearInterval(this.printPollTimer);
         const tick = async () => {
@@ -166,28 +164,19 @@ function kdsBoard(dest){return {
             try {
                 const r = await fetch('/api/print_jobs.php?action=pending&dest=' + this.dest);
                 const data = await r.json();
-                const jobs = data.jobs || [];
-                for (const job of jobs) {
-                    if (this.printedIds.has(job.id)) continue;       // già in lavorazione
+                for (const job of (data.jobs || [])) {
+                    if (this.printedIds.has(job.id)) continue;
                     this.printedIds.add(job.id);
                     try {
                         await EscPosPrinter.sendBytes(job.payload);
-                        await fetch('/api/print_jobs.php?action=ack', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({id: job.id})
-                        });
+                        await fetch('/api/print_jobs.php?action=ack', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id: job.id})});
                     } catch (e) {
-                        this.printedIds.delete(job.id);              // riprova al prossimo poll
-                        await fetch('/api/print_jobs.php?action=fail', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({id: job.id, error: e.message || 'send failed'})
-                        });
-                        this.printerError = 'Errore stampa: ' + (e.message || 'sconosciuto');
+                        this.printedIds.delete(job.id);
+                        await fetch('/api/print_jobs.php?action=fail', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id: job.id, error: e.message})});
+                        this.printerError = LANG.print_error + ': ' + (e.message || '');
                     }
                 }
-            } catch(e) { /* polling silenzioso */ }
+            } catch(e){}
         };
         this.printPollTimer = setInterval(tick, 2000);
         tick();

@@ -1,20 +1,23 @@
-<?php layout_head('Bar'); ?>
+<?php
+require_once __DIR__ . '/../../includes/i18n.php';
+layout_head(t('bar'));
+?>
 <div class="min-h-screen p-4" x-data="kdsBoard('bar')" x-init="load(); setInterval(load,3000); initPrinter()">
     <header class="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div class="flex items-center gap-3">
             <img src="/assets/img/logo.jpeg" class="w-10 h-10 rounded-xl object-cover" alt="">
             <div>
-                <div class="text-2xl font-bold">🍸 Bar</div>
-                <div class="text-xs text-slate-400" x-text="`${items.length} drink in coda · ${new Date().toLocaleTimeString('it-IT')}`"></div>
+                <div class="text-2xl font-bold">🍸 <?= e(t('bar')) ?></div>
+                <div class="text-xs text-slate-400" x-text="`${items.length} <?= e(t('drinks_in_queue')) ?> · ${new Date().toLocaleTimeString()}`"></div>
             </div>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
             <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 dark:bg-white/5 text-sm font-medium">
                 <span class="w-2.5 h-2.5 rounded-full"
                       :class="printerStatus === 'ready' ? 'bg-emerald-500 animate-pulse' : (printerStatus === 'connecting' ? 'bg-amber-500 animate-pulse' : 'bg-rose-500')"></span>
-                <span x-show="printerStatus === 'ready'" class="text-emerald-700 dark:text-emerald-300">🖨️ <span x-text="printerName || 'connessa'"></span></span>
-                <span x-show="printerStatus === 'connecting'" class="text-amber-700 dark:text-amber-300">Collegamento…</span>
-                <span x-show="printerStatus === 'disconnected' || printerStatus === 'error'" class="text-rose-700 dark:text-rose-300">Stampante off</span>
+                <span x-show="printerStatus === 'ready'" class="text-emerald-700 dark:text-emerald-300">🖨️ <span x-text="printerName || '<?= e(t('printer_connected')) ?>'"></span></span>
+                <span x-show="printerStatus === 'connecting'" class="text-amber-700 dark:text-amber-300"><?= e(t('printer_connecting')) ?></span>
+                <span x-show="printerStatus === 'disconnected' || printerStatus === 'error'" class="text-rose-700 dark:text-rose-300"><?= e(t('printer_off')) ?></span>
                 <template x-if="printerStatus !== 'ready'">
                     <div class="flex gap-1">
                         <button @click="connectPrinter('bluetooth')" class="px-2 py-1 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold">📶 BT</button>
@@ -22,9 +25,10 @@
                     </div>
                 </template>
                 <template x-if="printerStatus === 'ready'">
-                    <button @click="testPrint()" class="px-2 py-1 rounded-lg bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-200 text-xs font-semibold">Test</button>
+                    <button @click="testPrint()" class="px-2 py-1 rounded-lg bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-200 text-xs font-semibold"><?= e(t('printer_test')) ?></button>
                 </template>
             </div>
+            <?= lang_switcher(['it','en','ar']) ?>
             <?= theme_switcher() ?>
             <button onclick="document.documentElement.requestFullscreen?.()" class="px-3 py-2 rounded-xl bg-white/5 text-sm">⛶</button>
             <a href="/index.php?p=logout" class="px-3 py-2 rounded-xl bg-white/5 text-sm">⏻</a>
@@ -40,11 +44,11 @@
             <div class="card p-4" :class="ageClass(i.sent_at)">
                 <div class="flex items-start justify-between mb-2">
                     <div>
-                        <div class="text-xs text-slate-400">Tavolo</div>
+                        <div class="text-xs text-slate-400"><?= e(t('order_table')) ?></div>
                         <div class="text-2xl font-bold" x-text="i.table_code"></div>
                     </div>
                     <div class="text-right">
-                        <div class="text-xs text-slate-400">Tempo</div>
+                        <div class="text-xs text-slate-400"><?= e(t('time')) ?></div>
                         <div class="text-lg font-bold tabular-nums" x-text="elapsed(i.sent_at)"></div>
                     </div>
                 </div>
@@ -58,11 +62,11 @@
                     </div>
                 </div>
                 <div class="flex items-center justify-end mb-2">
-                    <button @click="reprintTicket(i.order_id)" class="text-xs px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10" title="Ristampa">🖨️</button>
+                    <button @click="reprintTicket(i.order_id)" class="text-xs px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10" title="<?= e(t('reprint')) ?>">🖨️</button>
                 </div>
                 <div class="flex gap-2">
-                    <button x-show="i.status==='sent'" @click="setStatus(i,'preparing')" class="flex-1 py-3 rounded-xl bg-orange-500 text-white font-bold text-sm">▶ In prep.</button>
-                    <button x-show="i.status==='preparing'" @click="setStatus(i,'ready')" class="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-bold text-sm">✓ PRONTO</button>
+                    <button x-show="i.status==='sent'" @click="setStatus(i,'preparing')" class="flex-1 py-3 rounded-xl bg-orange-500 text-white font-bold text-sm">▶ <?= e(t('in_prep_short')) ?></button>
+                    <button x-show="i.status==='preparing'" @click="setStatus(i,'ready')" class="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-bold text-sm">✓ <?= e(t('ready')) ?></button>
                 </div>
             </div>
         </template>
@@ -70,12 +74,18 @@
 
     <div x-show="!items.length" class="text-center py-32 text-slate-400 text-xl">
         <div class="text-6xl mb-4">🍹</div>
-        <div>Nessun drink in coda</div>
+        <div><?= e(t('no_drinks_bar')) ?></div>
     </div>
 </div>
 
 <script src="/assets/js/escpos-printer.js"></script>
 <script>
+const LANG = {
+    print_error: <?= json_encode(t('print_error')) ?>,
+    connect_error: <?= json_encode(t('connect_error')) ?>,
+    test_error: <?= json_encode(t('test_error')) ?>,
+    reprint_error: <?= json_encode(t('reprint_error')) ?>,
+};
 function kdsBoard(dest){return {
     items: [], lastCount: 0, dest,
     printerStatus: 'disconnected', printerName: '', printerError: '',
@@ -109,11 +119,11 @@ function kdsBoard(dest){return {
         try {
             if (method === 'bluetooth') await EscPosPrinter.connectBluetooth();
             else                        await EscPosPrinter.connectUSB();
-        } catch (e) { this.printerError = e.message || 'Errore connessione'; }
+        } catch (e) { this.printerError = e.message || LANG.connect_error; }
     },
     async testPrint() {
         try { await fetch('/api/print_jobs.php?action=test&dest=' + this.dest, {method: 'POST'}); }
-        catch(e) { this.printerError = 'Errore test: ' + e.message; }
+        catch(e) { this.printerError = LANG.test_error + ': ' + e.message; }
     },
     async reprintTicket(orderId) {
         try {
@@ -121,7 +131,7 @@ function kdsBoard(dest){return {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({order_id: orderId, dest: this.dest})
             });
-        } catch(e) { this.printerError = 'Errore ristampa: ' + e.message; }
+        } catch(e) { this.printerError = LANG.reprint_error + ': ' + e.message; }
     },
     startPrintPolling() {
         if (this.printPollTimer) clearInterval(this.printPollTimer);
@@ -139,7 +149,7 @@ function kdsBoard(dest){return {
                     } catch (e) {
                         this.printedIds.delete(job.id);
                         await fetch('/api/print_jobs.php?action=fail', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id: job.id, error: e.message})});
-                        this.printerError = 'Errore stampa: ' + (e.message || 'sconosciuto');
+                        this.printerError = LANG.print_error + ': ' + (e.message || '');
                     }
                 }
             } catch(e){}

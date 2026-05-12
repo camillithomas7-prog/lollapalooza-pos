@@ -19,7 +19,14 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
               <option value="USD" <?= $tenant['currency']==='USD'?'selected':'' ?>>USD $</option>
               <option value="GBP" <?= $tenant['currency']==='GBP'?'selected':'' ?>>GBP £</option>
             </select></div>
-            <div><label class="text-xs text-slate-400">Lingua</label><select name="locale" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"><option value="it">Italiano</option><option value="en">English</option></select></div>
+            <div><label class="text-xs text-slate-400">Lingua</label><select name="locale" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
+              <option value="it" <?= ($tenant['locale']??'it')==='it'?'selected':'' ?>>🇮🇹 Italiano</option>
+              <option value="en" <?= ($tenant['locale']??'')==='en'?'selected':'' ?>>🇬🇧 English</option>
+              <option value="ar" <?= ($tenant['locale']??'')==='ar'?'selected':'' ?>>🇸🇦 العربية</option>
+              <option value="es" <?= ($tenant['locale']??'')==='es'?'selected':'' ?>>🇪🇸 Español</option>
+              <option value="fr" <?= ($tenant['locale']??'')==='fr'?'selected':'' ?>>🇫🇷 Français</option>
+              <option value="de" <?= ($tenant['locale']??'')==='de'?'selected':'' ?>>🇩🇪 Deutsch</option>
+            </select></div>
             <div><label class="text-xs text-slate-400">Colore primario</label><input type="color" name="color_primary" value="<?= e($tenant['color_primary']) ?>" class="w-full h-10 rounded-lg bg-white/5 border border-white/10"></div>
             <div class="col-span-2 mt-4"><button class="btn-primary py-3 px-6 rounded-lg font-semibold">💾 Salva impostazioni</button></div>
         </form>

@@ -1,7 +1,13 @@
 <?php
-// i18n minimal — usato in menu pubblico + admin
-const SUPPORTED_LANGS = ['it','en','es','fr','de'];
-const LANG_LABELS = ['it'=>'🇮🇹 Italiano','en'=>'🇬🇧 English','es'=>'🇪🇸 Español','fr'=>'🇫🇷 Français','de'=>'🇩🇪 Deutsch'];
+// i18n minimal — usato in menu pubblico + admin + KDS cucina/bar
+const SUPPORTED_LANGS = ['it','en','es','fr','de','ar'];
+const LANG_LABELS = ['it'=>'🇮🇹 Italiano','en'=>'🇬🇧 English','es'=>'🇪🇸 Español','fr'=>'🇫🇷 Français','de'=>'🇩🇪 Deutsch','ar'=>'🇸🇦 العربية'];
+// Lingue right-to-left
+const RTL_LANGS = ['ar'];
+
+function is_rtl(?string $lang = null): bool {
+    return in_array($lang ?: current_lang(), RTL_LANGS, true);
+}
 
 function current_lang(): string {
     if (isset($_GET['lang']) && in_array($_GET['lang'], SUPPORTED_LANGS, true)) {

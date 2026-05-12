@@ -1,8 +1,17 @@
 <?php
 function layout_head(string $title = '', string $variant = 'admin') {
     $u = user();
+    // i18n: legge cookie e capisce se serve RTL
+    if (file_exists(__DIR__ . '/i18n.php')) {
+        require_once __DIR__ . '/i18n.php';
+        $__lang = current_lang();
+        $__rtl  = is_rtl($__lang);
+    } else {
+        $__lang = 'it';
+        $__rtl  = false;
+    }
 ?><!DOCTYPE html>
-<html lang="it">
+<html lang="<?= e($__lang) ?>"<?= $__rtl ? ' dir="rtl"' : '' ?>>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -36,6 +45,26 @@ tailwind.config = {
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<?php if ($__rtl): ?>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html[dir="rtl"] body { font-family: 'Cairo', 'Inter', sans-serif; }
+  /* Tailwind 3 ha già il supporto logico per molte cose, ma alcune classi
+     necessitano flip manuale in RTL */
+  html[dir="rtl"] .text-left { text-align: right; }
+  html[dir="rtl"] .text-right { text-align: left; }
+  html[dir="rtl"] .ml-1, html[dir="rtl"] .ml-2, html[dir="rtl"] .ml-3, html[dir="rtl"] .ml-4 { margin-left:0; }
+  html[dir="rtl"] .ml-1 { margin-right: 0.25rem; }
+  html[dir="rtl"] .ml-2 { margin-right: 0.5rem; }
+  html[dir="rtl"] .ml-3 { margin-right: 0.75rem; }
+  html[dir="rtl"] .ml-4 { margin-right: 1rem; }
+  html[dir="rtl"] .mr-1, html[dir="rtl"] .mr-2, html[dir="rtl"] .mr-3, html[dir="rtl"] .mr-4 { margin-right:0; }
+  html[dir="rtl"] .mr-1 { margin-left: 0.25rem; }
+  html[dir="rtl"] .mr-2 { margin-left: 0.5rem; }
+  html[dir="rtl"] .mr-3 { margin-left: 0.75rem; }
+  html[dir="rtl"] .mr-4 { margin-left: 1rem; }
+</style>
+<?php endif; ?>
 <style>
   /* Variabili tema */
   :root[data-theme="dark"] {
@@ -139,6 +168,35 @@ function theme_switcher(): string {
          . '<button data-theme-btn="auto" onclick="setTheme(\'auto\')" title="Auto">🖥</button>'
          . '<button data-theme-btn="dark" onclick="setTheme(\'dark\')" title="Scuro">🌙</button>'
          . '</div>';
+}
+
+/**
+ * Selettore lingua compatto (bandierine).
+ * $langs = array di codici lingua (es. ['it','en','ar'] per le KDS).
+ * Cambio lingua: ricarica la pagina con ?lang=xx (i18n.php salva nel cookie).
+ */
+function lang_switcher(array $langs = ['it','en','ar']): string {
+    if (!defined('SUPPORTED_LANGS')) return '';
+    $cur = function_exists('current_lang') ? current_lang() : 'it';
+    $flags = [
+        'it' => '🇮🇹', 'en' => '🇬🇧', 'es' => '🇪🇸',
+        'fr' => '🇫🇷', 'de' => '🇩🇪', 'ar' => '🇸🇦',
+    ];
+    $codes = ['it'=>'IT','en'=>'EN','es'=>'ES','fr'=>'FR','de'=>'DE','ar'=>'AR'];
+    $html = '<div class="theme-toggle" title="Lingua / Language / اللغة" style="padding:3px 6px;">';
+    foreach ($langs as $code) {
+        if (!in_array($code, SUPPORTED_LANGS, true)) continue;
+        $active = $code === $cur ? ' active' : '';
+        $url = '?' . http_build_query(array_merge($_GET, ['lang' => $code]));
+        $flag = $flags[$code] ?? '';
+        $label = $codes[$code] ?? strtoupper($code);
+        $html .= '<a href="' . htmlspecialchars($url, ENT_QUOTES) . '" class="' . trim($active) . '" '
+              .  'style="display:inline-flex;align-items:center;gap:3px;height:28px;padding:0 8px;border-radius:999px;font-size:11px;font-weight:700;color:var(--text-muted);text-decoration:none;">'
+              .  $flag . ' ' . $label
+              .  '</a>';
+    }
+    $html .= '</div>';
+    return $html;
 }
 
 function sidebar_links(string $role): array {
