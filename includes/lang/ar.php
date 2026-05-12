@@ -61,4 +61,11 @@
     'connect_error' => 'خطأ في الاتصال',
     'test_error' => 'خطأ في الاختبار',
     'reprint_error' => 'خطأ في إعادة الطباعة',
+    'all_ready' => 'الكل جاهز',
+    'mark_ready' => 'جاهز',
+    'mark_preparing' => 'تحضير',
+    'items_ready_count' => 'جاهز',
+    'sent' => 'مُرسَل',
+    'preparing_status' => 'قيد التحضير',
+    'ready_status' => 'جاهز',
 ];

@@ -60,4 +60,11 @@
     'connect_error' => 'Verbindungsfehler',
     'test_error' => 'Testfehler',
     'reprint_error' => 'Nachdruckfehler',
+    'all_ready' => 'ALLES FERTIG',
+    'mark_ready' => 'Fertig',
+    'mark_preparing' => 'Zub.',
+    'items_ready_count' => 'fertig',
+    'sent' => 'gesendet',
+    'preparing_status' => 'zub.',
+    'ready_status' => 'fertig',
 ];

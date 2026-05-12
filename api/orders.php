@@ -172,12 +172,48 @@ switch ($action) {
         };
         db()->prepare("UPDATE order_items SET $cols WHERE id=?")->execute([$newStatus, $iid]);
         if ($newStatus === 'ready') {
-            $r = db()->prepare('SELECT order_id, name FROM order_items WHERE id=?');
+            // Notifica al cameriere SOLO se TUTTI gli item dell'ordine (per
+            // la stessa destinazione: cucina o bar) sono pronti/serviti.
+            $r = db()->prepare('SELECT order_id, destination FROM order_items WHERE id=?');
             $r->execute([$iid]);
             $i = $r->fetch();
-            notify('cameriere', 'Ordine pronto', "{$i['name']} pronto", "/index.php?p=waiter");
+            if ($i) {
+                $check = db()->prepare("SELECT COUNT(*) c, SUM(CASE WHEN status IN ('ready','served') THEN 1 ELSE 0 END) ready_n
+                                        FROM order_items
+                                        WHERE order_id=? AND destination=? AND status != 'cancelled'");
+                $check->execute([$i['order_id'], $i['destination']]);
+                $st = $check->fetch();
+                if ($st && (int)$st['c'] > 0 && (int)$st['c'] === (int)$st['ready_n']) {
+                    // Tutti pronti per questa destinazione → notifica
+                    $tbl = db()->prepare("SELECT t.code AS tcode FROM orders o LEFT JOIN tables t ON t.id=o.table_id WHERE o.id=?");
+                    $tbl->execute([$i['order_id']]);
+                    $tc = $tbl->fetch();
+                    $label = $i['destination'] === 'bar' ? 'Bar' : 'Cucina';
+                    $tlabel = $tc && $tc['tcode'] ? $tc['tcode'] : '#' . $i['order_id'];
+                    notify('cameriere', "$label · Tavolo $tlabel pronto", "Tutti i piatti del tavolo $tlabel sono pronti", "/index.php?p=waiter");
+                }
+            }
         }
         json_response(['ok' => true]);
+
+    case 'order_all_ready': {
+        // Marca TUTTI gli item di un ordine per una destinazione come "ready".
+        // Usato dal bottone "Tutto pronto" sul KDS.
+        $oid  = (int)($in['order_id'] ?? 0);
+        $dest = $in['dest'] ?? 'kitchen';
+        if (!$oid) json_response(['error' => 'missing order_id'], 400);
+        $now = date('Y-m-d H:i:s');
+        db()->prepare("UPDATE order_items SET status='ready', ready_at=? WHERE order_id=? AND destination=? AND status IN ('sent','preparing')")
+            ->execute([$now, $oid, $dest]);
+        // Notifica cameriere (sempre, perché l'azione è esplicita)
+        $tbl = db()->prepare("SELECT t.code AS tcode FROM orders o LEFT JOIN tables t ON t.id=o.table_id WHERE o.id=?");
+        $tbl->execute([$oid]);
+        $tc = $tbl->fetch();
+        $label = $dest === 'bar' ? 'Bar' : 'Cucina';
+        $tlabel = $tc && $tc['tcode'] ? $tc['tcode'] : '#' . $oid;
+        notify('cameriere', "$label · Tavolo $tlabel pronto", "Tutti i piatti del tavolo $tlabel sono pronti", "/index.php?p=waiter");
+        json_response(['ok' => true]);
+    }
 
     case 'discount':
         $oid = (int)$in['order_id'];
@@ -248,28 +284,82 @@ switch ($action) {
         json_response(['ok' => true]);
 
     case 'kitchen_queue':
+        // Restituisce gli ordini RAGGRUPPATI PER TAVOLO/ORDINE, non come
+        // lista piatta di item. Cucina/bar vedono una card per tavolo
+        // con dentro tutti i piatti, e possono spuntarli uno per uno o
+        // marcare tutto pronto in un colpo.
         $dest = $in['dest'] ?? 'kitchen';
-        // Lingua: priorità al parametro esplicito (così cucina/bar possono avere lingue diverse
-        // anche se condividono lo stesso utente loggato), altrimenti cookie globale.
         $lang = $in['lang'] ?? null;
         if (!$lang || !in_array($lang, SUPPORTED_LANGS, true)) $lang = current_lang();
-        $st = db()->prepare('SELECT oi.*, o.code AS order_code, o.guests, o.notes AS order_notes, t.code AS table_code, u.name AS waiter_name, o.id AS order_id, p.translations AS p_translations
+
+        // Mostra anche gli ordini con tutti gli item appena finiti (status=ready)
+        // per ~30 secondi, così la cuoca vede un attimo "completato" prima
+        // che sparisca dalla coda (e per dargli tempo di annullare se ha
+        // sbagliato a spuntare). Item served scompaiono subito.
+        $st = db()->prepare('SELECT oi.*, p.translations AS p_translations
             FROM order_items oi
             JOIN orders o ON o.id=oi.order_id
-            LEFT JOIN tables t ON t.id=o.table_id
-            LEFT JOIN users u ON u.id=o.waiter_id
             LEFT JOIN products p ON p.id=oi.product_id
-            WHERE o.tenant_id=? AND oi.destination=? AND oi.status IN ("sent","preparing")
+            WHERE o.tenant_id=? AND oi.destination=? AND (
+                oi.status IN ("sent","preparing")
+                OR (oi.status = "ready" AND oi.ready_at >= ' . (DB_DRIVER === 'mysql' ? "DATE_SUB(NOW(), INTERVAL 30 SECOND)" : "datetime('now','-30 seconds')") . ')
+            )
             ORDER BY oi.sent_at ASC');
         $st->execute([$t, $dest]);
-        $rows = $st->fetchAll();
-        // Traduci nome piatto se disponibile nelle traduzioni del prodotto
-        foreach ($rows as &$r) {
-            $localized = tr_field($r['p_translations'] ?? null, 'name', $r['name'], $lang);
-            if ($localized) $r['name'] = $localized;
-            unset($r['p_translations']);
+        $items = $st->fetchAll();
+
+        // Recupera info ordini in una sola query
+        $orderIds = array_unique(array_column($items, 'order_id'));
+        $ordersById = [];
+        if ($orderIds) {
+            $place = implode(',', array_fill(0, count($orderIds), '?'));
+            $os = db()->prepare("SELECT o.id, o.code AS order_code, o.guests, o.notes AS order_notes, t.code AS table_code, u.name AS waiter_name
+                FROM orders o
+                LEFT JOIN tables t ON t.id=o.table_id
+                LEFT JOIN users u ON u.id=o.waiter_id
+                WHERE o.id IN ($place)");
+            $os->execute($orderIds);
+            foreach ($os->fetchAll() as $o) $ordersById[$o['id']] = $o;
         }
-        json_response(['items' => $rows]);
+
+        // Raggruppa per order_id
+        $orders = [];
+        foreach ($items as $it) {
+            $oid = $it['order_id'];
+            // Traduci il nome piatto
+            $localized = tr_field($it['p_translations'] ?? null, 'name', $it['name'], $lang);
+            if ($localized) $it['name'] = $localized;
+            unset($it['p_translations']);
+
+            if (!isset($orders[$oid])) {
+                $base = $ordersById[$oid] ?? [];
+                $orders[$oid] = [
+                    'order_id'    => $oid,
+                    'order_code'  => $base['order_code'] ?? null,
+                    'table_code'  => $base['table_code'] ?? null,
+                    'waiter_name' => $base['waiter_name'] ?? null,
+                    'order_notes' => $base['order_notes'] ?? null,
+                    'guests'      => $base['guests'] ?? null,
+                    'items'       => [],
+                    'sent_at'     => $it['sent_at'],   // verrà sovrascritto sotto col più vecchio
+                    'done_count'  => 0,
+                    'total_count' => 0,
+                ];
+            }
+            $orders[$oid]['items'][] = $it;
+            $orders[$oid]['total_count']++;
+            if (in_array($it['status'], ['ready','served'], true)) $orders[$oid]['done_count']++;
+            // sent_at = il più vecchio degli item dell'ordine (così il timer parte dal primo)
+            if ($it['sent_at'] && (!$orders[$oid]['sent_at'] || $it['sent_at'] < $orders[$oid]['sent_at'])) {
+                $orders[$oid]['sent_at'] = $it['sent_at'];
+            }
+        }
+
+        // Ordina dal più vecchio al più recente
+        $list = array_values($orders);
+        usort($list, fn($a, $b) => strcmp($a['sent_at'] ?? '', $b['sent_at'] ?? ''));
+
+        json_response(['orders' => $list]);
 
     case 'ready_pickup':
         $st = db()->prepare('SELECT oi.*, t.code AS table_code FROM order_items oi JOIN orders o ON o.id=oi.order_id LEFT JOIN tables t ON t.id=o.table_id WHERE o.tenant_id=? AND oi.status="ready" ORDER BY oi.ready_at');

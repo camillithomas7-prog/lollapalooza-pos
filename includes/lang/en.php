@@ -60,4 +60,11 @@
     'connect_error' => 'Connection error',
     'test_error' => 'Test error',
     'reprint_error' => 'Reprint error',
+    'all_ready' => 'ALL READY',
+    'mark_ready' => 'Ready',
+    'mark_preparing' => 'Prep.',
+    'items_ready_count' => 'ready',
+    'sent' => 'sent',
+    'preparing_status' => 'prep.',
+    'ready_status' => 'ready',
 ];

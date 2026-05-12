@@ -62,4 +62,11 @@
     'connect_error' => 'Errore connessione',
     'test_error' => 'Errore test',
     'reprint_error' => 'Errore ristampa',
+    'all_ready' => 'TUTTO PRONTO',
+    'mark_ready' => 'Pronto',
+    'mark_preparing' => 'In prep.',
+    'items_ready_count' => 'pronti',
+    'sent' => 'inviato',
+    'preparing_status' => 'in prep.',
+    'ready_status' => 'pronto',
 ];
