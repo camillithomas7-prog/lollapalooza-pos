@@ -143,10 +143,10 @@
 <script>
 function menuMgr(){return {
     categories:[], products:[], currentCat:null, search:'', catModal:null, prodModal:null, uploading:false,
-    langs: [{code:'en',flag:'🇬🇧'},{code:'es',flag:'🇪🇸'},{code:'fr',flag:'🇫🇷'},{code:'de',flag:'🇩🇪'}],
+    langs: [{code:'en',flag:'🇬🇧'},{code:'ar',flag:'🇸🇦'},{code:'es',flag:'🇪🇸'},{code:'fr',flag:'🇫🇷'},{code:'de',flag:'🇩🇪'}],
     trLang: 'en',
     translating: false,
-    emptyTranslations(){return {en:{name:'',description:'',allergens:''},es:{name:'',description:'',allergens:''},fr:{name:'',description:'',allergens:''},de:{name:'',description:'',allergens:''}};},
+    emptyTranslations(){return {en:{name:'',description:'',allergens:''},ar:{name:'',description:'',allergens:''},es:{name:'',description:'',allergens:''},fr:{name:'',description:'',allergens:''},de:{name:'',description:'',allergens:''}};},
     async autoTranslate(){
         if (!this.prodModal.name) { alert('Inserisci prima nome e descrizione in italiano'); return; }
         this.translating = true;

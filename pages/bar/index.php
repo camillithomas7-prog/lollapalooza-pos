@@ -92,7 +92,7 @@ function kdsBoard(dest){return {
     printedIds: new Set(), printPollTimer: null,
 
     async load(){
-        const r = await fetch('/api/orders.php?action=kitchen_queue&dest='+this.dest);
+        const r = await fetch('/api/orders.php?action=kitchen_queue&dest='+this.dest+'&lang=<?= e(current_lang()) ?>');
         const d = await r.json();
         if ((d.items||[]).length > this.lastCount && this.lastCount > 0 && navigator.vibrate) navigator.vibrate(200);
         this.items = d.items||[]; this.lastCount = this.items.length;

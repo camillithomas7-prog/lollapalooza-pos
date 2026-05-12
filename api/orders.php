@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/_bootstrap.php';
 require_once __DIR__ . '/../includes/escpos.php';
+require_once __DIR__ . '/../includes/i18n.php';
 $t = tenant_id();
 $in = input();
 
@@ -221,15 +222,27 @@ switch ($action) {
 
     case 'kitchen_queue':
         $dest = $in['dest'] ?? 'kitchen';
-        $st = db()->prepare('SELECT oi.*, o.code AS order_code, o.guests, o.notes AS order_notes, t.code AS table_code, u.name AS waiter_name, o.id AS order_id
+        // Lingua: priorità al parametro esplicito (così cucina/bar possono avere lingue diverse
+        // anche se condividono lo stesso utente loggato), altrimenti cookie globale.
+        $lang = $in['lang'] ?? null;
+        if (!$lang || !in_array($lang, SUPPORTED_LANGS, true)) $lang = current_lang();
+        $st = db()->prepare('SELECT oi.*, o.code AS order_code, o.guests, o.notes AS order_notes, t.code AS table_code, u.name AS waiter_name, o.id AS order_id, p.translations AS p_translations
             FROM order_items oi
             JOIN orders o ON o.id=oi.order_id
             LEFT JOIN tables t ON t.id=o.table_id
             LEFT JOIN users u ON u.id=o.waiter_id
+            LEFT JOIN products p ON p.id=oi.product_id
             WHERE o.tenant_id=? AND oi.destination=? AND oi.status IN ("sent","preparing")
             ORDER BY oi.sent_at ASC');
         $st->execute([$t, $dest]);
-        json_response(['items' => $st->fetchAll()]);
+        $rows = $st->fetchAll();
+        // Traduci nome piatto se disponibile nelle traduzioni del prodotto
+        foreach ($rows as &$r) {
+            $localized = tr_field($r['p_translations'] ?? null, 'name', $r['name'], $lang);
+            if ($localized) $r['name'] = $localized;
+            unset($r['p_translations']);
+        }
+        json_response(['items' => $rows]);
 
     case 'ready_pickup':
         $st = db()->prepare('SELECT oi.*, t.code AS table_code FROM order_items oi JOIN orders o ON o.id=oi.order_id LEFT JOIN tables t ON t.id=o.table_id WHERE o.tenant_id=? AND oi.status="ready" ORDER BY oi.ready_at');

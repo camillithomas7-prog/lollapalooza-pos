@@ -16,9 +16,9 @@ if (!$apiKey) {
 }
 if (!$apiKey) json_response(['error' => 'OpenAI API key non configurata su questo server (aggiungi openai_key in config.local.php)']);
 
-$prompt = "Traduci il seguente nome di piatto/bevanda italiano in inglese, spagnolo, francese e tedesco. Restituisci SOLO un JSON valido con questa struttura esatta (senza markdown, senza commenti):\n"
-    . '{"en":{"name":"...","description":"...","allergens":"..."},"es":{"name":"...","description":"...","allergens":"..."},"fr":{"name":"...","description":"...","allergens":"..."},"de":{"name":"...","description":"...","allergens":"..."}}'
-    . "\n\nMantieni lo stile breve da menu ristorante. Se la descrizione o gli allergeni sono vuoti, ritornali vuoti.\n\n"
+$prompt = "Traduci il seguente nome di piatto/bevanda italiano in inglese, arabo, spagnolo, francese e tedesco. Restituisci SOLO un JSON valido con questa struttura esatta (senza markdown, senza commenti):\n"
+    . '{"en":{"name":"...","description":"...","allergens":"..."},"ar":{"name":"...","description":"...","allergens":"..."},"es":{"name":"...","description":"...","allergens":"..."},"fr":{"name":"...","description":"...","allergens":"..."},"de":{"name":"...","description":"...","allergens":"..."}}'
+    . "\n\nMantieni lo stile breve da menu ristorante. L'arabo deve essere in arabo moderno standard (MSA), adatto a un ristorante a Sharm El Sheikh in Egitto. Se la descrizione o gli allergeni sono vuoti, ritornali vuoti.\n\n"
     . "Nome: $name\nDescrizione: $description\nAllergeni: $allergens";
 
 $payload = json_encode([

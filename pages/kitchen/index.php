@@ -101,7 +101,7 @@ function kdsBoard(dest){return {
     printPollTimer: null,
 
     async load(){
-        const r = await fetch('/api/orders.php?action=kitchen_queue&dest='+this.dest);
+        const r = await fetch('/api/orders.php?action=kitchen_queue&dest='+this.dest+'&lang=<?= e(current_lang()) ?>');
         const d = await r.json();
         if ((d.items||[]).length > this.lastCount && this.lastCount > 0) {
             try { document.getElementById('bell')?.play(); } catch(e){}
