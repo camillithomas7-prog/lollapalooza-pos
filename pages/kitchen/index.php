@@ -2,12 +2,18 @@
 require_once __DIR__ . '/../../includes/i18n.php';
 layout_head(t('kitchen'));
 ?>
-<div class="min-h-screen p-4" x-data="kdsBoard('kitchen')" x-init="load(); setInterval(load,3000); initPrinter()">
+<div class="min-h-screen p-4" x-data="kdsBoard('kitchen')" x-init="startPolling(); initPrinter()">
     <header class="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div class="flex items-center gap-3">
             <img src="/assets/img/logo.jpeg" class="w-10 h-10 rounded-xl object-cover" alt="">
             <div>
-                <div class="text-2xl font-bold">👨‍🍳 <?= e(t('kitchen')) ?></div>
+                <div class="text-2xl font-bold flex items-center gap-2">
+                    👨‍🍳 <?= e(t('kitchen')) ?>
+                    <!-- Pallino verde che lampeggia ad ogni sync riuscita -->
+                    <span class="w-2 h-2 rounded-full transition-all"
+                          :class="syncFlash ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-emerald-700/40'"
+                          :title="lastSyncMsg"></span>
+                </div>
                 <div class="text-xs text-slate-400" x-text="`${orders.length} <?= e(t('orders_in_queue')) ?> · ${new Date().toLocaleTimeString()}`"></div>
             </div>
         </div>
@@ -37,6 +43,11 @@ layout_head(t('kitchen'));
 
     <div x-show="printerError" x-cloak class="mb-3 px-4 py-2 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-900 dark:text-rose-200 text-sm font-medium">
         ⚠ <span x-text="printerError"></span>
+    </div>
+
+    <!-- Alert se polling fallisce piu volte -->
+    <div x-show="syncErrors >= 3" x-cloak class="mb-3 px-4 py-2 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-900 dark:text-amber-200 text-sm font-bold flex items-center gap-2">
+        ⚠ Connessione persa con il server (<span x-text="syncErrors"></span> tentativi falliti) — controlla il WiFi
     </div>
 
     <!-- Una card per TAVOLO/ORDINE -->
@@ -127,23 +138,54 @@ const LANG = {
 };
 function kdsBoard(dest){return {
     orders: [], lastItemsCount: 0, dest,
+    syncFlash: false, syncErrors: 0, lastSyncMsg: 'In attesa…',
+    pollTimer: null,
     printerStatus: 'disconnected', printerName: '', printerError: '',
     printedIds: new Set(), printPollTimer: null,
 
+    startPolling(){
+        // Primo caricamento immediato
+        this.load();
+        // Polling continuo ogni 2 secondi. Se Alpine viene distrutto, l'intervallo
+        // rimane attivo ma chiama una funzione null-safe.
+        this.pollTimer = setInterval(() => this.load(), 2000);
+        // Re-sync immediato quando la pagina torna in primo piano
+        // (su molti tablet Chrome rallenta i timer nelle tab in background)
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') this.load();
+        });
+        // Quando torna la connessione internet, re-sync immediato
+        window.addEventListener('online', () => this.load());
+    },
+
     async load(){
         try {
-            const r = await fetch('/api/orders.php?action=kitchen_queue&dest='+this.dest+'&lang=<?= e(current_lang()) ?>');
+            const r = await fetch('/api/orders.php?action=kitchen_queue&dest='+this.dest+'&lang=<?= e(current_lang()) ?>', {
+                cache: 'no-store',
+                headers: {'Accept': 'application/json'}
+            });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
             const d = await r.json();
+            if (d.error) throw new Error(d.error);
             const newOrders = d.orders || [];
             // Conta totale items non ancora pronti — se aumenta → suona
             const newCount = newOrders.reduce((s,o) => s + o.items.filter(i => !['ready','served'].includes(i.status)).length, 0);
             if (newCount > this.lastItemsCount && this.lastItemsCount > 0) {
                 try { document.getElementById('bell')?.play(); } catch(e){}
-                if (navigator.vibrate) navigator.vibrate(200);
+                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
             }
             this.orders = newOrders;
             this.lastItemsCount = newCount;
-        } catch(e) {}
+            // Sync OK: lampeggio verde + reset errori
+            this.syncErrors = 0;
+            this.lastSyncMsg = 'Ultimo aggiornamento: ' + new Date().toLocaleTimeString();
+            this.syncFlash = true;
+            setTimeout(() => this.syncFlash = false, 400);
+        } catch(e) {
+            this.syncErrors++;
+            this.lastSyncMsg = 'Errore sync: ' + (e.message || 'sconosciuto');
+            console.warn('[KDS] sync error', e);
+        }
     },
 
     async toggleItem(it){
