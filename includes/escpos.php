@@ -14,6 +14,49 @@ const GS  = "\x1d";
 const LF  = "\n";
 
 function init(): string      { return ESC . "@"; }                 // Reset stampante
+
+/**
+ * Cambia il codepage attivo sulla stampante (ESC t n).
+ * Codepage utili:
+ *   0  = CP437  (Latin USA)
+ *   16 = CP1252 (Latin Windows EU)
+ *   19 = CP858  (Latin con €) — default per scontrini italiani
+ *   22 = CP864  (Arabo OEM) — diffuso su stampanti egiziane
+ *   29 = CP1256 (Arabo Windows) — alternativa moderna
+ * NB: il numero esatto dipende dalla stampante. Per le Xprinter/Goojprt
+ *     vendute in Egitto di solito 22 (CP864) funziona out-of-the-box.
+ */
+function setCodepage(int $n): string { return ESC . "t" . chr(max(0, min(255, $n))); }
+
+/**
+ * Mappa nome leggibile codepage → numero ESC t + nome iconv.
+ */
+const CODEPAGE_MAP = [
+    'cp858'  => ['esc' => 19, 'iconv' => 'CP858'],   // Latin1 + euro
+    'cp1252' => ['esc' => 16, 'iconv' => 'CP1252'],
+    'cp437'  => ['esc' => 0,  'iconv' => 'CP437'],
+    'cp864'  => ['esc' => 22, 'iconv' => 'CP864'],   // Arabo OEM (default Egitto)
+    'cp1256' => ['esc' => 29, 'iconv' => 'CP1256'],  // Arabo Windows
+];
+
+function isArabicCodepage(string $cp): bool {
+    return in_array(strtolower($cp), ['cp864', 'cp1256'], true);
+}
+
+/**
+ * Converte testo UTF-8 nei byte attesi dal codepage della stampante.
+ * Se la conversione fallisce (carattere non rappresentabile), usa //IGNORE.
+ */
+function encodeForPrinter(string $utf8, string $codepage = 'cp858'): string {
+    $cp = CODEPAGE_MAP[strtolower($codepage)] ?? CODEPAGE_MAP['cp858'];
+    $target = $cp['iconv'];
+    if ($target === 'CP858' || $target === 'CP1252' || $target === 'CP437') {
+        // Codepage latini: prima asciify (rimuove accenti italiani che non sono in CP437)
+        $utf8 = asciify($utf8);
+    }
+    $out = @iconv('UTF-8', $target . '//IGNORE', $utf8);
+    return $out === false ? $utf8 : $out;
+}
 function alignLeft(): string  { return ESC . "a" . "\x00"; }
 function alignCenter(): string{ return ESC . "a" . "\x01"; }
 function alignRight(): string { return ESC . "a" . "\x02"; }
@@ -80,9 +123,30 @@ function asciify(string $s): string {
  * @return string  Sequenza ESC/POS pronta da inviare alla stampante.
  */
 function buildKitchenTicket(array $order, array $items, string $destLabel = 'CUCINA', array $opts = []): string {
-    $cols    = (int)($opts['cols'] ?? 32);
-    $tenant  = (string)($opts['tenant_name'] ?? 'Ristorante');
-    $useBeep = (bool)($opts['beep'] ?? true);
+    $cols     = (int)($opts['cols'] ?? 32);
+    $tenant   = (string)($opts['tenant_name'] ?? 'Ristorante');
+    $useBeep  = (bool)($opts['beep'] ?? true);
+    $codepage = strtolower((string)($opts['codepage'] ?? 'cp858'));
+    $rtl      = isArabicCodepage($codepage);
+
+    // Etichette localizzate in arabo se la stampa è in arabo
+    if ($rtl) {
+        $L_table   = 'طاولة';
+        $L_guests  = 'الضيوف';
+        $L_order   = 'الطلب';
+        $L_waiter  = 'النادل';
+        $L_notes   = 'ملاحظات الطاولة';
+        $L_extra   = '+';
+        $L_itnote  = '←';
+    } else {
+        $L_table   = 'TAVOLO';
+        $L_guests  = 'Coperti';
+        $L_order   = 'Ord.';
+        $L_waiter  = 'Cam.';
+        $L_notes   = 'NOTE TAVOLO';
+        $L_extra   = '+';
+        $L_itnote  = '>>';
+    }
 
     $tableCode = $order['table_code'] ?? ($order['code'] ?? '—');
     $waiter    = $order['waiter_name'] ?? '—';
@@ -91,52 +155,58 @@ function buildKitchenTicket(array $order, array $items, string $destLabel = 'CUC
     $note      = trim((string)($order['notes'] ?? ''));
     $now       = date('d/m H:i');
 
+    // Helper interno: encode una stringa UTF-8 nel codepage della stampante
+    $enc = function (string $s) use ($codepage) { return encodeForPrinter($s, $codepage); };
+
     $out = init();
+    // Imposta codepage sulla stampante (essenziale per arabo)
+    $cpNum = CODEPAGE_MAP[$codepage]['esc'] ?? 19;
+    $out .= setCodepage($cpNum);
     if ($useBeep) $out .= beep(2, 3);
 
     // Intestazione locale
-    $out .= alignCenter() . boldOn() . asciify($tenant) . LF . boldOff();
+    $out .= alignCenter() . boldOn() . $enc($tenant) . LF . boldOff();
     $out .= alignCenter() . separator($cols, '=');
 
-    // Banner destinazione (CUCINA / BAR) in caratteri doppi
-    $out .= alignCenter() . double() . boldOn() . asciify($destLabel) . LF . boldOff() . normal();
+    // Banner destinazione (CUCINA / BAR / المطبخ / البار) in caratteri doppi
+    $out .= alignCenter() . double() . boldOn() . $enc($destLabel) . LF . boldOff() . normal();
     $out .= alignCenter() . separator($cols, '=');
 
     // Tavolo in caratteri doppi (l'informazione più importante)
-    $out .= alignLeft() . double() . boldOn() . "TAVOLO " . asciify((string)$tableCode) . LF . boldOff() . normal();
+    $out .= alignLeft() . double() . boldOn() . $enc($L_table . ' ' . $tableCode) . LF . boldOff() . normal();
     if ($guests > 0) {
-        $out .= alignLeft() . "Coperti: " . $guests . LF;
+        $out .= alignLeft() . $enc($L_guests . ': ' . $guests) . LF;
     }
 
-    $out .= row("Ord. " . asciify($orderCode), $now, $cols);
-    $out .= row("Cam. " . asciify($waiter), '', $cols);
+    $out .= alignLeft() . $enc($L_order . ' ' . $orderCode) . '  ' . $now . LF;
+    $out .= alignLeft() . $enc($L_waiter . ' ' . $waiter) . LF;
     $out .= separator($cols, '-');
 
     // Articoli
     foreach ($items as $it) {
         $qty  = (float)($it['qty'] ?? 1);
-        $name = asciify((string)($it['name'] ?? ''));
+        $name = (string)($it['name'] ?? '');
         $qtyStr = ($qty == floor($qty) ? (string)(int)$qty : rtrim(rtrim(number_format($qty, 3, '.', ''), '0'), '.'));
         // Riga articolo: qty x nome (corpo doppio altezza)
         $out .= boldOn() . doubleH();
-        $out .= $qtyStr . "x " . mb_substr($name, 0, max(4, ($cols / 2) - 3));
+        $out .= $qtyStr . "x " . $enc(mb_substr($name, 0, max(8, $cols - 6)));
         $out .= LF . normal() . boldOff();
-        // Se il nome è lungo, scrivi il resto a normale
-        $remaining = mb_substr($name, max(4, ($cols / 2) - 3));
+        // Se il nome è lungo, scrivi il resto a normale (può capitare con nomi arabi)
+        $remaining = mb_substr($name, max(8, $cols - 6));
         if ($remaining !== '') {
-            $out .= "   " . wrap($remaining, $cols - 3);
+            $out .= "   " . $enc(trim($remaining)) . LF;
         }
         // Varianti / extra
         foreach (['variants', 'extras'] as $extraKey) {
             $extra = trim((string)($it[$extraKey] ?? ''));
             if ($extra !== '') {
-                $out .= "   + " . asciify($extra) . LF;
+                $out .= "   " . $L_extra . ' ' . $enc($extra) . LF;
             }
         }
         // Note per riga
         $itNote = trim((string)($it['notes'] ?? ''));
         if ($itNote !== '') {
-            $out .= "   >> " . asciify($itNote) . LF;
+            $out .= "   " . $L_itnote . ' ' . $enc($itNote) . LF;
         }
         $out .= LF;
     }
@@ -144,12 +214,12 @@ function buildKitchenTicket(array $order, array $items, string $destLabel = 'CUC
     // Note generali dell'ordine
     if ($note !== '') {
         $out .= separator($cols, '-');
-        $out .= boldOn() . "NOTE TAVOLO:" . LF . boldOff();
-        $out .= wrap(asciify($note), $cols);
+        $out .= boldOn() . $enc($L_notes . ':') . LF . boldOff();
+        $out .= $enc(trim($note)) . LF;
     }
 
     $out .= separator($cols, '=');
-    $out .= alignCenter() . asciify($now) . LF;
+    $out .= alignCenter() . $now . LF;
     $out .= feed(4);
     $out .= cut();
 

@@ -1,8 +1,25 @@
 <?php
 require __DIR__ . '/_bootstrap.php';
 require_once __DIR__ . '/../includes/escpos.php';
+require_once __DIR__ . '/../includes/i18n.php';
 $t = tenant_id();
 $in = input();
+
+// Carica preferenze stampante (codepage + lingua + cols) per il tenant
+function _print_settings(int $tenant): array {
+    $keyCol = DB_DRIVER === 'mysql' ? '`key`' : 'key';
+    $st = db()->prepare("SELECT $keyCol AS k, value FROM settings WHERE tenant_id=? AND $keyCol IN ('printer_cols','printer_codepage','printer_lang')");
+    $st->execute([$tenant]);
+    $cfg = ['cols'=>32, 'codepage'=>'cp858', 'lang'=>'it'];
+    foreach ($st->fetchAll() as $r) {
+        if ($r['k'] === 'printer_cols')      $cfg['cols'] = (int)$r['value'];
+        if ($r['k'] === 'printer_codepage')  $cfg['codepage'] = $r['value'];
+        if ($r['k'] === 'printer_lang')      $cfg['lang'] = $r['value'];
+    }
+    if ($cfg['cols'] !== 32 && $cfg['cols'] !== 48) $cfg['cols'] = 32;
+    if (!in_array($cfg['lang'], SUPPORTED_LANGS, true)) $cfg['lang'] = 'it';
+    return $cfg;
+}
 
 switch ($action) {
     case 'pending': {
@@ -55,28 +72,32 @@ switch ($action) {
         if (!$orderId || !in_array($dest, ['kitchen', 'bar'], true)) {
             json_response(['error' => 'missing order_id or dest'], 400);
         }
-        // Rigenera la comanda includendo tutti gli item della destinazione
-        // (anche se sono già 'preparing'/'ready' — è una ristampa esplicita)
         $oSt = db()->prepare('SELECT o.id, o.code, o.guests, o.notes, t.code AS table_code, u.name AS waiter_name FROM orders o LEFT JOIN tables t ON t.id=o.table_id LEFT JOIN users u ON u.id=o.waiter_id WHERE o.id=? AND o.tenant_id=?');
         $oSt->execute([$orderId, $t]);
         $order = $oSt->fetch();
         if (!$order) json_response(['error' => 'order not found'], 404);
 
-        $iSt = db()->prepare('SELECT id, name, qty, notes, variants, extras FROM order_items WHERE order_id=? AND destination=? AND status!="cancelled" ORDER BY id');
+        $cfg = _print_settings($t);
+        $iSt = db()->prepare('SELECT oi.id, oi.name, oi.qty, oi.notes, oi.variants, oi.extras, p.translations AS p_translations FROM order_items oi LEFT JOIN products p ON p.id=oi.product_id WHERE oi.order_id=? AND oi.destination=? AND oi.status!="cancelled" ORDER BY oi.id');
         $iSt->execute([$orderId, $dest]);
         $items = $iSt->fetchAll();
         if (!$items) json_response(['error' => 'no items for ' . $dest], 400);
+        foreach ($items as &$it) {
+            $tr = tr_field($it['p_translations'] ?? null, 'name', $it['name'], $cfg['lang']);
+            if ($tr) $it['name'] = $tr;
+            unset($it['p_translations']);
+        }
 
         $tn = db()->prepare('SELECT name FROM tenants WHERE id=?'); $tn->execute([$t]);
         $tenantName = ($tn->fetch()['name'] ?? 'Ristorante');
 
-        $cset = db()->prepare('SELECT value FROM settings WHERE tenant_id=? AND ' . (DB_DRIVER === 'mysql' ? '`key`' : 'key') . '=?');
-        $cset->execute([$t, 'printer_cols']);
-        $cols = (int)($cset->fetch()['value'] ?? 32);
-        if ($cols !== 32 && $cols !== 48) $cols = 32;
-
-        $label = $dest === 'bar' ? 'BAR (RISTAMPA)' : 'CUCINA (RISTAMPA)';
-        $bytes = LollabEscPos\buildKitchenTicket($order, $items, $label, ['tenant_name' => $tenantName, 'cols' => $cols, 'beep' => true]);
+        $label = match (true) {
+            $cfg['lang'] === 'ar' && $dest === 'bar'     => 'البار (إعادة)',
+            $cfg['lang'] === 'ar' && $dest === 'kitchen' => 'المطبخ (إعادة)',
+            $dest === 'bar' => 'BAR (RISTAMPA)',
+            default         => 'CUCINA (RISTAMPA)',
+        };
+        $bytes = LollabEscPos\buildKitchenTicket($order, $items, $label, ['tenant_name' => $tenantName, 'cols' => $cfg['cols'], 'beep' => true, 'codepage' => $cfg['codepage']]);
         db()->prepare('INSERT INTO print_jobs (tenant_id, order_id, destination, payload, status, attempts, created_at) VALUES (?,?,?,?,?,0,?)')
             ->execute([$t, $orderId, $dest, base64_encode($bytes), 'pending', date('Y-m-d H:i:s')]);
         audit('reprint_ticket', 'orders', $orderId, ['dest' => $dest]);
@@ -87,15 +108,44 @@ switch ($action) {
         // Inserisce una mini comanda di prova per testare la connessione BT.
         $dest = ($in['dest'] ?? 'kitchen');
         if (!in_array($dest, ['kitchen', 'bar'], true)) $dest = 'kitchen';
+        $cfg = _print_settings($t);
         $tn = db()->prepare('SELECT name FROM tenants WHERE id=?'); $tn->execute([$t]);
         $tenantName = ($tn->fetch()['name'] ?? 'Ristorante');
         $fakeOrder = ['code' => 'TEST', 'table_code' => 'TEST', 'waiter_name' => 'Test', 'guests' => 0, 'notes' => ''];
-        $fakeItems = [
-            ['qty' => 1, 'name' => 'Test stampante', 'notes' => 'Se vedi questa ricevuta, la stampa funziona!'],
-        ];
-        $bytes = LollabEscPos\buildKitchenTicket($fakeOrder, $fakeItems, strtoupper($dest) . ' TEST', ['tenant_name' => $tenantName]);
+        $fakeItems = $cfg['lang'] === 'ar'
+            ? [['qty' => 1, 'name' => 'اختبار الطابعة', 'notes' => 'إذا رأيت هذا الإيصال، الطباعة تعمل!']]
+            : [['qty' => 1, 'name' => 'Test stampante', 'notes' => 'Se vedi questa ricevuta, la stampa funziona!']];
+        $label = $cfg['lang'] === 'ar' ? 'اختبار' : strtoupper($dest) . ' TEST';
+        $bytes = LollabEscPos\buildKitchenTicket($fakeOrder, $fakeItems, $label, ['tenant_name' => $tenantName, 'cols' => $cfg['cols'], 'codepage' => $cfg['codepage']]);
         db()->prepare('INSERT INTO print_jobs (tenant_id, order_id, destination, payload, status, attempts, created_at) VALUES (?,?,?,?,?,0,?)')
             ->execute([$t, 0, $dest, base64_encode($bytes), 'pending', date('Y-m-d H:i:s')]);
+        json_response(['ok' => true]);
+    }
+
+    case 'test_codepages': {
+        // Stampa uno scontrino diagnostico con la stessa parola araba ripetuta
+        // in TUTTI i codepage supportati. L'operatore vede quale viene fuori
+        // leggibile e imposta quello in Impostazioni.
+        $dest = ($in['dest'] ?? 'kitchen');
+        if (!in_array($dest, ['kitchen', 'bar'], true)) $dest = 'kitchen';
+        $sample = 'مرحبا'; // "Marhaba" (ciao)
+        $out = LollabEscPos\init();
+        $out .= LollabEscPos\alignCenter() . LollabEscPos\boldOn() . "=== TEST CODEPAGE ===" . LollabEscPos\LF . LollabEscPos\boldOff();
+        $out .= "Italiano: Ciao mondo!" . LollabEscPos\LF;
+        $out .= LollabEscPos\LF;
+        foreach (['cp864' => 22, 'cp1256' => 29] as $name => $esc) {
+            $out .= LollabEscPos\separator(32, '-');
+            $out .= "Codepage $name (ESC t $esc):" . LollabEscPos\LF;
+            $out .= LollabEscPos\setCodepage($esc);
+            $out .= LollabEscPos\encodeForPrinter($sample, $name) . LollabEscPos\LF;
+            $out .= LollabEscPos\setCodepage(19); // torna a latino per la riga descrittiva
+        }
+        $out .= LollabEscPos\separator(32, '=');
+        $out .= "Quale riga e leggibile?" . LollabEscPos\LF;
+        $out .= "Impostala come codepage." . LollabEscPos\LF;
+        $out .= LollabEscPos\feed(4) . LollabEscPos\cut();
+        db()->prepare('INSERT INTO print_jobs (tenant_id, order_id, destination, payload, status, attempts, created_at) VALUES (?,?,?,?,?,0,?)')
+            ->execute([$t, 0, $dest, base64_encode($out), 'pending', date('Y-m-d H:i:s')]);
         json_response(['ok' => true]);
     }
 

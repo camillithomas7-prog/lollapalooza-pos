@@ -9,6 +9,17 @@ $in = input();
  * Crea print_job per ogni destinazione (kitchen/bar) con i nuovi item appena
  * inviati. Una sola comanda per destinazione, raggruppando gli item.
  */
+/**
+ * Legge un setting tenant (key→value) con default.
+ */
+function _tenant_setting(int $tenant, string $key, $default = '') {
+    $keyCol = DB_DRIVER === 'mysql' ? '`key`' : 'key';
+    $st = db()->prepare("SELECT value FROM settings WHERE tenant_id=? AND $keyCol=?");
+    $st->execute([$tenant, $key]);
+    $r = $st->fetch();
+    return $r ? $r['value'] : $default;
+}
+
 function enqueue_kitchen_prints(int $tenant, int $oid): void {
     // Recupera intestazione ordine (tavolo, cameriere, note, code)
     $st = db()->prepare('SELECT o.id, o.code, o.guests, o.notes, t.code AS table_code, u.name AS waiter_name FROM orders o LEFT JOIN tables t ON t.id=o.table_id LEFT JOIN users u ON u.id=o.waiter_id WHERE o.id=?');
@@ -21,27 +32,43 @@ function enqueue_kitchen_prints(int $tenant, int $oid): void {
     $ten->execute([$tenant]);
     $tenantName = ($ten->fetch()['name'] ?? 'Ristorante');
 
-    // Setting: larghezza colonne (32 = 58mm, 48 = 80mm). Default 32.
-    $cset = db()->prepare('SELECT value FROM settings WHERE tenant_id=? AND ' . (DB_DRIVER === 'mysql' ? '`key`' : 'key') . '=?');
-    $cset->execute([$tenant, 'printer_cols']);
-    $cols = (int)($cset->fetch()['value'] ?? 32);
+    // Larghezza colonne (32 = 58mm, 48 = 80mm). Default 32.
+    $cols = (int)_tenant_setting($tenant, 'printer_cols', 32);
     if ($cols !== 32 && $cols !== 48) $cols = 32;
 
-    // Per ogni destinazione, raggruppa gli item appena inviati (sent_at recente)
-    $itSt = db()->prepare('SELECT id, name, qty, notes, variants, extras, destination FROM order_items WHERE order_id=? AND status="sent" AND destination!="none"');
+    // Codepage stampante + lingua di stampa (configurabile da admin)
+    $codepage = _tenant_setting($tenant, 'printer_codepage', 'cp858');
+    $printLang = _tenant_setting($tenant, 'printer_lang', 'it');
+    if (!in_array($printLang, SUPPORTED_LANGS, true)) $printLang = 'it';
+
+    // Item con traduzione del nome dal menu prodotti
+    $itSt = db()->prepare('SELECT oi.id, oi.name, oi.qty, oi.notes, oi.variants, oi.extras, oi.destination, p.translations AS p_translations
+                           FROM order_items oi
+                           LEFT JOIN products p ON p.id=oi.product_id
+                           WHERE oi.order_id=? AND oi.status="sent" AND oi.destination!="none"');
     $itSt->execute([$oid]);
     $byDest = [];
     foreach ($itSt->fetchAll() as $it) {
+        // Sostituisci nome con traduzione se disponibile per la lingua di stampa
+        $translated = tr_field($it['p_translations'] ?? null, 'name', $it['name'], $printLang);
+        if ($translated) $it['name'] = $translated;
+        unset($it['p_translations']);
         $dest = $it['destination'] ?: 'kitchen';
         $byDest[$dest][] = $it;
     }
     foreach ($byDest as $dest => $items) {
-        $label = $dest === 'bar' ? 'BAR' : 'CUCINA';
+        // Etichetta destinazione: in arabo se stampa in arabo
+        $label = match (true) {
+            $printLang === 'ar' && $dest === 'bar'     => 'البار',
+            $printLang === 'ar' && $dest === 'kitchen' => 'المطبخ',
+            $dest === 'bar' => 'BAR',
+            default         => 'CUCINA',
+        };
         $bytes = LollabEscPos\buildKitchenTicket(
             (array)$order,
             $items,
             $label,
-            ['tenant_name' => $tenantName, 'cols' => $cols, 'beep' => true]
+            ['tenant_name' => $tenantName, 'cols' => $cols, 'beep' => true, 'codepage' => $codepage]
         );
         $payload = base64_encode($bytes);
         db()->prepare('INSERT INTO print_jobs (tenant_id, order_id, destination, payload, status, attempts, created_at) VALUES (?,?,?,?,?,0,?)')
