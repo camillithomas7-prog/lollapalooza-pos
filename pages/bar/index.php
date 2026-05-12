@@ -9,20 +9,20 @@
             </div>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
-            <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 text-sm">
+            <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 dark:bg-white/5 text-sm font-medium">
                 <span class="w-2.5 h-2.5 rounded-full"
-                      :class="printerStatus === 'ready' ? 'bg-emerald-400 animate-pulse' : (printerStatus === 'connecting' ? 'bg-amber-400 animate-pulse' : 'bg-rose-500')"></span>
-                <span x-show="printerStatus === 'ready'" class="text-emerald-300">🖨️ <span x-text="printerName || 'connessa'"></span></span>
-                <span x-show="printerStatus === 'connecting'" class="text-amber-300">Collegamento…</span>
-                <span x-show="printerStatus === 'disconnected' || printerStatus === 'error'" class="text-rose-300">Stampante off</span>
+                      :class="printerStatus === 'ready' ? 'bg-emerald-500 animate-pulse' : (printerStatus === 'connecting' ? 'bg-amber-500 animate-pulse' : 'bg-rose-500')"></span>
+                <span x-show="printerStatus === 'ready'" class="text-emerald-700 dark:text-emerald-300">🖨️ <span x-text="printerName || 'connessa'"></span></span>
+                <span x-show="printerStatus === 'connecting'" class="text-amber-700 dark:text-amber-300">Collegamento…</span>
+                <span x-show="printerStatus === 'disconnected' || printerStatus === 'error'" class="text-rose-700 dark:text-rose-300">Stampante off</span>
                 <template x-if="printerStatus !== 'ready'">
                     <div class="flex gap-1">
-                        <button @click="connectPrinter('bluetooth')" class="px-2 py-1 rounded-lg bg-sky-500/20 text-sky-300 text-xs">📶 BT</button>
-                        <button @click="connectPrinter('usb')" class="px-2 py-1 rounded-lg bg-sky-500/20 text-sky-300 text-xs">🔌 USB</button>
+                        <button @click="connectPrinter('bluetooth')" class="px-2 py-1 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold">📶 BT</button>
+                        <button @click="connectPrinter('usb')" class="px-2 py-1 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold">🔌 USB</button>
                     </div>
                 </template>
                 <template x-if="printerStatus === 'ready'">
-                    <button @click="testPrint()" class="px-2 py-1 rounded-lg bg-white/10 text-xs">Test</button>
+                    <button @click="testPrint()" class="px-2 py-1 rounded-lg bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-200 text-xs font-semibold">Test</button>
                 </template>
             </div>
             <?= theme_switcher() ?>
@@ -31,7 +31,7 @@
         </div>
     </header>
 
-    <div x-show="printerError" x-cloak class="mb-3 px-4 py-2 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-200 text-sm">
+    <div x-show="printerError" x-cloak class="mb-3 px-4 py-2 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-900 dark:text-rose-200 text-sm font-medium">
         ⚠ <span x-text="printerError"></span>
     </div>
 
