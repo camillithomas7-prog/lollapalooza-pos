@@ -178,3 +178,44 @@ if ($st->fetch()['c'] == 0) {
 } else {
     echo "Database già installato.\n";
 }
+
+// === Migrazione traduzioni menu (idempotente) ============================
+// Applica traduzioni hard-coded (ar/en/es/fr/de) ai piatti e categorie
+// con nomi standard, SENZA chiamare alcuna API esterna. Lavora per match
+// case-insensitive sul nome italiano. Aggiunge solo le lingue mancanti,
+// non sovrascrive traduzioni già inserite dall'utente.
+$seed = require __DIR__ . '/menu_translations_seed.php';
+$applyTranslations = function(string $table, array $dict) use ($pdo) {
+    $applied = 0;
+    $st = $pdo->prepare("SELECT id, name, translations FROM $table");
+    $st->execute();
+    foreach ($st->fetchAll() as $row) {
+        $key = mb_strtolower(trim((string)$row['name']));
+        if (!isset($dict[$key])) continue;
+        $cur = $row['translations'] ? (json_decode($row['translations'], true) ?: []) : [];
+        $changed = false;
+        foreach ($dict[$key] as $lang => $fields) {
+            foreach ($fields as $field => $value) {
+                if (empty($cur[$lang][$field]) && $value !== '') {
+                    $cur[$lang][$field] = $value;
+                    $changed = true;
+                }
+            }
+        }
+        if ($changed) {
+            $pdo->prepare("UPDATE $table SET translations = ? WHERE id = ?")
+                ->execute([json_encode($cur, JSON_UNESCAPED_UNICODE), $row['id']]);
+            $applied++;
+        }
+    }
+    return $applied;
+};
+
+try {
+    $a = $applyTranslations('products', $seed['products']);
+    if ($a > 0) echo "✓ Traduzioni applicate a $a piatti (ar/en/es/fr/de)\n";
+    $b = $applyTranslations('categories', $seed['categories']);
+    if ($b > 0) echo "✓ Traduzioni applicate a $b categorie (ar/en/es/fr/de)\n";
+} catch (Throwable $e) {
+    echo "⚠ Errore traduzioni: " . $e->getMessage() . "\n";
+}

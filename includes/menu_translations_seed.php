@@ -1,0 +1,406 @@
+<?php
+// Dizionario di traduzioni per i piatti e categorie demo.
+// Mantenuto a mano (Claude → italiano → ar/en/es/fr/de) per NON dipendere
+// da OpenAI sul cliente: il titolare del ristorante non deve consumare
+// crediti API di nessuno. Quando aggiunge piatti NUOVI inserisce le
+// traduzioni manualmente dal modal "Traduzioni" in Admin → Menu.
+
+return [
+    'categories' => [
+        // chiave = nome italiano (lower-case di sicurezza)
+        'antipasti' => [
+            'en' => ['name' => 'Starters'],
+            'ar' => ['name' => 'المقبلات'],
+            'es' => ['name' => 'Entrantes'],
+            'fr' => ['name' => 'Entrées'],
+            'de' => ['name' => 'Vorspeisen'],
+        ],
+        'primi piatti' => [
+            'en' => ['name' => 'First Courses'],
+            'ar' => ['name' => 'الأطباق الأولى'],
+            'es' => ['name' => 'Primeros platos'],
+            'fr' => ['name' => 'Premiers plats'],
+            'de' => ['name' => 'Erste Gänge'],
+        ],
+        'secondi' => [
+            'en' => ['name' => 'Main Courses'],
+            'ar' => ['name' => 'الأطباق الرئيسية'],
+            'es' => ['name' => 'Segundos'],
+            'fr' => ['name' => 'Plats principaux'],
+            'de' => ['name' => 'Hauptgänge'],
+        ],
+        'pizza' => [
+            'en' => ['name' => 'Pizza'],
+            'ar' => ['name' => 'بيتزا'],
+            'es' => ['name' => 'Pizza'],
+            'fr' => ['name' => 'Pizza'],
+            'de' => ['name' => 'Pizza'],
+        ],
+        'panini' => [
+            'en' => ['name' => 'Sandwiches'],
+            'ar' => ['name' => 'سندويشات'],
+            'es' => ['name' => 'Bocadillos'],
+            'fr' => ['name' => 'Sandwichs'],
+            'de' => ['name' => 'Sandwiches'],
+        ],
+        'dolci' => [
+            'en' => ['name' => 'Desserts'],
+            'ar' => ['name' => 'الحلويات'],
+            'es' => ['name' => 'Postres'],
+            'fr' => ['name' => 'Desserts'],
+            'de' => ['name' => 'Desserts'],
+        ],
+        'birre' => [
+            'en' => ['name' => 'Beers'],
+            'ar' => ['name' => 'البيرة'],
+            'es' => ['name' => 'Cervezas'],
+            'fr' => ['name' => 'Bières'],
+            'de' => ['name' => 'Biere'],
+        ],
+        'cocktail' => [
+            'en' => ['name' => 'Cocktails'],
+            'ar' => ['name' => 'كوكتيلات'],
+            'es' => ['name' => 'Cócteles'],
+            'fr' => ['name' => 'Cocktails'],
+            'de' => ['name' => 'Cocktails'],
+        ],
+        'vini' => [
+            'en' => ['name' => 'Wines'],
+            'ar' => ['name' => 'النبيذ'],
+            'es' => ['name' => 'Vinos'],
+            'fr' => ['name' => 'Vins'],
+            'de' => ['name' => 'Weine'],
+        ],
+        'analcolici' => [
+            'en' => ['name' => 'Soft Drinks'],
+            'ar' => ['name' => 'مشروبات غازية'],
+            'es' => ['name' => 'Refrescos'],
+            'fr' => ['name' => 'Boissons sans alcool'],
+            'de' => ['name' => 'Alkoholfreie Getränke'],
+        ],
+        'caffetteria' => [
+            'en' => ['name' => 'Coffee'],
+            'ar' => ['name' => 'القهوة'],
+            'es' => ['name' => 'Cafetería'],
+            'fr' => ['name' => 'Café'],
+            'de' => ['name' => 'Kaffee'],
+        ],
+    ],
+
+    'products' => [
+        // Antipasti
+        'tagliere misto' => [
+            'en' => ['name' => 'Mixed Charcuterie Board',     'description' => 'Cured meats and local cheeses'],
+            'ar' => ['name' => 'طبق نقانق وأجبان متنوعة',     'description' => 'لحوم مقددة وأجبان محلية'],
+            'es' => ['name' => 'Tabla mixta',                  'description' => 'Embutidos y quesos locales'],
+            'fr' => ['name' => 'Planche mixte',                'description' => 'Charcuterie et fromages locaux'],
+            'de' => ['name' => 'Gemischte Wurst- und Käseplatte', 'description' => 'Aufschnitt und Käse aus der Region'],
+        ],
+        'bruschette' => [
+            'en' => ['name' => 'Bruschetta',                   'description' => 'Tomato and basil (4 pcs)'],
+            'ar' => ['name' => 'بروسكيتا',                     'description' => 'طماطم وريحان (4 قطع)'],
+            'es' => ['name' => 'Bruschettas',                  'description' => 'Tomate y albahaca (4 unid.)'],
+            'fr' => ['name' => 'Bruschettas',                  'description' => 'Tomate et basilic (4 pcs)'],
+            'de' => ['name' => 'Bruschetta',                   'description' => 'Tomate und Basilikum (4 Stk.)'],
+        ],
+        'tartare di manzo' => [
+            'en' => ['name' => 'Beef Tartare',                 'description' => 'Raw beef with capers'],
+            'ar' => ['name' => 'تارتار لحم البقر',             'description' => 'لحم بقري نيء مع الكبر'],
+            'es' => ['name' => 'Tartar de ternera',            'description' => 'Ternera cruda con alcaparras'],
+            'fr' => ['name' => 'Tartare de bœuf',              'description' => 'Bœuf cru et câpres'],
+            'de' => ['name' => 'Rindertatar',                  'description' => 'Rohes Rindfleisch mit Kapern'],
+        ],
+        // Primi
+        'spaghetti carbonara' => [
+            'en' => ['name' => 'Spaghetti Carbonara',          'description' => 'Guanciale and pecorino'],
+            'ar' => ['name' => 'سباغيتي كاربونارا',            'description' => 'لحم خد الخنزير وجبنة بيكورينو'],
+            'es' => ['name' => 'Espaguetis Carbonara',         'description' => 'Guanciale y pecorino'],
+            'fr' => ['name' => 'Spaghetti Carbonara',          'description' => 'Guanciale et pecorino'],
+            'de' => ['name' => 'Spaghetti Carbonara',          'description' => 'Guanciale und Pecorino'],
+        ],
+        'tagliatelle al ragù' => [
+            'en' => ['name' => 'Tagliatelle Bolognese',        'description' => '8-hour meat ragù'],
+            'ar' => ['name' => 'تالياتيلي باللحم',              'description' => 'صلصة لحم بطيخة لمدة 8 ساعات'],
+            'es' => ['name' => 'Tagliatelle a la boloñesa',    'description' => 'Ragú de carne 8h'],
+            'fr' => ['name' => 'Tagliatelles bolognaise',      'description' => 'Ragoût de viande 8h'],
+            'de' => ['name' => 'Tagliatelle Bolognese',        'description' => 'Fleischragout 8 Stunden'],
+        ],
+        'risotto ai funghi' => [
+            'en' => ['name' => 'Mushroom Risotto',             'description' => 'Fresh porcini'],
+            'ar' => ['name' => 'ريزوتو بالفطر',                'description' => 'فطر بورتشيني طازج'],
+            'es' => ['name' => 'Risotto de setas',             'description' => 'Porcini frescos'],
+            'fr' => ['name' => 'Risotto aux champignons',      'description' => 'Cèpes frais'],
+            'de' => ['name' => 'Pilzrisotto',                  'description' => 'Frische Steinpilze'],
+        ],
+        // Secondi
+        'tagliata di manzo' => [
+            'en' => ['name' => 'Sliced Beef',                  'description' => '300g, arugula and parmesan'],
+            'ar' => ['name' => 'شرائح لحم البقر',              'description' => '300غ، جرجير وجبنة بارميزان'],
+            'es' => ['name' => 'Tagliata de ternera',          'description' => '300g, rúcula y parmesano'],
+            'fr' => ['name' => 'Tagliata de bœuf',             'description' => '300g, roquette et parmesan'],
+            'de' => ['name' => 'Tagliata vom Rind',            'description' => '300g, Rucola und Parmesan'],
+        ],
+        'branzino al sale' => [
+            'en' => ['name' => 'Sea Bass in Salt Crust',       'description' => 'Fresh fish'],
+            'ar' => ['name' => 'سمك القاروس بالملح',           'description' => 'سمك طازج'],
+            'es' => ['name' => 'Lubina a la sal',              'description' => 'Pescado fresco'],
+            'fr' => ['name' => 'Bar en croûte de sel',         'description' => 'Poisson frais'],
+            'de' => ['name' => 'Wolfsbarsch in Salzkruste',    'description' => 'Frischer Fisch'],
+        ],
+        // Pizza
+        'margherita' => [
+            'en' => ['name' => 'Margherita',                   'description' => 'Tomato, mozzarella, basil'],
+            'ar' => ['name' => 'مارغريتا',                     'description' => 'طماطم، موزاريلا، ريحان'],
+            'es' => ['name' => 'Margarita',                    'description' => 'Tomate, mozzarella, albahaca'],
+            'fr' => ['name' => 'Margherita',                   'description' => 'Tomate, mozzarella, basilic'],
+            'de' => ['name' => 'Margherita',                   'description' => 'Tomate, Mozzarella, Basilikum'],
+        ],
+        'diavola' => [
+            'en' => ['name' => 'Diavola',                      'description' => 'Spicy salami'],
+            'ar' => ['name' => 'ديافولا',                      'description' => 'سلامي حار'],
+            'es' => ['name' => 'Diavola',                      'description' => 'Salami picante'],
+            'fr' => ['name' => 'Diavola',                      'description' => 'Salami piquant'],
+            'de' => ['name' => 'Diavola',                      'description' => 'Scharfe Salami'],
+        ],
+        'quattro formaggi' => [
+            'en' => ['name' => 'Four Cheese',                  'description' => 'Mozzarella, gorgonzola, fontina, parmesan'],
+            'ar' => ['name' => 'الأجبان الأربعة',              'description' => 'موزاريلا، غورغونزولا، فونتينا، بارميزان'],
+            'es' => ['name' => 'Cuatro quesos',                'description' => 'Mozzarella, gorgonzola, fontina, parmesano'],
+            'fr' => ['name' => 'Quatre fromages',              'description' => 'Mozzarella, gorgonzola, fontina, parmesan'],
+            'de' => ['name' => 'Vier Käse',                    'description' => 'Mozzarella, Gorgonzola, Fontina, Parmesan'],
+        ],
+        // Panini
+        'hamburger lollapalooza' => [
+            'en' => ['name' => 'Lollapalooza Burger',          'description' => '200g beef, cheddar, bacon'],
+            'ar' => ['name' => 'برغر لولابالوزا',              'description' => '200غ لحم بقري، شيدر، بيكون'],
+            'es' => ['name' => 'Hamburguesa Lollapalooza',     'description' => '200g ternera, cheddar, bacon'],
+            'fr' => ['name' => 'Burger Lollapalooza',          'description' => '200g bœuf, cheddar, bacon'],
+            'de' => ['name' => 'Lollapalooza-Burger',          'description' => '200g Rind, Cheddar, Speck'],
+        ],
+        'club sandwich' => [
+            'en' => ['name' => 'Club Sandwich',                'description' => 'Chicken, bacon, egg'],
+            'ar' => ['name' => 'كلوب ساندويش',                 'description' => 'دجاج، بيكون، بيض'],
+            'es' => ['name' => 'Club Sandwich',                'description' => 'Pollo, bacon, huevo'],
+            'fr' => ['name' => 'Club Sandwich',                'description' => 'Poulet, bacon, œuf'],
+            'de' => ['name' => 'Club Sandwich',                'description' => 'Hähnchen, Speck, Ei'],
+        ],
+        // Dolci
+        'tiramisù' => [
+            'en' => ['name' => 'Tiramisù',                     'description' => 'House recipe'],
+            'ar' => ['name' => 'تيراميسو',                     'description' => 'وصفة المنزل'],
+            'es' => ['name' => 'Tiramisú',                     'description' => 'De la casa'],
+            'fr' => ['name' => 'Tiramisù',                     'description' => 'Maison'],
+            'de' => ['name' => 'Tiramisu',                     'description' => 'Hausgemacht'],
+        ],
+        'panna cotta' => [
+            'en' => ['name' => 'Panna Cotta',                  'description' => 'Berries'],
+            'ar' => ['name' => 'بانا كوتا',                    'description' => 'توت بري'],
+            'es' => ['name' => 'Panna Cotta',                  'description' => 'Frutos del bosque'],
+            'fr' => ['name' => 'Panna Cotta',                  'description' => 'Fruits rouges'],
+            'de' => ['name' => 'Panna Cotta',                  'description' => 'Waldbeeren'],
+        ],
+        // Birre
+        'peroni 33cl' => [
+            'en' => ['name' => 'Peroni 33cl',                  'description' => 'Lager'],
+            'ar' => ['name' => 'بيروني 33سم٣',                 'description' => 'بيرة شقراء'],
+            'es' => ['name' => 'Peroni 33cl',                  'description' => 'Rubia'],
+            'fr' => ['name' => 'Peroni 33cl',                  'description' => 'Blonde'],
+            'de' => ['name' => 'Peroni 0,33l',                 'description' => 'Helles'],
+        ],
+        'heineken 33cl' => [
+            'en' => ['name' => 'Heineken 33cl',                'description' => 'Dutch lager'],
+            'ar' => ['name' => 'هاينكن 33سم٣',                 'description' => 'بيرة هولندية شقراء'],
+            'es' => ['name' => 'Heineken 33cl',                'description' => 'Rubia holandesa'],
+            'fr' => ['name' => 'Heineken 33cl',                'description' => 'Blonde hollandaise'],
+            'de' => ['name' => 'Heineken 0,33l',               'description' => 'Niederländisches Helles'],
+        ],
+        'moretti 0.4l' => [
+            'en' => ['name' => 'Moretti 0.4L',                 'description' => 'Draught'],
+            'ar' => ['name' => 'موريتي 0.4لتر',                'description' => 'بيرة من الصنبور'],
+            'es' => ['name' => 'Moretti 0.4L',                 'description' => 'De grifo'],
+            'fr' => ['name' => 'Moretti 0,4L',                 'description' => 'Pression'],
+            'de' => ['name' => 'Moretti 0,4L',                 'description' => 'Vom Fass'],
+        ],
+        'ipa artigianale' => [
+            'en' => ['name' => 'Craft IPA',                    'description' => 'Craft beer'],
+            'ar' => ['name' => 'آي بي إيه حرفية',              'description' => 'بيرة حرفية'],
+            'es' => ['name' => 'IPA artesanal',                'description' => 'Cerveza artesanal'],
+            'fr' => ['name' => 'IPA artisanale',               'description' => 'Bière artisanale'],
+            'de' => ['name' => 'Craft IPA',                    'description' => 'Craft-Bier'],
+        ],
+        // Cocktail
+        'spritz aperol' => [
+            'en' => ['name' => 'Aperol Spritz',                'description' => 'Classic'],
+            'ar' => ['name' => 'سبريتز أبيرول',                'description' => 'كلاسيكي'],
+            'es' => ['name' => 'Spritz Aperol',                'description' => 'Clásico'],
+            'fr' => ['name' => 'Spritz Aperol',                'description' => 'Classique'],
+            'de' => ['name' => 'Aperol Spritz',                'description' => 'Klassisch'],
+        ],
+        'negroni' => [
+            'en' => ['name' => 'Negroni',                      'description' => 'Gin, vermouth, Campari'],
+            'ar' => ['name' => 'نيغروني',                      'description' => 'جن، فيرموث، كامباري'],
+            'es' => ['name' => 'Negroni',                      'description' => 'Ginebra, vermut, Campari'],
+            'fr' => ['name' => 'Negroni',                      'description' => 'Gin, vermouth, Campari'],
+            'de' => ['name' => 'Negroni',                      'description' => 'Gin, Wermut, Campari'],
+        ],
+        'gin tonic' => [
+            'en' => ['name' => 'Gin Tonic',                    'description' => 'Premium gin'],
+            'ar' => ['name' => 'جن تونيك',                     'description' => 'جن ممتاز'],
+            'es' => ['name' => 'Gin Tonic',                    'description' => 'Ginebra premium'],
+            'fr' => ['name' => 'Gin Tonic',                    'description' => 'Gin premium'],
+            'de' => ['name' => 'Gin Tonic',                    'description' => 'Premium-Gin'],
+        ],
+        'mojito' => [
+            'en' => ['name' => 'Mojito',                       'description' => 'Rum, lime, mint'],
+            'ar' => ['name' => 'موهيتو',                       'description' => 'روم، ليمون أخضر، نعناع'],
+            'es' => ['name' => 'Mojito',                       'description' => 'Ron, lima, menta'],
+            'fr' => ['name' => 'Mojito',                       'description' => 'Rhum, citron vert, menthe'],
+            'de' => ['name' => 'Mojito',                       'description' => 'Rum, Limette, Minze'],
+        ],
+        'margarita' => [
+            'en' => ['name' => 'Margarita',                    'description' => 'Tequila, lime'],
+            'ar' => ['name' => 'مارغريتا',                     'description' => 'تيكيلا، ليمون أخضر'],
+            'es' => ['name' => 'Margarita',                    'description' => 'Tequila, lima'],
+            'fr' => ['name' => 'Margarita',                    'description' => 'Tequila, citron vert'],
+            'de' => ['name' => 'Margarita',                    'description' => 'Tequila, Limette'],
+        ],
+        // Vini
+        'calice rosso' => [
+            'en' => ['name' => 'Glass of Red Wine',            'description' => 'Chianti DOCG'],
+            'ar' => ['name' => 'كأس نبيذ أحمر',                'description' => 'كيانتي DOCG'],
+            'es' => ['name' => 'Copa de tinto',                'description' => 'Chianti DOCG'],
+            'fr' => ['name' => 'Verre de rouge',               'description' => 'Chianti DOCG'],
+            'de' => ['name' => 'Glas Rotwein',                 'description' => 'Chianti DOCG'],
+        ],
+        'calice bianco' => [
+            'en' => ['name' => 'Glass of White Wine',          'description' => 'Falanghina'],
+            'ar' => ['name' => 'كأس نبيذ أبيض',                'description' => 'فالانغينا'],
+            'es' => ['name' => 'Copa de blanco',               'description' => 'Falanghina'],
+            'fr' => ['name' => 'Verre de blanc',               'description' => 'Falanghina'],
+            'de' => ['name' => 'Glas Weißwein',                'description' => 'Falanghina'],
+        ],
+        'bottiglia rosso' => [
+            'en' => ['name' => 'Bottle of Red Wine',           'description' => 'Brunello di Montalcino'],
+            'ar' => ['name' => 'قارورة نبيذ أحمر',             'description' => 'برونيلو دي مونتالتشينو'],
+            'es' => ['name' => 'Botella de tinto',             'description' => 'Brunello di Montalcino'],
+            'fr' => ['name' => 'Bouteille de rouge',           'description' => 'Brunello di Montalcino'],
+            'de' => ['name' => 'Flasche Rotwein',              'description' => 'Brunello di Montalcino'],
+        ],
+        // Analcolici
+        'coca cola' => [
+            'en' => ['name' => 'Coca Cola',                    'description' => '33cl'],
+            'ar' => ['name' => 'كوكا كولا',                    'description' => '33سم٣'],
+            'es' => ['name' => 'Coca Cola',                    'description' => '33cl'],
+            'fr' => ['name' => 'Coca Cola',                    'description' => '33cl'],
+            'de' => ['name' => 'Coca Cola',                    'description' => '0,33l'],
+        ],
+        'acqua naturale' => [
+            'en' => ['name' => 'Still Water',                  'description' => '75cl'],
+            'ar' => ['name' => 'مياه طبيعية',                  'description' => '75سم٣'],
+            'es' => ['name' => 'Agua sin gas',                 'description' => '75cl'],
+            'fr' => ['name' => 'Eau plate',                    'description' => '75cl'],
+            'de' => ['name' => 'Stilles Wasser',               'description' => '0,75l'],
+        ],
+        'acqua frizzante' => [
+            'en' => ['name' => 'Sparkling Water',              'description' => '75cl'],
+            'ar' => ['name' => 'مياه غازية',                   'description' => '75سم٣'],
+            'es' => ['name' => 'Agua con gas',                 'description' => '75cl'],
+            'fr' => ['name' => 'Eau gazeuse',                  'description' => '75cl'],
+            'de' => ['name' => 'Sprudelwasser',                'description' => '0,75l'],
+        ],
+        'spremuta arancia' => [
+            'en' => ['name' => 'Fresh Orange Juice',           'description' => 'Freshly squeezed'],
+            'ar' => ['name' => 'عصير برتقال طازج',             'description' => 'معصور حديثًا'],
+            'es' => ['name' => 'Zumo de naranja natural',      'description' => 'Recién exprimido'],
+            'fr' => ['name' => 'Jus d’orange pressé',          'description' => 'Frais pressé'],
+            'de' => ['name' => 'Frisch gepresster Orangensaft','description' => 'Frisch gepresst'],
+        ],
+        // Varianti dei nomi (alcuni tenant hanno nomi più estesi)
+        'tagliere misto italiano' => [
+            'en' => ['name' => 'Italian Mixed Charcuterie Board', 'description' => 'Cured meats and local cheeses'],
+            'ar' => ['name' => 'طبق نقانق وأجبان إيطالية',         'description' => 'لحوم مقددة وأجبان محلية'],
+            'es' => ['name' => 'Tabla mixta italiana',             'description' => 'Embutidos y quesos locales'],
+            'fr' => ['name' => 'Planche mixte italienne',          'description' => 'Charcuterie et fromages locaux'],
+            'de' => ['name' => 'Italienische Wurst- und Käseplatte','description' => 'Aufschnitt und Käse aus der Region'],
+        ],
+        'bruschette al pomodoro' => [
+            'en' => ['name' => 'Tomato Bruschetta',                'description' => 'Tomato and basil (4 pcs)'],
+            'ar' => ['name' => 'بروسكيتا بالطماطم',                'description' => 'طماطم وريحان (4 قطع)'],
+            'es' => ['name' => 'Bruschettas de tomate',            'description' => 'Tomate y albahaca (4 unid.)'],
+            'fr' => ['name' => 'Bruschettas à la tomate',          'description' => 'Tomate et basilic (4 pcs)'],
+            'de' => ['name' => 'Bruschetta mit Tomate',            'description' => 'Tomate und Basilikum (4 Stk.)'],
+        ],
+        'risotto ai funghi porcini' => [
+            'en' => ['name' => 'Porcini Mushroom Risotto',         'description' => 'Fresh porcini'],
+            'ar' => ['name' => 'ريزوتو بفطر البورتشيني',           'description' => 'فطر بورتشيني طازج'],
+            'es' => ['name' => 'Risotto de boletus',               'description' => 'Porcini frescos'],
+            'fr' => ['name' => 'Risotto aux cèpes',                'description' => 'Cèpes frais'],
+            'de' => ['name' => 'Steinpilz-Risotto',                'description' => 'Frische Steinpilze'],
+        ],
+        'tiramisù della casa' => [
+            'en' => ['name' => 'House Tiramisù',                   'description' => 'House recipe'],
+            'ar' => ['name' => 'تيراميسو المنزل',                  'description' => 'وصفة المنزل'],
+            'es' => ['name' => 'Tiramisú de la casa',              'description' => 'Receta de la casa'],
+            'fr' => ['name' => 'Tiramisù maison',                  'description' => 'Recette maison'],
+            'de' => ['name' => 'Hausgemachtes Tiramisu',           'description' => 'Hausrezept'],
+        ],
+        'cheesecake ai frutti di bosco' => [
+            'en' => ['name' => 'Berry Cheesecake',                 'description' => 'With wild berries'],
+            'ar' => ['name' => 'تشيز كيك بالتوت',                  'description' => 'مع توت الغابة'],
+            'es' => ['name' => 'Cheesecake de frutos rojos',       'description' => 'Con frutos del bosque'],
+            'fr' => ['name' => 'Cheesecake aux fruits rouges',     'description' => 'Avec fruits des bois'],
+            'de' => ['name' => 'Beeren-Cheesecake',                'description' => 'Mit Waldbeeren'],
+        ],
+        'moretti alla spina 0.4l' => [
+            'en' => ['name' => 'Moretti Draught 0.4L',             'description' => 'On tap'],
+            'ar' => ['name' => 'موريتي من الصنبور 0.4لتر',          'description' => 'من الصنبور'],
+            'es' => ['name' => 'Moretti de grifo 0.4L',            'description' => 'De barril'],
+            'fr' => ['name' => 'Moretti pression 0,4L',            'description' => 'Pression'],
+            'de' => ['name' => 'Moretti vom Fass 0,4L',            'description' => 'Vom Fass'],
+        ],
+        'calice rosso chianti' => [
+            'en' => ['name' => 'Glass of Chianti',                 'description' => 'Chianti DOCG'],
+            'ar' => ['name' => 'كأس كيانتي أحمر',                  'description' => 'كيانتي DOCG'],
+            'es' => ['name' => 'Copa de Chianti',                  'description' => 'Chianti DOCG'],
+            'fr' => ['name' => 'Verre de Chianti',                 'description' => 'Chianti DOCG'],
+            'de' => ['name' => 'Glas Chianti',                     'description' => 'Chianti DOCG'],
+        ],
+        'calice bianco falanghina' => [
+            'en' => ['name' => 'Glass of Falanghina',              'description' => 'White wine'],
+            'ar' => ['name' => 'كأس فالانغينا أبيض',                'description' => 'نبيذ أبيض'],
+            'es' => ['name' => 'Copa de Falanghina',               'description' => 'Vino blanco'],
+            'fr' => ['name' => 'Verre de Falanghina',              'description' => 'Vin blanc'],
+            'de' => ['name' => 'Glas Falanghina',                  'description' => 'Weißwein'],
+        ],
+        'spremuta d\'arancia fresca' => [
+            'en' => ['name' => 'Fresh Orange Juice',               'description' => 'Freshly squeezed'],
+            'ar' => ['name' => 'عصير برتقال طازج',                 'description' => 'معصور حديثاً'],
+            'es' => ['name' => 'Zumo de naranja natural',          'description' => 'Recién exprimido'],
+            'fr' => ['name' => 'Jus d\'orange pressé',             'description' => 'Frais pressé'],
+            'de' => ['name' => 'Frisch gepresster Orangensaft',    'description' => 'Frisch gepresst'],
+        ],
+
+        // Caffetteria
+        'espresso' => [
+            'en' => ['name' => 'Espresso',                     'description' => ''],
+            'ar' => ['name' => 'إسبريسو',                      'description' => ''],
+            'es' => ['name' => 'Espresso',                     'description' => ''],
+            'fr' => ['name' => 'Espresso',                     'description' => ''],
+            'de' => ['name' => 'Espresso',                     'description' => ''],
+        ],
+        'cappuccino' => [
+            'en' => ['name' => 'Cappuccino',                   'description' => ''],
+            'ar' => ['name' => 'كابتشينو',                     'description' => ''],
+            'es' => ['name' => 'Cappuccino',                   'description' => ''],
+            'fr' => ['name' => 'Cappuccino',                   'description' => ''],
+            'de' => ['name' => 'Cappuccino',                   'description' => ''],
+        ],
+        'caffè americano' => [
+            'en' => ['name' => 'Americano Coffee',             'description' => ''],
+            'ar' => ['name' => 'قهوة أمريكانو',                'description' => ''],
+            'es' => ['name' => 'Café americano',               'description' => ''],
+            'fr' => ['name' => 'Café americano',               'description' => ''],
+            'de' => ['name' => 'Americano',                    'description' => ''],
+        ],
+    ],
+];

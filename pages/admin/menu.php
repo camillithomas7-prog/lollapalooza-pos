@@ -115,7 +115,7 @@
                 <div class="col-span-2 p-3 rounded-lg bg-white/5">
                     <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
                         <div class="text-sm font-semibold">🌐 Traduzioni</div>
-                        <button type="button" @click="autoTranslate" :disabled="translating" class="text-xs px-3 py-1.5 rounded-lg bg-brand-500/20 text-brand-300 disabled:opacity-50" x-text="translating?'⏳ traduco...':'✨ Auto-traduci con AI'"></button>
+                        <span class="text-[11px] text-slate-500">Compila a mano per ogni lingua. Verranno mostrate sul menu QR ai clienti e sul KDS al personale.</span>
                     </div>
                     <div class="flex gap-1 mb-3 overflow-x-auto" style="scrollbar-width:thin">
                         <template x-for="l in langs" :key="l.code">
@@ -147,23 +147,6 @@ function menuMgr(){return {
     trLang: 'en',
     translating: false,
     emptyTranslations(){return {en:{name:'',description:'',allergens:''},ar:{name:'',description:'',allergens:''},es:{name:'',description:'',allergens:''},fr:{name:'',description:'',allergens:''},de:{name:'',description:'',allergens:''}};},
-    async autoTranslate(){
-        if (!this.prodModal.name) { alert('Inserisci prima nome e descrizione in italiano'); return; }
-        this.translating = true;
-        try {
-            const r = await fetch('/api/translate.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-                name:this.prodModal.name, description:this.prodModal.description||'', allergens:this.prodModal.allergens||''
-            })});
-            const d = await r.json();
-            if (d.error) alert('Errore: '+d.error);
-            else if (d.translations) {
-                for (const lc of ['en','es','fr','de']) {
-                    if (d.translations[lc]) this.prodModal.translations[lc] = d.translations[lc];
-                }
-            }
-        } catch(e){ alert('Errore: '+e.message); }
-        this.translating = false;
-    },
     async load(){const r=await fetch('/api/menu.php?action=list');const d=await r.json();this.categories=d.categories;this.products=d.products;},
     async uploadImage(e){
         const f=e.target.files[0]; if(!f) return;
