@@ -308,8 +308,10 @@ switch ($action) {
         $st->execute([$t, $dest]);
         $items = $st->fetchAll();
 
-        // Recupera info ordini in una sola query
-        $orderIds = array_unique(array_column($items, 'order_id'));
+        // Recupera info ordini in una sola query.
+        // IMPORTANTE: array_values per riindicizzare l'array (array_unique
+        // mantiene gli indici sparse, PDO si confonde con i placeholder).
+        $orderIds = array_values(array_unique(array_column($items, 'order_id')));
         $ordersById = [];
         if ($orderIds) {
             $place = implode(',', array_fill(0, count($orderIds), '?'));

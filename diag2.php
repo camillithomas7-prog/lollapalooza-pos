@@ -34,7 +34,7 @@ try {
     echo "\n";
 
     // Order ids
-    $orderIds = array_unique(array_column($items, 'order_id'));
+    $orderIds = array_values(array_unique(array_column($items, 'order_id')));
     echo "ORDER IDs unici: " . implode(',', $orderIds) . "\n\n";
 
     // Recupera info ordini
