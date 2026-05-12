@@ -1,7 +1,7 @@
 <?php
-// Wrapper pubblico per lanciare /includes/install.php (la cartella includes/
-// non è accessibile dal web su Hostinger per motivi di sicurezza).
-// Apri https://tuo-sito/install.php → applica schema + migrazioni + traduzioni.
+// Wrapper pubblico per applicare schema + migrazioni + traduzioni.
+// Lo script è IDEMPOTENTE: non droppa nulla, applica solo le cose mancanti.
+// Apri https://tuo-sito/install.php per lanciarlo.
 
 header('Content-Type: text/plain; charset=utf-8');
 echo "=== Lollapalooza POS — Installazione / Migrazione ===\n\n";

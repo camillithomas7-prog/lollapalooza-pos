@@ -12,9 +12,11 @@ RewriteRule ^(.*)$ index.php [QSA,L]
 <FilesMatch "\.(sqlite|sql|db)$">
   Require all denied
 </FilesMatch>
-<FilesMatch "schema\.sql|install\.php|seed_demo\.php">
+<FilesMatch "schema\.sql|seed_demo\.php">
   Require all denied
 </FilesMatch>
+# /install.php è accessibile (è il wrapper pubblico di setup/migrazione,
+# idempotente: non droppa dati, applica solo schema e traduzioni mancanti).
 
 # Performance
 <IfModule mod_deflate.c>
