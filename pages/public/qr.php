@@ -122,7 +122,7 @@ function tr_cat(array $c, string $lang): string {
         <template x-for="i in sentItems" :key="i.id">
             <div class="flex justify-between text-sm py-0.5">
                 <span><span class="font-bold text-emerald-700" x-text="parseFloat(i.qty).toFixed(0)+'×'"></span> <span x-text="i.name"></span></span>
-                <span class="text-emerald-700 font-semibold" x-text="'€'+(i.qty*i.price).toFixed(2)"></span>
+                <span class="text-emerald-700 font-semibold" x-text="'LE '+(i.qty*i.price).toFixed(2)"></span>
             </div>
         </template>
     </div>
@@ -148,7 +148,7 @@ function tr_cat(array $c, string $lang): string {
                         <?php if ($desc): ?><div class="text-xs text-slate-500 mt-0.5 line-clamp-2"><?= e($desc) ?></div><?php endif; ?>
                         <?php if ($allerg): ?><div class="text-[11px] text-amber-600 mt-0.5">⚠ <?= e($allerg) ?></div><?php endif; ?>
                         <div class="flex items-center justify-between mt-1.5 gap-2">
-                            <span class="font-bold text-violet-600">€ <?= number_format($p['price'],2,',','.') ?></span>
+                            <span class="font-bold text-violet-600">LE <?= number_format($p['price'],2,',','.') ?></span>
                             <template x-if="(cart[<?= (int)$p['id'] ?>]||0) === 0">
                                 <button @click="addItem(<?= (int)$p['id'] ?>, '<?= e(addslashes($name)) ?>', <?= (float)$p['price'] ?>)" class="add-btn">+</button>
                             </template>
@@ -171,7 +171,7 @@ function tr_cat(array $c, string $lang): string {
     <div x-show="cartCount()>0" x-cloak class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 shadow-2xl p-3 z-40">
         <div class="flex gap-2 max-w-md mx-auto">
             <button @click="showCart=true" class="flex-1 py-3 rounded-xl bg-slate-100 font-semibold text-sm">
-                <span x-text="cartCount()+' <?= e(t('products')) ?>'"></span> · <span x-text="'€ '+cartTotal().toFixed(2)"></span>
+                <span x-text="cartCount()+' <?= e(t('products')) ?>'"></span> · <span x-text="'LE '+cartTotal().toFixed(2)"></span>
             </button>
             <button @click="sendOrder" :disabled="sending" class="px-5 py-3 rounded-xl btn-primary font-bold disabled:opacity-60" x-text="sending?'⏳':'<?= e(t('send_order')) ?>'"></button>
         </div>
@@ -195,13 +195,13 @@ function tr_cat(array $c, string $lang): string {
                             <span class="font-bold w-6 text-center" x-text="p"></span>
                             <button @click="incItem(id)" class="qty-btn">+</button>
                         </div>
-                        <div class="font-bold text-sm w-16 text-right" x-text="'€'+(p*cartPrices[id]).toFixed(2)"></div>
+                        <div class="font-bold text-sm w-16 text-right" x-text="'LE '+(p*cartPrices[id]).toFixed(2)"></div>
                     </div>
                 </template>
             </div>
             <div class="flex justify-between text-lg font-bold pt-3 border-t border-slate-200 mb-4">
                 <span><?= e(t('total')) ?></span>
-                <span class="text-violet-600" x-text="'€ '+cartTotal().toFixed(2)"></span>
+                <span class="text-violet-600" x-text="'LE '+cartTotal().toFixed(2)"></span>
             </div>
             <button @click="sendOrder" :disabled="sending || cartCount()===0" class="w-full btn-primary py-4 rounded-xl font-bold text-base disabled:opacity-50" x-text="sending?'⏳ <?= e(t('sending')) ?>':'📤 <?= e(t('send_order')) ?>'"></button>
             <p class="text-xs text-slate-400 text-center mt-3"><?= e(t('pay_at_end')) ?></p>
@@ -299,7 +299,7 @@ function orderApp(tableId, tableCode, token) {
                     <div class="flex-1 min-w-0">
                         <div class="flex items-start justify-between gap-2">
                             <h3 class="font-semibold"><?= e($name) ?></h3>
-                            <div class="font-bold text-violet-600 whitespace-nowrap">€ <?= number_format($p['price'],2,',','.') ?></div>
+                            <div class="font-bold text-violet-600 whitespace-nowrap">LE <?= number_format($p['price'],2,',','.') ?></div>
                         </div>
                         <?php if ($desc): ?><p class="text-sm text-slate-500 mt-0.5"><?= e($desc) ?></p><?php endif; ?>
                         <?php if ($allerg): ?><p class="text-xs text-amber-600 mt-1">⚠ <?= e($allerg) ?></p><?php endif; ?>

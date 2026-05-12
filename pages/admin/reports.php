@@ -21,7 +21,7 @@
                             <div class="font-semibold" x-text="w.name"></div>
                             <div class="text-xs text-slate-400" x-text="(w.orders_count||0)+' ordini'"></div>
                         </div>
-                        <div class="font-bold text-emerald-400" x-text="'€'+parseFloat(w.revenue||0).toFixed(2)"></div>
+                        <div class="font-bold text-emerald-400" x-text="'LE '+parseFloat(w.revenue||0).toFixed(2)"></div>
                     </div>
                 </template>
             </div>
@@ -41,8 +41,8 @@
                         <tr class="border-t border-white/5">
                             <td class="p-2" x-text="p.name"></td>
                             <td class="p-2 text-right tabular-nums" x-text="parseFloat(p.qty).toFixed(0)"></td>
-                            <td class="p-2 text-right text-emerald-400 font-semibold tabular-nums whitespace-nowrap" x-text="'€'+parseFloat(p.revenue||0).toFixed(2)"></td>
-                            <td class="p-2 text-right text-sky-400 tabular-nums whitespace-nowrap" x-text="'€'+parseFloat(p.margin||0).toFixed(2)"></td>
+                            <td class="p-2 text-right text-emerald-400 font-semibold tabular-nums whitespace-nowrap" x-text="'LE '+parseFloat(p.revenue||0).toFixed(2)"></td>
+                            <td class="p-2 text-right text-sky-400 tabular-nums whitespace-nowrap" x-text="'LE '+parseFloat(p.margin||0).toFixed(2)"></td>
                         </tr>
                     </template>
                 </tbody>
@@ -59,7 +59,7 @@
                         <tr class="border-t border-white/5">
                             <td class="p-2 font-bold whitespace-nowrap" x-text="t.code"></td>
                             <td class="p-2 text-right tabular-nums" x-text="t.orders_count||0"></td>
-                            <td class="p-2 text-right text-emerald-400 font-semibold tabular-nums whitespace-nowrap" x-text="'€'+parseFloat(t.revenue||0).toFixed(2)"></td>
+                            <td class="p-2 text-right text-emerald-400 font-semibold tabular-nums whitespace-nowrap" x-text="'LE '+parseFloat(t.revenue||0).toFixed(2)"></td>
                         </tr>
                     </template>
                 </tbody>

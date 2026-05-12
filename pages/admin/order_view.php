@@ -65,7 +65,7 @@
                         <div class="flex justify-between text-slate-400"><span>Subtotale</span><span x-text="fmt(order.subtotal)"></span></div>
                         <div class="flex justify-between text-slate-400"><span>IVA</span><span x-text="fmt(order.tax)"></span></div>
                         <div class="flex justify-between text-slate-400">
-                            <span>Sconto €</span>
+                            <span>Sconto (LE)</span>
                             <input type="number" :value="order.discount" @change="setDiscount($event.target.value)" step="0.01" class="w-20 text-right bg-white/5 rounded px-2">
                         </div>
                         <div class="flex justify-between text-2xl font-bold pt-2 border-t border-white/10"><span>Totale</span><span class="text-emerald-400" x-text="fmt(order.total)"></span></div>
@@ -155,7 +155,7 @@ function orderView(id) {
             await fetch('/api/orders.php?action=cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_id:this.id})});
             location.href = '/index.php?p=tables';
         },
-        fmt(v){return '€ '+(parseFloat(v||0)).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});},
+        fmt(v){return 'LE '+(parseFloat(v||0)).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});},
         badgeStatus(s){return {open:'bg-slate-500/20 text-slate-300',sent:'bg-amber-500/20 text-amber-300',preparing:'bg-amber-500/20 text-amber-300',ready:'bg-sky-500/20 text-sky-300',served:'bg-emerald-500/20 text-emerald-300',closed:'bg-emerald-500/20 text-emerald-300',cancelled:'bg-rose-500/20 text-rose-300'}[s]||'bg-slate-500/20';},
         statusLabel(s){return {open:'Aperto',sent:'Inviato',preparing:'In prep.',ready:'Pronto',served:'Servito',closed:'Chiuso',cancelled:'Annullato'}[s]||s;},
         badgeItem(s){return {draft:'bg-slate-500/20 text-slate-300',sent:'bg-amber-500/20 text-amber-300',preparing:'bg-orange-500/20 text-orange-300',ready:'bg-sky-500/20 text-sky-300',served:'bg-emerald-500/20 text-emerald-300',cancelled:'bg-rose-500/20 text-rose-300'}[s]||'bg-slate-500/20';},

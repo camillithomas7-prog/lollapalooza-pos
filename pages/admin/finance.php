@@ -59,7 +59,7 @@
                 <select x-model="expModal.category" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
                     <option>Merce</option><option>Stipendi</option><option>Bollette</option><option>Affitto</option><option>Manutenzione</option><option>Tasse</option><option>Marketing</option><option>Altro</option>
                 </select>
-                <input type="number" step="0.01" x-model.number="expModal.amount" placeholder="Importo €" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
+                <input type="number" step="0.01" x-model.number="expModal.amount" placeholder="Importo LE" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
                 <input x-model="expModal.description" placeholder="Descrizione" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
                 <input type="date" x-model="expModal.date" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
                 <div class="flex gap-2 mt-3">
@@ -84,7 +84,7 @@ function finPage(){return {
     addExp(){this.expModal={category:'Merce',amount:0,description:'',date:new Date().toISOString().slice(0,10)};},
     async saveExp(){await fetch('/api/finance.php?action=save_expense',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(this.expModal)});this.expModal=null;this.load();},
     async delExp(e){if(!confirm('Eliminare?'))return;await fetch('/api/finance.php?action=delete_expense',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:e.id})});this.load();},
-    fmt(v){return '€ '+(parseFloat(v||0)).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});},
+    fmt(v){return 'LE '+(parseFloat(v||0)).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});},
     renderCharts(){
         if(this.chartCash)this.chartCash.destroy();
         const dates=[...new Set([...(this.stats.revenue||[]).map(x=>x.d),...(this.stats.expenses||[]).map(x=>x.d)])].sort();

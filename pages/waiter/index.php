@@ -31,7 +31,7 @@
                     :class="t.status">
                     <div class="font-bold text-xl" x-text="t.code"></div>
                     <div class="text-xs opacity-70" x-text="`${t.seats}p`"></div>
-                    <div x-show="t.order_total" class="text-xs mt-1 font-bold" x-text="t.order_total ? '€'+parseFloat(t.order_total).toFixed(0) : ''"></div>
+                    <div x-show="t.order_total" class="text-xs mt-1 font-bold" x-text="t.order_total ? 'LE '+parseFloat(t.order_total).toFixed(0) : ''"></div>
                 </div>
             </template>
         </div>
@@ -55,7 +55,7 @@
             <template x-if="modal && modal.order_id">
                 <div class="space-y-3">
                     <div class="text-center mb-2">
-                        <div class="text-3xl font-bold text-emerald-400" x-text="'€ '+parseFloat(modal.order_total||0).toFixed(2)"></div>
+                        <div class="text-3xl font-bold text-emerald-400" x-text="'LE '+parseFloat(modal.order_total||0).toFixed(2)"></div>
                         <div class="text-xs text-slate-400">Totale corrente</div>
                     </div>
                     <a :href="`/index.php?p=waiter_table&id=${modal.id}`" class="block btn-primary py-4 rounded-xl text-center text-lg font-bold">+ Aggiungi prodotti</a>

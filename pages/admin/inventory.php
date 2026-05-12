@@ -3,7 +3,7 @@
     <div class="grid md:grid-cols-3 gap-3 mb-4">
         <div class="card p-4"><div class="text-xs text-slate-400">Prodotti tracciati</div><div class="text-2xl font-bold" x-text="products.length"></div></div>
         <div class="card p-4"><div class="text-xs text-slate-400">Sotto soglia</div><div class="text-2xl font-bold text-rose-400" x-text="lowCount()"></div></div>
-        <div class="card p-4"><div class="text-xs text-slate-400">Valore stock</div><div class="text-2xl font-bold text-emerald-400" x-text="'€ '+totalValue().toFixed(2)"></div></div>
+        <div class="card p-4"><div class="text-xs text-slate-400">Valore stock</div><div class="text-2xl font-bold text-emerald-400" x-text="'LE '+totalValue().toFixed(2)"></div></div>
     </div>
 
     <div class="card overflow-x-auto">
@@ -18,8 +18,8 @@
                         <td class="p-3 text-slate-400" x-text="p.category_name"></td>
                         <td class="p-3 text-right" :class="parseFloat(p.stock)<=parseFloat(p.stock_min)?'text-rose-400 font-bold':''" x-text="parseFloat(p.stock).toFixed(0)+' '+p.unit"></td>
                         <td class="p-3 text-right text-slate-400" x-text="parseFloat(p.stock_min).toFixed(0)"></td>
-                        <td class="p-3 text-right" x-text="'€'+parseFloat(p.cost).toFixed(2)"></td>
-                        <td class="p-3 text-right text-emerald-400 font-semibold" x-text="'€'+(parseFloat(p.stock)*parseFloat(p.cost)).toFixed(2)"></td>
+                        <td class="p-3 text-right" x-text="'LE '+parseFloat(p.cost).toFixed(2)"></td>
+                        <td class="p-3 text-right text-emerald-400 font-semibold" x-text="'LE '+(parseFloat(p.stock)*parseFloat(p.cost)).toFixed(2)"></td>
                         <td class="p-3"><button @click="openMov(p)" class="px-3 py-1 rounded-lg bg-brand-500/20 text-brand-300 text-xs">Movimento</button></td>
                     </tr>
                 </template>

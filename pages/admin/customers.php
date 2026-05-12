@@ -19,7 +19,7 @@
                 </div>
                 <div class="grid grid-cols-3 gap-2 mt-3 text-xs">
                     <div><div class="text-slate-400">Visite</div><div class="font-bold" x-text="c.visits"></div></div>
-                    <div><div class="text-slate-400">Speso</div><div class="font-bold text-emerald-400" x-text="'€'+parseFloat(c.total_spent||0).toFixed(0)"></div></div>
+                    <div><div class="text-slate-400">Speso</div><div class="font-bold text-emerald-400" x-text="'LE '+parseFloat(c.total_spent||0).toFixed(0)"></div></div>
                     <div><div class="text-slate-400">Punti</div><div class="font-bold text-amber-400" x-text="c.points"></div></div>
                 </div>
             </div>

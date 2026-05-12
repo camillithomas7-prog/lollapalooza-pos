@@ -44,8 +44,8 @@
                         <div class="text-xs text-slate-400 mb-2" x-text="p.category_name"></div>
                         <div class="flex justify-between items-center">
                             <div>
-                                <div class="font-bold text-emerald-400" x-text="'€'+parseFloat(p.price).toFixed(2)"></div>
-                                <div class="text-xs text-slate-500" x-text="'C: €'+parseFloat(p.cost).toFixed(2)+' · M: '+margin(p)+'%'"></div>
+                                <div class="font-bold text-emerald-400" x-text="'LE '+parseFloat(p.price).toFixed(2)"></div>
+                                <div class="text-xs text-slate-500" x-text="'C: LE '+parseFloat(p.cost).toFixed(2)+' · M: '+margin(p)+'%'"></div>
                             </div>
                             <button @click="editProd(p)" class="text-brand-400 text-sm">✏️</button>
                         </div>
@@ -101,8 +101,8 @@
                 <div class="col-span-2"><label class="text-xs text-slate-400">Descrizione</label><textarea x-model="prodModal.description" rows="2" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></textarea></div>
                 <div><label class="text-xs text-slate-400">Categoria</label><select x-model.number="prodModal.category_id" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"><template x-for="c in categories" :key="c.id"><option :value="c.id" x-text="c.name"></option></template></select></div>
                 <div><label class="text-xs text-slate-400">IVA %</label><input type="number" x-model.number="prodModal.vat" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
-                <div><label class="text-xs text-slate-400">Prezzo €</label><input type="number" step="0.01" x-model.number="prodModal.price" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
-                <div><label class="text-xs text-slate-400">Costo €</label><input type="number" step="0.01" x-model.number="prodModal.cost" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
+                <div><label class="text-xs text-slate-400">Prezzo (LE)</label><input type="number" step="0.01" x-model.number="prodModal.price" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
+                <div><label class="text-xs text-slate-400">Costo (LE)</label><input type="number" step="0.01" x-model.number="prodModal.cost" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
                 <div class="col-span-2"><label class="text-xs text-slate-400">Allergeni</label><input x-model="prodModal.allergens" placeholder="glutine, lattosio..." class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
                 <div class="col-span-2"><label class="text-xs text-slate-400">Ingredienti</label><input x-model="prodModal.ingredients" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
                 <div class="col-span-2 grid grid-cols-3 gap-2 p-3 rounded-lg bg-white/5">

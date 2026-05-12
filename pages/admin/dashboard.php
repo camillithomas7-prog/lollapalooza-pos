@@ -112,7 +112,7 @@ function dashboard() {
                 }
             });
         },
-        fmt(v) { return '€ ' + (parseFloat(v||0)).toLocaleString('it-IT', {minimumFractionDigits:2,maximumFractionDigits:2}); },
+        fmt(v) { return 'LE ' + (parseFloat(v||0)).toLocaleString('it-IT', {minimumFractionDigits:2,maximumFractionDigits:2}); },
         formatTime(s) { try { return new Date(s).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}); } catch(e){ return ''; } },
         badgeStatus(s) {
             return {open:'bg-slate-500/20 text-slate-300',sent:'bg-amber-500/20 text-amber-300',preparing:'bg-amber-500/20 text-amber-300',ready:'bg-sky-500/20 text-sky-300',served:'bg-emerald-500/20 text-emerald-300',closed:'bg-emerald-500/20 text-emerald-300',cancelled:'bg-rose-500/20 text-rose-300'}[s]||'bg-slate-500/20';

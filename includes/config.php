@@ -71,7 +71,7 @@ function csrf_check(): bool {
     return isset($_POST['csrf']) && hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf']);
 }
 function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
-function money($v, $cur = '€') { return $cur . ' ' . number_format((float)$v, 2, ',', '.'); }
+function money($v, $cur = 'LE') { return $cur . ' ' . number_format((float)$v, 2, ',', '.'); }
 function flash($type, $msg) { $_SESSION['flash'][] = ['type' => $type, 'msg' => $msg]; }
 function flashes() { $f = $_SESSION['flash'] ?? []; unset($_SESSION['flash']); return $f; }
 function audit(string $action, ?string $entity = null, ?int $entity_id = null, ?array $data = null) {

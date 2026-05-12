@@ -17,12 +17,20 @@ foreach ($statements as $stmt) {
 }
 echo "Schema $schemaFile applicato (driver: " . DB_DRIVER . ")\n";
 
+// Migrazione: se esiste un tenant ancora impostato a EUR (default vecchio), passa a EGP.
+// Idempotente: una volta che è EGP non fa più niente.
+try {
+    $upd = $pdo->prepare("UPDATE tenants SET currency='EGP' WHERE currency='EUR' OR currency='' OR currency IS NULL");
+    $upd->execute();
+    if ($upd->rowCount() > 0) echo "✓ Tenant aggiornati a valuta EGP (Lira Egiziana): " . $upd->rowCount() . "\n";
+} catch (Throwable $e) {}
+
 // Demo tenant
 $st = $pdo->prepare('SELECT COUNT(*) c FROM tenants');
 $st->execute();
 if ($st->fetch()['c'] == 0) {
     $pdo->prepare("INSERT INTO tenants (name, slug, address, phone, vat, currency, locale, color_primary, created_at) VALUES (?,?,?,?,?,?,?,?,?)")
-        ->execute(['Lollapalooza', 'lollapalooza', 'Via Roma 1, Milano', '+39 02 1234567', 'IT12345678901', 'EUR', 'it', '#0f172a', date('Y-m-d H:i:s')]);
+        ->execute(['Lollapalooza', 'lollapalooza', 'Sharm El Sheikh, Egitto', '+20 100 000 0000', '', 'EGP', 'it', '#0f172a', date('Y-m-d H:i:s')]);
 
     // Users (password: lollab2026 for all)
     $hash = password_hash('lollab2026', PASSWORD_BCRYPT);

@@ -39,7 +39,7 @@ $tableId = (int)($_GET['id'] ?? 0); ?>
                     <template x-if="!p.image"><span x-text="catIcon(p.category_id)"></span></template>
                 </div>
                 <div class="font-semibold text-sm leading-tight" x-text="p.name"></div>
-                <div class="font-bold text-emerald-400 mt-1" x-text="'€ '+parseFloat(p.price).toFixed(2)"></div>
+                <div class="font-bold text-emerald-400 mt-1" x-text="'LE '+parseFloat(p.price).toFixed(2)"></div>
                 <div x-show="cartQty(p.id)>0" class="absolute top-2 right-2 w-7 h-7 bg-brand-500 rounded-full text-xs font-bold flex items-center justify-center" x-text="cartQty(p.id)"></div>
             </button>
         </template>
@@ -49,7 +49,7 @@ $tableId = (int)($_GET['id'] ?? 0); ?>
     <div x-show="cartCount>0" class="fixed bottom-0 inset-x-0 glass border-t border-white/5 p-3 z-30">
         <div class="flex gap-2">
             <button @click="showCart=true" class="flex-1 py-3 rounded-xl bg-white/5 font-semibold">
-                <span x-text="cartCount+' prodotti'"></span> · <span x-text="'€ '+cartTotal().toFixed(2)"></span>
+                <span x-text="cartCount+' prodotti'"></span> · <span x-text="'LE '+cartTotal().toFixed(2)"></span>
             </button>
             <button @click="sendOrder" class="px-6 py-3 rounded-xl btn-primary font-bold">📤 Invia</button>
         </div>
@@ -69,7 +69,7 @@ $tableId = (int)($_GET['id'] ?? 0); ?>
                     <template x-for="i in sentItems()" :key="i.id">
                         <div class="flex justify-between p-2 text-sm border-b border-white/5">
                             <span><span class="text-amber-400 mr-2" x-text="i.qty+'x'"></span><span x-text="i.name"></span></span>
-                            <span x-text="'€'+(i.qty*i.price).toFixed(2)"></span>
+                            <span x-text="'LE '+(i.qty*i.price).toFixed(2)"></span>
                         </div>
                     </template>
                 </div>
@@ -87,14 +87,14 @@ $tableId = (int)($_GET['id'] ?? 0); ?>
                             <span class="w-8 text-center font-bold" x-text="it.qty"></span>
                             <button @click="changeCart(i,1)" class="w-8 h-8 rounded-lg bg-white/5">+</button>
                         </div>
-                        <div class="w-16 text-right font-bold text-sm" x-text="'€'+(it.qty*it.price).toFixed(2)"></div>
+                        <div class="w-16 text-right font-bold text-sm" x-text="'LE '+(it.qty*it.price).toFixed(2)"></div>
                     </div>
                 </template>
                 <div x-show="!cart.length" class="text-center py-8 text-slate-400 text-sm">Carrello vuoto</div>
             </div>
             <div class="flex justify-between text-lg font-bold pt-3 border-t border-white/10 mb-4">
                 <span>Da inviare</span>
-                <span class="text-emerald-400" x-text="'€ '+cartTotal().toFixed(2)"></span>
+                <span class="text-emerald-400" x-text="'LE '+cartTotal().toFixed(2)"></span>
             </div>
             <div class="grid grid-cols-2 gap-2">
                 <button @click="showCart=false" class="py-3 rounded-xl bg-white/5">← Continua</button>

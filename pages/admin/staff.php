@@ -8,7 +8,7 @@
     <div class="card overflow-x-auto">
         <table class="w-full text-sm">
             <thead class="text-xs uppercase text-slate-400 border-b border-white/5">
-                <tr><th class="text-left p-3">Nome</th><th class="text-left p-3">Ruolo</th><th class="text-left p-3">Email</th><th class="text-left p-3">Telefono</th><th class="text-right p-3">Stipendio</th><th class="text-right p-3">€/h</th><th class="text-center p-3">PIN</th><th></th></tr>
+                <tr><th class="text-left p-3">Nome</th><th class="text-left p-3">Ruolo</th><th class="text-left p-3">Email</th><th class="text-left p-3">Telefono</th><th class="text-right p-3">Stipendio</th><th class="text-right p-3">LE/h</th><th class="text-center p-3">PIN</th><th></th></tr>
             </thead>
             <tbody>
                 <template x-for="u in users" :key="u.id">
@@ -17,8 +17,8 @@
                         <td class="p-3"><span class="text-xs px-2 py-1 rounded bg-brand-500/20 text-brand-300 capitalize" x-text="u.role"></span></td>
                         <td class="p-3 text-slate-400 text-xs" x-text="u.email"></td>
                         <td class="p-3 text-slate-400" x-text="u.phone||'—'"></td>
-                        <td class="p-3 text-right" x-text="'€'+parseFloat(u.salary||0).toFixed(2)"></td>
-                        <td class="p-3 text-right" x-text="'€'+parseFloat(u.hourly_rate||0).toFixed(2)"></td>
+                        <td class="p-3 text-right" x-text="'LE '+parseFloat(u.salary||0).toFixed(2)"></td>
+                        <td class="p-3 text-right" x-text="'LE '+parseFloat(u.hourly_rate||0).toFixed(2)"></td>
                         <td class="p-3 text-center font-mono" x-text="u.pin||'—'"></td>
                         <td class="p-3"><button @click="edit(u)" class="text-brand-400">✏️</button></td>
                     </tr>
@@ -60,7 +60,7 @@
                 <div><label class="text-xs text-slate-400">Telefono</label><input x-model="modal.phone" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
                 <div><label class="text-xs text-slate-400">PIN (4 cifre)</label><input x-model="modal.pin" maxlength="4" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
                 <div><label class="text-xs text-slate-400">Stipendio</label><input type="number" step="0.01" x-model.number="modal.salary" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
-                <div><label class="text-xs text-slate-400">€/ora</label><input type="number" step="0.01" x-model.number="modal.hourly_rate" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
+                <div><label class="text-xs text-slate-400">LE/ora</label><input type="number" step="0.01" x-model.number="modal.hourly_rate" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
                 <div class="col-span-2"><label class="text-xs text-slate-400">Password (lascia vuoto per non cambiare)</label><input type="password" x-model="modal.password" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
                 <div class="col-span-2 flex items-center gap-2"><input type="checkbox" x-model="modal.active" :true-value="1" :false-value="0"> <label>Attivo</label></div>
                 <div class="col-span-2 flex gap-2 mt-3">

@@ -29,7 +29,7 @@ layout_topbar('Tavoli', 'Mappa visuale del locale', $extra); ?>
                     :style="`left:${t.pos_x}px;top:${t.pos_y}px;width:${t.width||90}px;height:${t.height||90}px;border-radius:${t.shape==='round'?'50%':'12px'};`">
                     <div class="font-bold text-base" x-text="t.code"></div>
                     <div class="text-[10px] opacity-80" x-text="`${t.seats}p`"></div>
-                    <div x-show="t.order_total" class="text-[10px] mt-0.5 font-semibold" x-text="t.order_total ? '€'+parseFloat(t.order_total).toFixed(0) : ''"></div>
+                    <div x-show="t.order_total" class="text-[10px] mt-0.5 font-semibold" x-text="t.order_total ? 'LE '+parseFloat(t.order_total).toFixed(0) : ''"></div>
                     <div x-show="t.status==='occupied'" class="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full anim-pulse-slow"></div>
                 </div>
             </template>
@@ -52,7 +52,7 @@ layout_topbar('Tavoli', 'Mappa visuale del locale', $extra); ?>
             </template>
             <template x-if="modal && modal.order_id">
                 <div>
-                    <p class="text-sm text-slate-400 mb-4">Tavolo già aperto. Totale corrente: <strong class="text-emerald-400" x-text="'€'+parseFloat(modal.order_total||0).toFixed(2)"></strong></p>
+                    <p class="text-sm text-slate-400 mb-4">Tavolo già aperto. Totale corrente: <strong class="text-emerald-400" x-text="'LE '+parseFloat(modal.order_total||0).toFixed(2)"></strong></p>
                     <div class="flex flex-col gap-2">
                         <a :href="`/index.php?p=order_view&id=${modal.order_id}`" class="btn-primary text-center py-3 rounded-xl font-semibold">Apri ordine</a>
                         <a :href="`/index.php?p=waiter_table&id=${modal.id}`" class="text-center py-3 rounded-xl bg-white/5">Aggiungi prodotti</a>
