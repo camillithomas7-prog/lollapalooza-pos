@@ -18,6 +18,15 @@ layout_head(t('kitchen'));
             </div>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
+            <!-- Pillola "X pronti in attesa del cameriere" + Bottone Archivio -->
+            <div x-show="readyCount > 0" x-cloak
+                 class="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-800 dark:text-emerald-300 text-sm font-bold">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span><span x-text="readyCount"></span> <?= e(t('ready_waiting')) ?></span>
+            </div>
+            <button @click="openArchive()" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-white/5 text-sm font-medium hover:bg-slate-300 dark:hover:bg-white/10">
+                📋 <?= e(t('archive')) ?>
+            </button>
             <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 dark:bg-white/5 text-sm font-medium">
                 <span class="w-2.5 h-2.5 rounded-full"
                       :class="printerStatus === 'ready' ? 'bg-emerald-500 animate-pulse' : (printerStatus === 'connecting' ? 'bg-amber-500 animate-pulse' : 'bg-rose-500')"></span>
@@ -124,6 +133,57 @@ layout_head(t('kitchen'));
         <div class="text-6xl mb-4">🍽️</div>
         <div><?= e(t('no_orders_kitchen')) ?></div>
     </div>
+
+    <!-- MODAL ARCHIVIO -->
+    <div x-show="archiveOpen" x-cloak
+         class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center p-4 overflow-y-auto"
+         @click.self="archiveOpen = false"
+         @keydown.escape.window="archiveOpen = false">
+        <div class="card w-full max-w-3xl my-8 max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-white/10 flex items-center justify-between gap-3 bg-slate-50 dark:bg-white/5">
+                <div>
+                    <h2 class="font-bold text-lg">📋 <?= e(t('archive_title')) ?></h2>
+                    <p class="text-xs text-slate-500" x-text="archiveLoading ? '...' : (archiveOrders.length + ' ' + (archiveOrders.length === 1 ? 'ordine' : 'ordini'))"></p>
+                </div>
+                <button @click="archiveOpen = false" class="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-medium">✕ <?= e(t('close')) ?></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-3">
+                <div x-show="archiveLoading" class="text-center py-8 text-slate-400">...</div>
+                <div x-show="!archiveLoading && !archiveOrders.length" class="text-center py-12 text-slate-400">
+                    <div class="text-4xl mb-2">📭</div>
+                    <div><?= e(t('archive_empty')) ?></div>
+                </div>
+                <template x-for="o in archiveOrders" :key="o.order_id">
+                    <div class="card p-4 border-emerald-500/30 bg-emerald-500/5">
+                        <div class="flex items-start justify-between gap-3 mb-3">
+                            <div>
+                                <div class="text-xs text-slate-400"><?= e(t('order_table')) ?></div>
+                                <div class="text-2xl font-bold" x-text="o.table_code || o.order_code"></div>
+                                <div class="text-xs text-slate-500 mt-1" x-text="(o.waiter_name ? '<?= e(t('waiter')) ?>: ' + o.waiter_name : '')"></div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-slate-400"><?= e(t('completed_at')) ?></div>
+                                <div class="text-sm font-bold tabular-nums" x-text="formatTime(o.completed_at)"></div>
+                                <button @click="reopenOrder(o.order_id)"
+                                        class="mt-2 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold">
+                                    ↺ <?= e(t('reopen')) ?>
+                                </button>
+                            </div>
+                        </div>
+                        <ul class="text-sm space-y-1">
+                            <template x-for="it in o.items" :key="it.id">
+                                <li class="flex items-baseline gap-2">
+                                    <span class="text-emerald-500">✓</span>
+                                    <span class="font-bold text-amber-500 tabular-nums" x-text="parseFloat(it.qty).toFixed(0)+'×'"></span>
+                                    <span x-text="it.name"></span>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
 </div>
 
 <audio id="bell" preload="auto" src="data:audio/mp3;base64,SUQzAwAAAAAAEUVOR0FBQUFBQUFBQUFBQUFBQUFB"></audio>
@@ -138,6 +198,8 @@ const LANG = {
 };
 function kdsBoard(dest){return {
     orders: [], lastItemsCount: 0, dest,
+    readyCount: 0,
+    archiveOpen: false, archiveOrders: [], archiveLoading: false,
     syncFlash: false, syncErrors: 0, lastSyncMsg: 'In attesa…',
     pollTimer: null,
     printerStatus: 'disconnected', printerName: '', printerError: '',
@@ -176,6 +238,7 @@ function kdsBoard(dest){return {
             }
             this.orders = newOrders;
             this.lastItemsCount = newCount;
+            this.readyCount = d.ready_count || 0;
             // Sync OK: lampeggio verde + reset errori
             this.syncErrors = 0;
             this.lastSyncMsg = 'Ultimo aggiornamento: ' + new Date().toLocaleTimeString();
@@ -227,6 +290,34 @@ function kdsBoard(dest){return {
         if (m > 20) return 'border-rose-500/60 bg-rose-500/10 ring-2 ring-rose-500/30';
         if (m > 10) return 'border-amber-500/60 bg-amber-500/10';
         return '';
+    },
+
+    // ============ ARCHIVIO ============
+    async openArchive(){
+        this.archiveOpen = true;
+        this.archiveLoading = true;
+        try {
+            const r = await fetch('/api/orders.php?action=kitchen_archive&dest='+this.dest+'&lang=<?= e(current_lang()) ?>&hours=4', {cache:'no-store'});
+            const d = await r.json();
+            this.archiveOrders = d.orders || [];
+        } catch(e) { this.archiveOrders = []; }
+        this.archiveLoading = false;
+    },
+    async reopenOrder(orderId){
+        try {
+            await fetch('/api/orders.php?action=order_reopen', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({order_id: orderId, dest: this.dest})
+            });
+            // Refresh archivio e coda principale
+            this.archiveOpen = false;
+            await this.load();
+        } catch(e) { console.warn(e); }
+    },
+    formatTime(s){
+        if (!s) return '—';
+        try { return new Date(s.replace(' ','T')).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}); }
+        catch(e){ return s; }
     },
 
     // ============ STAMPANTE ============

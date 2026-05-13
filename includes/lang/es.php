@@ -67,4 +67,11 @@
     'sent' => 'enviado',
     'preparing_status' => 'prep.',
     'ready_status' => 'listo',
+    'archive' => 'Archivo',
+    'archive_title' => 'Pedidos completados',
+    'archive_empty' => 'Sin pedidos completados recientes',
+    'reopen' => 'Reabrir',
+    'completed_at' => 'Completado',
+    'ready_waiting' => 'listos, esperando al camarero',
+    'close' => 'Cerrar',
 ];

@@ -69,4 +69,11 @@
     'sent' => 'inviato',
     'preparing_status' => 'in prep.',
     'ready_status' => 'pronto',
+    'archive' => 'Archivio',
+    'archive_title' => 'Ordini completati',
+    'archive_empty' => 'Nessun ordine completato di recente',
+    'reopen' => 'Riapri',
+    'completed_at' => 'Completato',
+    'ready_waiting' => 'pronti, in attesa del cameriere',
+    'close' => 'Chiudi',
 ];

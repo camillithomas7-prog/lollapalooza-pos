@@ -67,4 +67,11 @@
     'sent' => 'envoyé',
     'preparing_status' => 'prép.',
     'ready_status' => 'prêt',
+    'archive' => 'Archive',
+    'archive_title' => 'Commandes terminées',
+    'archive_empty' => 'Aucune commande terminée récemment',
+    'reopen' => 'Rouvrir',
+    'completed_at' => 'Terminé',
+    'ready_waiting' => 'prêts, en attente du serveur',
+    'close' => 'Fermer',
 ];

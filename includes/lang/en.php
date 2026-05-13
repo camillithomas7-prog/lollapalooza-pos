@@ -67,4 +67,11 @@
     'sent' => 'sent',
     'preparing_status' => 'prep.',
     'ready_status' => 'ready',
+    'archive' => 'Archive',
+    'archive_title' => 'Completed orders',
+    'archive_empty' => 'No recent completed orders',
+    'reopen' => 'Reopen',
+    'completed_at' => 'Completed',
+    'ready_waiting' => 'ready, waiting for waiter',
+    'close' => 'Close',
 ];

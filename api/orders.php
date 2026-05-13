@@ -292,21 +292,24 @@ switch ($action) {
         $lang = $in['lang'] ?? null;
         if (!$lang || !in_array($lang, SUPPORTED_LANGS, true)) $lang = current_lang();
 
-        // Mostra anche gli ordini con tutti gli item appena finiti (status=ready)
-        // per ~30 secondi, così la cuoca vede un attimo "completato" prima
-        // che sparisca dalla coda (e per dargli tempo di annullare se ha
-        // sbagliato a spuntare). Item served scompaiono subito.
+        // Mostra SOLO gli item ancora da preparare (sent/preparing).
+        // Quando il cuoco marca "tutto pronto" la card sparisce subito alla
+        // prossima sync (entro 2 sec): cucina pulita, no accumulo di card
+        // barrate. Per il contatore dei piatti gia' pronti ma non ancora
+        // serviti vedi sotto la query separata "ready_count".
         $st = db()->prepare('SELECT oi.*, p.translations AS p_translations
             FROM order_items oi
             JOIN orders o ON o.id=oi.order_id
             LEFT JOIN products p ON p.id=oi.product_id
-            WHERE o.tenant_id=? AND oi.destination=? AND (
-                oi.status IN ("sent","preparing")
-                OR (oi.status = "ready" AND oi.ready_at >= ' . (DB_DRIVER === 'mysql' ? "DATE_SUB(NOW(), INTERVAL 30 SECOND)" : "datetime('now','-30 seconds')") . ')
-            )
+            WHERE o.tenant_id=? AND oi.destination=? AND oi.status IN ("sent","preparing")
             ORDER BY oi.sent_at ASC');
         $st->execute([$t, $dest]);
         $items = $st->fetchAll();
+
+        // Conteggio piatti gia' pronti ma non ancora serviti (per la pillola in cucina)
+        $readyCntSt = db()->prepare('SELECT COUNT(*) c FROM order_items oi JOIN orders o ON o.id=oi.order_id WHERE o.tenant_id=? AND oi.destination=? AND oi.status="ready"');
+        $readyCntSt->execute([$t, $dest]);
+        $readyCount = (int)$readyCntSt->fetch()['c'];
 
         // Recupera info ordini in una sola query.
         // IMPORTANTE: array_values per riindicizzare l'array (array_unique
@@ -361,7 +364,92 @@ switch ($action) {
         $list = array_values($orders);
         usort($list, fn($a, $b) => strcmp($a['sent_at'] ?? '', $b['sent_at'] ?? ''));
 
+        json_response(['orders' => $list, 'ready_count' => $readyCount]);
+
+    case 'kitchen_archive': {
+        // Archivio degli ordini completati (tutti gli item ready/served)
+        // nelle ultime N ore (default 2). Raggruppati per ordine, dal piu
+        // recente. Serve al cuoco per "rivedere cosa ha fatto" o riaprire
+        // un ordine se ha sbagliato a marcare pronto.
+        $dest  = $in['dest'] ?? 'kitchen';
+        $hours = max(1, min(12, (int)($in['hours'] ?? 2)));
+        $lang  = $in['lang'] ?? null;
+        if (!$lang || !in_array($lang, SUPPORTED_LANGS, true)) $lang = current_lang();
+        $cutoff = DB_DRIVER === 'mysql'
+            ? "DATE_SUB(NOW(), INTERVAL $hours HOUR)"
+            : "datetime('now','-$hours hours')";
+        // Tutti gli item per la destinazione, in stato ready/served, da $hours fa
+        $st = db()->prepare("SELECT oi.*, p.translations AS p_translations
+            FROM order_items oi
+            JOIN orders o ON o.id=oi.order_id
+            LEFT JOIN products p ON p.id=oi.product_id
+            WHERE o.tenant_id=? AND oi.destination=? AND oi.status IN ('ready','served')
+              AND COALESCE(oi.ready_at, oi.sent_at) >= $cutoff
+            ORDER BY COALESCE(oi.ready_at, oi.sent_at) DESC");
+        $st->execute([$t, $dest]);
+        $items = $st->fetchAll();
+
+        // Recupera info ordini in batch
+        $orderIds = array_values(array_unique(array_column($items, 'order_id')));
+        $ordersById = [];
+        if ($orderIds) {
+            $place = implode(',', array_fill(0, count($orderIds), '?'));
+            $os = db()->prepare("SELECT o.id, o.code AS order_code, t.code AS table_code, u.name AS waiter_name
+                FROM orders o LEFT JOIN tables t ON t.id=o.table_id LEFT JOIN users u ON u.id=o.waiter_id
+                WHERE o.id IN ($place)");
+            $os->execute($orderIds);
+            foreach ($os->fetchAll() as $o) $ordersById[$o['id']] = $o;
+        }
+
+        // Mostra SOLO ordini in cui TUTTI gli item della destinazione sono pronti/serviti
+        // (cioè la cucina ha finito tutta la sua parte). Esclude ordini ancora in lavorazione.
+        $byOid = [];
+        foreach ($items as $it) {
+            $oid = $it['order_id'];
+            $localized = tr_field($it['p_translations'] ?? null, 'name', $it['name'], $lang);
+            if ($localized) $it['name'] = $localized;
+            unset($it['p_translations']);
+            if (!isset($byOid[$oid])) {
+                $base = $ordersById[$oid] ?? [];
+                $byOid[$oid] = [
+                    'order_id'    => $oid,
+                    'order_code'  => $base['order_code'] ?? null,
+                    'table_code'  => $base['table_code'] ?? null,
+                    'waiter_name' => $base['waiter_name'] ?? null,
+                    'items'       => [],
+                    'completed_at'=> $it['ready_at'] ?? $it['sent_at'],
+                ];
+            }
+            $byOid[$oid]['items'][] = $it;
+            // tieni il timestamp piu recente come "completed_at"
+            $ts = $it['ready_at'] ?? $it['sent_at'];
+            if ($ts && $ts > $byOid[$oid]['completed_at']) $byOid[$oid]['completed_at'] = $ts;
+        }
+
+        // Filtra fuori gli ordini che hanno ANCHE item ancora pending (non davvero completati)
+        $pendingSt = db()->prepare("SELECT order_id FROM order_items WHERE destination=? AND status IN ('sent','preparing') AND order_id IN (" . (count($orderIds) ? implode(',', array_fill(0, count($orderIds), '?')) : 'NULL') . ")");
+        if ($orderIds) {
+            $pendingSt->execute(array_merge([$dest], $orderIds));
+            foreach ($pendingSt->fetchAll() as $p) unset($byOid[$p['order_id']]);
+        }
+
+        $list = array_values($byOid);
+        usort($list, fn($a, $b) => strcmp($b['completed_at'] ?? '', $a['completed_at'] ?? '')); // piu recenti prima
         json_response(['orders' => $list]);
+    }
+
+    case 'order_reopen': {
+        // Riapre un ordine archiviato: cambia status item da ready -> preparing.
+        // Cosi torna a comparire nella coda di cucina/bar.
+        $oid  = (int)($in['order_id'] ?? 0);
+        $dest = $in['dest'] ?? 'kitchen';
+        if (!$oid) json_response(['error' => 'missing order_id'], 400);
+        db()->prepare("UPDATE order_items SET status='preparing', ready_at=NULL
+                       WHERE order_id=? AND destination=? AND status='ready'")
+            ->execute([$oid, $dest]);
+        audit('reopen_order', 'orders', $oid, ['dest' => $dest]);
+        json_response(['ok' => true]);
+    }
 
     case 'ready_pickup':
         $st = db()->prepare('SELECT oi.*, t.code AS table_code FROM order_items oi JOIN orders o ON o.id=oi.order_id LEFT JOIN tables t ON t.id=o.table_id WHERE o.tenant_id=? AND oi.status="ready" ORDER BY oi.ready_at');

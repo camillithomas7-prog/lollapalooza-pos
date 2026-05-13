@@ -68,4 +68,11 @@
     'sent' => 'مُرسَل',
     'preparing_status' => 'قيد التحضير',
     'ready_status' => 'جاهز',
+    'archive' => 'الأرشيف',
+    'archive_title' => 'الطلبات المكتملة',
+    'archive_empty' => 'لا توجد طلبات مكتملة حديثة',
+    'reopen' => 'إعادة فتح',
+    'completed_at' => 'اكتمل في',
+    'ready_waiting' => 'جاهز، في انتظار النادل',
+    'close' => 'إغلاق',
 ];

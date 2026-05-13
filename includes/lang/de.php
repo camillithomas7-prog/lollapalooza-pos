@@ -67,4 +67,11 @@
     'sent' => 'gesendet',
     'preparing_status' => 'zub.',
     'ready_status' => 'fertig',
+    'archive' => 'Archiv',
+    'archive_title' => 'Abgeschlossene Bestellungen',
+    'archive_empty' => 'Keine kürzlich abgeschlossenen Bestellungen',
+    'reopen' => 'Wieder öffnen',
+    'completed_at' => 'Abgeschlossen',
+    'ready_waiting' => 'fertig, warten auf Kellner',
+    'close' => 'Schließen',
 ];
