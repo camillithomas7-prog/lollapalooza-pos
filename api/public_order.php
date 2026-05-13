@@ -59,11 +59,12 @@ if ($action === 'submit') {
         if (strlen($note) > 200) $note = substr($note, 0, 200);
         if (!$pid) continue;
 
-        $p = db()->prepare("SELECT p.*, c.destination FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.id=? AND p.tenant_id=? AND p.available=1");
+        $p = db()->prepare("SELECT p.*, p.destination AS p_dest, c.destination AS c_dest FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.id=? AND p.tenant_id=? AND p.available=1");
         $p->execute([$pid, $table['tenant_id']]);
         $prod = $p->fetch();
         if (!$prod) continue;
-        $dest = $prod['destination'] ?? 'kitchen';
+        // Risoluzione gerarchica: prodotto > categoria > 'kitchen' (fallback)
+        $dest = $prod['p_dest'] ?: ($prod['c_dest'] ?: 'kitchen');
         $destsAdded[$dest] = true;
         db()->prepare("INSERT INTO order_items (order_id, product_id, name, qty, price, cost, notes, destination, status, sent_at) VALUES (?,?,?,?,?,?,?,?,?,?)")
             ->execute([$orderId, $pid, $prod['name'], $qty, $prod['price'], $prod['cost'], $note, $dest, 'sent', $now]);

@@ -90,6 +90,9 @@ CREATE TABLE IF NOT EXISTS products (
     unit TEXT DEFAULT 'pz',
     sort INTEGER DEFAULT 0,
     translations TEXT,
+    -- destination override: se NULL eredita dalla categoria, altrimenti
+    -- forza l'invio a 'kitchen' / 'bar' / 'none' indipendentemente.
+    destination TEXT DEFAULT NULL,
     created_at TEXT
 );
 

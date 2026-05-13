@@ -44,6 +44,8 @@ switch ($action) {
             'stock_min' => (float)($in['stock_min'] ?? 0),
             'unit' => $in['unit'] ?? 'pz',
             'translations' => isset($in['translations']) ? (is_string($in['translations']) ? $in['translations'] : json_encode($in['translations'])) : null,
+            // destination: '' o assente = eredita dalla categoria; valore esplicito = override
+            'destination' => (isset($in['destination']) && in_array($in['destination'], ['kitchen','bar','none'], true)) ? $in['destination'] : null,
         ];
         if (!empty($in['id'])) {
             $sql = 'UPDATE products SET ' . implode(',', array_map(fn($k)=>"$k=?", array_keys($fields))) . ' WHERE id=? AND tenant_id=?';

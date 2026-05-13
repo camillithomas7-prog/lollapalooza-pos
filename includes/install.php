@@ -25,6 +25,21 @@ try {
     if ($upd->rowCount() > 0) echo "✓ Tenant aggiornati a valuta EGP (Lira Egiziana): " . $upd->rowCount() . "\n";
 } catch (Throwable $e) {}
 
+// Migrazione: aggiunge products.destination se mancante (override categoria)
+try {
+    if (DB_DRIVER === 'mysql') {
+        $check = $pdo->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'products' AND column_name = 'destination'")->fetchColumn();
+    } else {
+        $cols = $pdo->query("PRAGMA table_info(products)")->fetchAll(PDO::FETCH_ASSOC);
+        $check = 0;
+        foreach ($cols as $c) if ($c['name'] === 'destination') { $check = 1; break; }
+    }
+    if (!$check) {
+        $pdo->exec("ALTER TABLE products ADD COLUMN destination " . (DB_DRIVER === 'mysql' ? "VARCHAR(20)" : "TEXT") . " DEFAULT NULL");
+        echo "✓ Aggiunta colonna products.destination (override per prodotto)\n";
+    }
+} catch (Throwable $e) { echo "⚠ Errore migrazione destination: " . $e->getMessage() . "\n"; }
+
 // Demo tenant
 $st = $pdo->prepare('SELECT COUNT(*) c FROM tenants');
 $st->execute();

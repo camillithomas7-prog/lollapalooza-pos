@@ -115,12 +115,17 @@ switch ($action) {
         $pid = (int)$in['product_id'];
         $qty = (float)($in['qty'] ?? 1);
         $notes = $in['notes'] ?? '';
-        $p = db()->prepare('SELECT p.*, c.destination FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.id=? AND p.tenant_id=?');
+        // Recupera prodotto + destination categoria. Risoluzione gerarchica:
+        // 1. prodotto.destination (se valorizzata = override admin)
+        // 2. categoria.destination (default ereditato)
+        // 3. 'kitchen' come ultimo fallback
+        $p = db()->prepare('SELECT p.*, p.destination AS p_dest, c.destination AS c_dest FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.id=? AND p.tenant_id=?');
         $p->execute([$pid, $t]);
         $product = $p->fetch();
         if (!$product) json_response(['error' => 'prodotto non trovato'], 404);
+        $dest = $product['p_dest'] ?: ($product['c_dest'] ?: 'kitchen');
         db()->prepare('INSERT INTO order_items (order_id, product_id, name, qty, price, cost, notes, destination, status) VALUES (?,?,?,?,?,?,?,?,?)')
-            ->execute([$oid, $pid, $product['name'], $qty, $product['price'], $product['cost'], $notes, $product['destination'] ?? 'kitchen', 'draft']);
+            ->execute([$oid, $pid, $product['name'], $qty, $product['price'], $product['cost'], $notes, $dest, 'draft']);
         recalc_order($oid);
         json_response(['ok' => true]);
 

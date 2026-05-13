@@ -97,6 +97,7 @@ CREATE TABLE IF NOT EXISTS products (
     unit VARCHAR(20) DEFAULT 'pz',
     sort INT DEFAULT 0,
     translations TEXT,
+    destination VARCHAR(20) DEFAULT NULL,
     created_at DATETIME,
     INDEX idx_prod_cat (category_id, available),
     INDEX idx_prod_tenant (tenant_id)

@@ -39,6 +39,18 @@
                             <button @click="toggleAvail(p)" :class="p.available?'text-emerald-400':'text-slate-500'" class="text-xs">
                                 <span x-text="p.available?'✓ Disp.':'✗ Esaurito'"></span>
                             </button>
+                            <!-- Badge destinazione: dice a colpo d'occhio dove va l'ordine -->
+                            <span :class="{
+                                    'bg-orange-500/20 text-orange-700 dark:text-orange-300': prodFinalDest(p)==='kitchen',
+                                    'bg-violet-500/20 text-violet-700 dark:text-violet-300': prodFinalDest(p)==='bar',
+                                    'bg-slate-500/20 text-slate-700 dark:text-slate-400': prodFinalDest(p)==='none'
+                                  }"
+                                  class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                  :title="p.destination ? 'Override: ' + prodFinalDest(p) : 'Eredita dalla categoria'">
+                                <span x-show="prodFinalDest(p)==='kitchen'">👨‍🍳 Cucina</span>
+                                <span x-show="prodFinalDest(p)==='bar'">🍸 Bar</span>
+                                <span x-show="prodFinalDest(p)==='none'">❌</span>
+                            </span>
                         </div>
                         <div class="font-semibold text-sm leading-tight mb-1" x-text="p.name"></div>
                         <div class="text-xs text-slate-400 mb-2" x-text="p.category_name"></div>
@@ -100,6 +112,18 @@
                 <div class="col-span-2"><label class="text-xs text-slate-400">Nome</label><input x-model="prodModal.name" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
                 <div class="col-span-2"><label class="text-xs text-slate-400">Descrizione</label><textarea x-model="prodModal.description" rows="2" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></textarea></div>
                 <div><label class="text-xs text-slate-400">Categoria</label><select x-model.number="prodModal.category_id" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"><template x-for="c in categories" :key="c.id"><option :value="c.id" x-text="c.name"></option></template></select></div>
+                <div class="col-span-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                    <label class="text-xs font-bold text-amber-700 dark:text-amber-300 flex items-center gap-2 mb-1">
+                        🎯 Dove va l'ordine?
+                    </label>
+                    <select x-model="prodModal.destination" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
+                        <option value="">↪ Eredita dalla categoria (<span x-text="catDestLabel(prodModal.category_id)"></span>)</option>
+                        <option value="kitchen">👨‍🍳 Cucina</option>
+                        <option value="bar">🍸 Bar</option>
+                        <option value="none">❌ Nessuna stampa (es. servizio coperto)</option>
+                    </select>
+                    <p class="text-[11px] text-slate-500 mt-1">Decide su quale schermo apparirà la comanda quando il cameriere/cliente ordina questo prodotto.</p>
+                </div>
                 <div><label class="text-xs text-slate-400">IVA %</label><input type="number" x-model.number="prodModal.vat" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
                 <div><label class="text-xs text-slate-400">Prezzo (LE)</label><input type="number" step="0.01" x-model.number="prodModal.price" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
                 <div><label class="text-xs text-slate-400">Costo (LE)</label><input type="number" step="0.01" x-model.number="prodModal.cost" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></div>
@@ -169,8 +193,19 @@ function menuMgr(){return {
     editProd(p){
         let tr = this.emptyTranslations();
         try { if (p.translations) { const parsed = typeof p.translations === 'string' ? JSON.parse(p.translations) : p.translations; for (const lc in tr) tr[lc] = {...tr[lc], ...(parsed[lc]||{})}; } } catch(e){}
-        this.prodModal={...p,price:parseFloat(p.price||0),cost:parseFloat(p.cost||0),vat:parseFloat(p.vat||22),stock:parseFloat(p.stock||0),stock_min:parseFloat(p.stock_min||0),available:p.available??1,track_stock:p.track_stock??0,category_id:p.category_id||this.categories[0]?.id, translations: tr};
+        this.prodModal={...p, price:parseFloat(p.price||0), cost:parseFloat(p.cost||0), vat:parseFloat(p.vat||22), stock:parseFloat(p.stock||0), stock_min:parseFloat(p.stock_min||0), available:p.available??1, track_stock:p.track_stock??0, category_id:p.category_id||this.categories[0]?.id, translations: tr, destination: p.destination || ''};
         this.trLang = 'en';
+    },
+    catDestLabel(catId){
+        const c = this.categories.find(c => c.id === catId);
+        if (!c) return 'cucina';
+        return c.destination === 'bar' ? '🍸 Bar' : (c.destination === 'none' ? '❌ Nessuna' : '👨‍🍳 Cucina');
+    },
+    prodFinalDest(p){
+        // Risoluzione gerarchica come server-side: prodotto > categoria > kitchen
+        if (p.destination === 'kitchen' || p.destination === 'bar' || p.destination === 'none') return p.destination;
+        const c = this.categories.find(c => c.id === p.category_id);
+        return (c && c.destination) ? c.destination : 'kitchen';
     },
     async saveProd(){await fetch('/api/menu.php?action=save_product',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(this.prodModal)});this.prodModal=null;this.load();},
     async deleteProd(){if(!confirm('Eliminare?'))return;await fetch('/api/menu.php?action=delete_product',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:this.prodModal.id})});this.prodModal=null;this.load();},
