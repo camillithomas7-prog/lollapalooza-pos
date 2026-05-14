@@ -98,60 +98,77 @@ $PROMPTS = [
 $only = $argv[1] ?? null;
 $done = 0; $skip = 0; $fail = 0;
 
+// Costruisci la lista di lavoro (slug => prompt), saltando quelle già fatte
+$todo = [];
 foreach ($PROMPTS as $slug => $prompt) {
     if ($only && $slug !== $only) continue;
     $dest = "$OUT_DIR/$slug.jpg";
-    if (!$only && file_exists($dest) && filesize($dest) > 5000) {
-        echo "⏭  $slug (esiste già)\n";
-        $skip++;
-        continue;
-    }
-    echo "🎨 $slug ... ";
-    flush();
+    if (!$only && file_exists($dest) && filesize($dest) > 5000) { $skip++; continue; }
+    $todo[$slug] = $prompt;
+}
+echo "Da generare: " . count($todo) . " · già fatte: $skip\n\n";
 
-    $payload = json_encode([
-        'model'   => 'gpt-image-2',
-        'prompt'  => $prompt,
-        'size'    => '1024x1024',
-        'quality' => 'medium',
-        'n'       => 1,
-    ]);
-    $ch = curl_init('https://api.openai.com/v1/images/generations');
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => $payload,
-        CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Authorization: Bearer ' . $API_KEY],
-        CURLOPT_TIMEOUT => 120,
-    ]);
-    $resp = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+// Genera in PARALLELO con curl_multi, in batch di BATCH richieste contemporanee.
+// OpenAI images ha rate limit: batch moderato per non beccare 429.
+$BATCH = 8;
+$batches = array_chunk($todo, $BATCH, true);
 
-    if ($code !== 200) {
-        echo "❌ HTTP $code\n";
-        $err = json_decode($resp, true);
-        if (isset($err['error']['message'])) echo "   " . $err['error']['message'] . "\n";
-        $fail++;
-        sleep(2);
-        continue;
+foreach ($batches as $bi => $batch) {
+    echo "--- Batch " . ($bi + 1) . "/" . count($batches) . " (" . count($batch) . " immagini in parallelo) ---\n";
+    $mh = curl_multi_init();
+    $handles = [];
+    foreach ($batch as $slug => $prompt) {
+        $payload = json_encode([
+            'model'   => 'gpt-image-2',
+            'prompt'  => $prompt,
+            'size'    => '1024x1024',
+            'quality' => 'medium',
+            'n'       => 1,
+        ]);
+        $ch = curl_init('https://api.openai.com/v1/images/generations');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $payload,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Authorization: Bearer ' . $API_KEY],
+            CURLOPT_TIMEOUT => 180,
+        ]);
+        curl_multi_add_handle($mh, $ch);
+        $handles[$slug] = $ch;
     }
-    $j = json_decode($resp, true);
-    $b64 = $j['data'][0]['b64_json'] ?? null;
-    if (!$b64) { echo "❌ nessuna immagine\n"; $fail++; continue; }
 
-    // gpt-image-2 ritorna PNG; converto/salvo come jpg via GD
-    $raw = base64_decode($b64);
-    $img = @imagecreatefromstring($raw);
-    if ($img) {
-        imagejpeg($img, $dest, 86);
-        imagedestroy($img);
-    } else {
-        file_put_contents($dest, $raw); // fallback: salva raw
+    // Esegui tutte le richieste del batch in parallelo
+    $running = null;
+    do {
+        curl_multi_exec($mh, $running);
+        curl_multi_select($mh, 1.0);
+    } while ($running > 0);
+
+    // Raccogli i risultati
+    foreach ($handles as $slug => $ch) {
+        $resp = curl_multi_getcontent($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_multi_remove_handle($mh, $ch);
+
+        if ($code !== 200) {
+            $err = json_decode($resp, true);
+            echo "  ❌ $slug — HTTP $code " . ($err['error']['message'] ?? '') . "\n";
+            $fail++;
+            continue;
+        }
+        $j = json_decode($resp, true);
+        $b64 = $j['data'][0]['b64_json'] ?? null;
+        if (!$b64) { echo "  ❌ $slug — nessuna immagine\n"; $fail++; continue; }
+
+        $raw = base64_decode($b64);
+        $dest = "$OUT_DIR/$slug.jpg";
+        $img = @imagecreatefromstring($raw);
+        if ($img) { imagejpeg($img, $dest, 86); }
+        else      { file_put_contents($dest, $raw); }
+        echo "  ✓ $slug (" . round(filesize($dest)/1024) . " KB)\n";
+        $done++;
     }
-    echo "✓ (" . round(filesize($dest)/1024) . " KB)\n";
-    $done++;
-    usleep(300000); // piccola pausa fra le chiamate
+    curl_multi_close($mh);
 }
 
 echo "\n=== Generate: $done · Saltate: $skip · Errori: $fail ===\n";
