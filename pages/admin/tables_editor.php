@@ -14,9 +14,14 @@
         <div class="relative" :style="`width:${currentRoomData()?.width||900}px;height:${currentRoomData()?.height||600}px;background:repeating-linear-gradient(0deg,rgba(255,255,255,0.02) 0,rgba(255,255,255,0.02) 1px,transparent 1px,transparent 40px),repeating-linear-gradient(90deg,rgba(255,255,255,0.02) 0,rgba(255,255,255,0.02) 1px,transparent 1px,transparent 40px);border-radius:12px;`">
             <template x-for="t in roomTables()" :key="t.id">
                 <div class="absolute cursor-move"
-                    :style="`left:${t.pos_x}px;top:${t.pos_y}px;width:${t.width||90}px;height:${t.height||90}px;`"
+                    :style="`left:${t.pos_x}px;top:${t.pos_y}px;width:${tableSize(t)}px;height:${tableSize(t)}px;`"
                     @mousedown="startDrag($event, t)"
                     @click="selected=t">
+                    <template x-for="(c,i) in chairs(t)" :key="i">
+                        <div class="absolute"
+                            :class="selected?.id===t.id?'bg-brand-400':'bg-white/30'"
+                            :style="`left:${c.left}px;top:${c.top}px;width:${c.w}px;height:${c.h}px;border-radius:${c.radius};`"></div>
+                    </template>
                     <div class="w-full h-full flex flex-col items-center justify-center border-2 text-center"
                         :class="selected?.id===t.id?'border-brand-500 bg-brand-500/20':'border-white/20 bg-white/5'"
                         :style="`border-radius:${t.shape==='round'?'50%':'12px'};`">
@@ -59,6 +64,35 @@ function editor() {
         },
         currentRoomData() { return this.rooms.find(r=>r.id===this.currentRoom); },
         roomTables() { return this.tables.filter(t=>t.room_id===this.currentRoom); },
+        // Dimensione del tavolo proporzionale ai coperti
+        tableSize(t) {
+            const s = Math.max(1, parseInt(t.seats) || 2);
+            return Math.min(190, 58 + s * 12);
+        },
+        // Posizione delle sedie attorno al tavolo (calcolata da forma + coperti)
+        chairs(t) {
+            const size = this.tableSize(t);
+            const n = Math.max(1, parseInt(t.seats) || 2);
+            const out = [];
+            if (t.shape === 'round') {
+                const cs = 15, r = size/2 + 9;
+                for (let i=0;i<n;i++) {
+                    const a = (Math.PI*2*i/n) - Math.PI/2;
+                    out.push({ left:size/2 + r*Math.cos(a) - cs/2, top:size/2 + r*Math.sin(a) - cs/2, w:cs, h:cs, radius:'50%' });
+                }
+            } else {
+                const base = Math.floor(n/4), counts = [base,base,base,base]; // top, bottom, right, left
+                for (let k=0;k<n%4;k++) counts[k]++;
+                const [top,bot,right,left] = counts;
+                const thick = 12, len = 22, gap = 5;
+                const spread = (count) => { const a=[]; for(let i=0;i<count;i++) a.push(size*(i+1)/(count+1)); return a; };
+                spread(top).forEach(x   => out.push({ left:x-len/2, top:-thick-gap, w:len, h:thick, radius:'5px' }));
+                spread(bot).forEach(x   => out.push({ left:x-len/2, top:size+gap, w:len, h:thick, radius:'5px' }));
+                spread(right).forEach(y => out.push({ left:size+gap, top:y-len/2, w:thick, h:len, radius:'5px' }));
+                spread(left).forEach(y  => out.push({ left:-thick-gap, top:y-len/2, w:thick, h:len, radius:'5px' }));
+            }
+            return out;
+        },
         startDrag(e, t) {
             e.preventDefault(); this.selected = t; this.dragging = t;
             const startX = e.clientX, startY = e.clientY, ox = t.pos_x, oy = t.pos_y;
