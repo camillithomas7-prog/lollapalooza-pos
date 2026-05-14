@@ -24,13 +24,20 @@ layout_topbar('Tavoli', 'Mappa visuale del locale', $extra); ?>
         <div class="relative" :style="`width:${currentRoomData()?.width||900}px;height:${currentRoomData()?.height||600}px;background:radial-gradient(circle at 50% 50%, rgba(139,92,246,0.05), transparent);border-radius:12px;`">
             <template x-for="t in roomTables()" :key="t.id">
                 <div @click="clickTable(t)"
-                    class="table-card absolute rounded-xl border-2 flex flex-col items-center justify-center text-center p-2 hover:scale-105"
-                    :class="t.status"
-                    :style="`left:${t.pos_x}px;top:${t.pos_y}px;width:${t.width||90}px;height:${t.height||90}px;border-radius:${t.shape==='round'?'50%':'12px'};`">
-                    <div class="font-bold text-base" x-text="t.code"></div>
-                    <div class="text-[10px] opacity-80" x-text="`${t.seats}p`"></div>
-                    <div x-show="t.order_total" class="text-[10px] mt-0.5 font-semibold" x-text="t.order_total ? 'LE '+parseFloat(t.order_total).toFixed(0) : ''"></div>
-                    <div x-show="t.status==='occupied'" class="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full anim-pulse-slow"></div>
+                    class="absolute cursor-pointer transition-transform hover:scale-105"
+                    :style="`left:${t.pos_x}px;top:${t.pos_y}px;width:${tableSize(t)}px;height:${tableSize(t)}px;`">
+                    <template x-for="(c,i) in chairs(t)" :key="i">
+                        <div class="absolute bg-white/25"
+                            :style="`left:${c.left}px;top:${c.top}px;width:${c.w}px;height:${c.h}px;border-radius:${c.radius};`"></div>
+                    </template>
+                    <div class="table-card relative w-full h-full border-2 flex flex-col items-center justify-center text-center p-2"
+                        :class="t.status"
+                        :style="`border-radius:${t.shape==='round'?'50%':'12px'};`">
+                        <div class="font-bold text-base" x-text="t.code"></div>
+                        <div class="text-[10px] opacity-80" x-text="`${t.seats}p`"></div>
+                        <div x-show="t.order_total" class="text-[10px] mt-0.5 font-semibold" x-text="t.order_total ? 'LE '+parseFloat(t.order_total).toFixed(0) : ''"></div>
+                        <div x-show="t.status==='occupied'" class="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full anim-pulse-slow"></div>
+                    </div>
                 </div>
             </template>
         </div>
@@ -76,6 +83,35 @@ function tablesPage() {
         },
         currentRoomData() { return this.rooms.find(r=>r.id===this.currentRoom); },
         roomTables() { return this.tables.filter(t=>t.room_id===this.currentRoom); },
+        // Stessa logica dell'editor: dimensione proporzionale ai coperti
+        tableSize(t) {
+            const s = Math.max(1, parseInt(t.seats) || 2);
+            return Math.min(190, 58 + s * 12);
+        },
+        // Stessa logica dell'editor: sedie attorno al tavolo
+        chairs(t) {
+            const size = this.tableSize(t);
+            const n = Math.max(1, parseInt(t.seats) || 2);
+            const out = [];
+            if (t.shape === 'round') {
+                const cs = 15, r = size/2 + 9;
+                for (let i=0;i<n;i++) {
+                    const a = (Math.PI*2*i/n) - Math.PI/2;
+                    out.push({ left:size/2 + r*Math.cos(a) - cs/2, top:size/2 + r*Math.sin(a) - cs/2, w:cs, h:cs, radius:'50%' });
+                }
+            } else {
+                const base = Math.floor(n/4), counts = [base,base,base,base];
+                for (let k=0;k<n%4;k++) counts[k]++;
+                const [top,bot,right,left] = counts;
+                const thick = 12, len = 22, gap = 5;
+                const spread = (count) => { const a=[]; for(let i=0;i<count;i++) a.push(size*(i+1)/(count+1)); return a; };
+                spread(top).forEach(x   => out.push({ left:x-len/2, top:-thick-gap, w:len, h:thick, radius:'5px' }));
+                spread(bot).forEach(x   => out.push({ left:x-len/2, top:size+gap, w:len, h:thick, radius:'5px' }));
+                spread(right).forEach(y => out.push({ left:size+gap, top:y-len/2, w:thick, h:len, radius:'5px' }));
+                spread(left).forEach(y  => out.push({ left:-thick-gap, top:y-len/2, w:thick, h:len, radius:'5px' }));
+            }
+            return out;
+        },
         clickTable(t) { this.modal = t; this.guests = 2; },
         async openTable() {
             const r = await fetch('/api/tables.php?action=open',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({table_id:this.modal.id, guests:this.guests})});
