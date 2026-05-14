@@ -318,3 +318,16 @@ CREATE INDEX IF NOT EXISTS idx_items_status ON order_items(status, destination);
 CREATE INDEX IF NOT EXISTS idx_products_cat ON products(category_id, available);
 CREATE INDEX IF NOT EXISTS idx_payments_order ON payments(order_id);
 CREATE INDEX IF NOT EXISTS idx_stock_product ON stock_movements(product_id);
+
+CREATE TABLE IF NOT EXISTS funnels (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tenant_id INTEGER DEFAULT 1,
+    slug TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    active INTEGER DEFAULT 1,
+    views INTEGER DEFAULT 0,
+    created_at TEXT,
+    updated_at TEXT
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_funnels_slug ON funnels(slug);

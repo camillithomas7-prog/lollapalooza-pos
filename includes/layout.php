@@ -213,6 +213,7 @@ function sidebar_links(string $role): array {
             ['reservations', 'Prenotazioni', '📅'],
             ['customers', 'Clienti', '⭐'],
             ['reports', 'Report', '📄'],
+            ['funnels', 'Funnel', '🎯'],
             ['qrcodes', 'QR Tavoli', '📱'],
             ['settings', 'Impostazioni', '⚙️'],
         ],
@@ -226,6 +227,7 @@ function sidebar_links(string $role): array {
             ['staff', 'Personale', '👥'],
             ['reservations', 'Prenotazioni', '📅'],
             ['reports', 'Report', '📄'],
+            ['funnels', 'Funnel', '🎯'],
             ['qrcodes', 'QR Tavoli', '📱'],
         ],
         'cassiere' => [

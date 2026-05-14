@@ -234,3 +234,29 @@ try {
 } catch (Throwable $e) {
     echo "⚠ Errore traduzioni: " . $e->getMessage() . "\n";
 }
+
+// === Auto-registrazione funnel dalla cartella /funnels (idempotente) =======
+// Ogni sottocartella di /funnels con un index.html è un funnel pubblico.
+// I file viaggiano via git; questa scansione crea la riga DB mancante
+// (necessaria perché SQLite locale e MySQL Hostinger non si sincronizzano).
+try {
+    $funnelsDir = BASE_PATH . '/funnels';
+    if (is_dir($funnelsDir)) {
+        foreach (glob($funnelsDir . '/*', GLOB_ONLYDIR) as $fdir) {
+            $slug = basename($fdir);
+            if (!is_file("$fdir/index.html")) continue;
+            $ex = $pdo->prepare('SELECT id FROM funnels WHERE slug = ?');
+            $ex->execute([$slug]);
+            if ($ex->fetchColumn()) continue;
+            $meta = is_file("$fdir/funnel.json")
+                ? (json_decode((string)file_get_contents("$fdir/funnel.json"), true) ?: [])
+                : [];
+            $now = date('Y-m-d H:i:s');
+            $pdo->prepare('INSERT INTO funnels (tenant_id, slug, title, description, active, views, created_at, updated_at) VALUES (1,?,?,?,1,0,?,?)')
+                ->execute([$slug, $meta['title'] ?? $slug, $meta['description'] ?? '', $meta['created_at'] ?? $now, $now]);
+            echo "✓ Funnel registrato: $slug\n";
+        }
+    }
+} catch (Throwable $e) {
+    echo "⚠ Errore registrazione funnel: " . $e->getMessage() . "\n";
+}

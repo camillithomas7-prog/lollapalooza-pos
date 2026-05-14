@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lollapalooza · Ahmad Sami Party Night — Sabato 16 Maggio</title>
+<meta name="description" content="Cucina italiana vera a Sharm el Sheikh — salumi italiani, anche maiale — e poi la serata con Ahmad Sami. Cena o dopo cena, sabato 16 maggio. Prenota su WhatsApp.">
+<meta property="og:title" content="Lollapalooza — Ahmad Sami Party Night, Sabato 16 Maggio">
+<meta property="og:description" content="Cucina italiana vera, salumi italiani, e poi la serata. Spezza la routine dei soliti locali. Prenota su WhatsApp.">
+<meta property="og:image" content="assets/locandina.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#0a0908; --black2:#13110e; --panel:#1a1714;
+    --gold:#c9a24b; --gold-l:#e3c585; --gold-d:#9a7a32;
+    --cream:#f4ede0; --muted:#b3a892; --line:rgba(201,162,75,.22);
+    --wa:#25d366;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--black);color:var(--cream);
+    font-family:'Jost',system-ui,sans-serif;font-weight:300;
+    line-height:1.7;font-size:16px;overflow-x:hidden;
+    padding-bottom:84px; /* spazio per la barra WA fissa */
+  }
+  h1,h2,h3{font-family:'Playfair Display',serif;font-weight:700;line-height:1.18;letter-spacing:.2px;text-wrap:balance;}
+  img{max-width:100%;height:auto;}
+  p{text-wrap:pretty;}
+  .wrap{max-width:680px;margin:0 auto;padding:0 22px;}
+  .gold{color:var(--gold);}
+  .script{font-style:italic;font-weight:500;color:var(--gold-l);}
+  .eyebrow{
+    font-family:'Jost',sans-serif;font-weight:500;font-size:12px;
+    letter-spacing:3.5px;text-transform:uppercase;color:var(--gold);
+    display:flex;align-items:center;gap:12px;
+  }
+  .eyebrow::before,.eyebrow::after{content:"";height:1px;flex:0 0 26px;background:var(--gold-d);}
+  .eyebrow.center{justify-content:center;}
+  .eyebrow.left::before{display:none;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;text-align:center;
+    padding:38px 0 46px;
+    background:
+      radial-gradient(ellipse at 50% 0%,rgba(201,162,75,.16),transparent 60%),
+      linear-gradient(180deg,#000 0%,var(--black2) 100%);
+    border-bottom:1px solid var(--line);
+  }
+  .logo{width:74px;height:auto;border-radius:8px;margin:0 auto 18px;display:block;
+    box-shadow:0 8px 30px rgba(0,0,0,.6);}
+  .hero .kicker{font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);}
+  .hero h1{
+    font-size:clamp(34px,9vw,52px);margin:8px 0 4px;
+    text-shadow:0 4px 30px rgba(0,0,0,.5);
+  }
+  .hero h1 .script{display:block;font-size:.78em;margin-top:-.12em;}
+  .hero p.lead{
+    color:var(--muted);font-size:16px;max-width:430px;margin:14px auto 0;
+  }
+  .poster{
+    margin:26px auto 0;max-width:330px;width:100%;border-radius:14px;
+    border:1px solid var(--line);
+    box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 0 6px rgba(255,255,255,.02);
+    display:block;
+  }
+  .poster-cap{font-size:12.5px;color:var(--muted);letter-spacing:.5px;margin-top:10px;}
+
+  /* ---------- BADGE INFO EVENTO ---------- */
+  .facts{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+    background:var(--line);border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;margin:28px 0 0;
+  }
+  .fact{background:var(--black2);padding:18px 8px;text-align:center;}
+  .fact .v{font-family:'Playfair Display',serif;font-size:19px;color:var(--gold-l);font-weight:700;}
+  .fact .k{font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+
+  /* ---------- SEZIONI ---------- */
+  section{padding:54px 0;}
+  section.alt{background:var(--black2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  h2{font-size:clamp(26px,6.6vw,36px);margin:14px 0 0;}
+  .sub{color:var(--muted);margin-top:14px;font-size:15.5px;}
+  p+p{margin-top:14px;}
+
+  .imground{
+    width:100%;border-radius:14px;border:1px solid var(--line);
+    box-shadow:0 16px 44px rgba(0,0,0,.6);display:block;margin-top:24px;
+  }
+  .imgcap{font-size:12.5px;color:var(--muted);margin-top:9px;text-align:center;letter-spacing:.3px;}
+
+  /* chef */
+  .chef-quote{
+    font-family:'Jost',sans-serif;font-weight:300;font-size:18.5px;
+    line-height:1.6;color:var(--cream);margin-top:22px;
+    padding-left:18px;border-left:3px solid var(--gold);
+  }
+  .chef-quote b{color:var(--gold-l);font-weight:600;}
+
+  /* USP maiale / salumi */
+  .usp{
+    margin-top:24px;background:linear-gradient(135deg,rgba(201,162,75,.12),rgba(201,162,75,.03));
+    border:1px solid var(--gold-d);border-radius:16px;padding:24px 22px;
+  }
+  .usp .tag{
+    display:inline-block;font-size:11px;letter-spacing:2px;text-transform:uppercase;
+    color:var(--black);background:var(--gold);font-weight:600;
+    padding:5px 12px;border-radius:99px;font-family:'Jost',sans-serif;
+  }
+  .usp h3{font-size:22px;margin:14px 0 8px;color:var(--gold-l);}
+  .usp p{color:var(--cream);font-size:15px;}
+
+  /* due modi */
+  .cards{display:grid;gap:16px;margin-top:26px;}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:24px 22px;position:relative;overflow:hidden;
+  }
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--gold-d),var(--gold-l),var(--gold-d));}
+  .card .n{font-family:'Playfair Display',serif;font-size:13px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;}
+  .card h3{font-size:23px;margin:6px 0 8px;}
+  .card p{color:var(--muted);font-size:14.5px;}
+  .card .when{margin-top:14px;font-size:13px;color:var(--gold-l);letter-spacing:.5px;}
+  .card .btn{margin-top:18px;width:100%;}
+
+  /* lista plus */
+  .plus{list-style:none;margin-top:22px;display:grid;gap:14px;}
+  .plus li{
+    position:relative;padding-left:26px;font-size:15px;
+    line-height:1.55;color:var(--cream);
+  }
+  .plus li b{color:var(--gold-l);font-weight:600;}
+  .plus li::before{
+    content:"";position:absolute;left:0;top:7px;
+    width:9px;height:9px;border-radius:50%;
+    background:var(--gold);box-shadow:0 0 0 4px rgba(201,162,75,.15);
+  }
+
+  /* gallery */
+  .gal{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px;}
+  .gal img{width:100%;height:100%;object-fit:cover;border-radius:12px;border:1px solid var(--line);aspect-ratio:1/1;}
+
+  /* ---------- BOTTONI ---------- */
+  .btn{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    font-family:'Jost',sans-serif;font-weight:600;font-size:16px;letter-spacing:.3px;
+    padding:16px 22px;border-radius:99px;text-decoration:none;cursor:pointer;
+    transition:transform .15s ease,box-shadow .15s ease;border:none;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-wa{background:var(--wa);color:#04210f;box-shadow:0 10px 28px rgba(37,211,102,.32);}
+  .btn-gold{
+    background:linear-gradient(135deg,var(--gold-l),var(--gold));color:#2a1f06;
+    box-shadow:0 10px 28px rgba(201,162,75,.3);
+  }
+  .btn-ghost{background:transparent;border:1px solid var(--gold);color:var(--gold-l);}
+  .btn svg{width:21px;height:21px;flex:0 0 auto;}
+
+  .cta-final{text-align:center;}
+  .cta-final h2{margin-bottom:8px;}
+  .cta-final .btn{max-width:420px;margin:22px auto 0;}
+  .cta-note{font-size:13px;color:var(--muted);margin-top:14px;}
+
+  /* barra WA fissa */
+  .wa-bar{
+    position:fixed;left:0;right:0;bottom:0;z-index:50;
+    background:rgba(10,9,8,.94);backdrop-filter:blur(10px);
+    border-top:1px solid var(--line);padding:12px 16px;
+    display:flex;gap:10px;
+  }
+  .wa-bar .btn{flex:1;padding:14px 12px;font-size:14.5px;}
+  .wa-bar .btn svg{width:18px;height:18px;}
+
+  /* footer */
+  footer{
+    text-align:center;padding:40px 0 30px;border-top:1px solid var(--line);
+    background:var(--black2);
+  }
+  footer .logo{width:54px;margin-bottom:14px;}
+  footer .name{font-family:'Playfair Display',serif;font-size:20px;letter-spacing:3px;color:var(--gold-l);}
+  footer .addr{color:var(--muted);font-size:13.5px;margin-top:8px;letter-spacing:.5px;}
+  footer .num{color:var(--cream);font-size:14px;margin-top:10px;}
+  footer .num a{color:var(--gold-l);text-decoration:none;}
+
+  .divider{width:46px;height:2px;background:var(--gold);margin:0 0 4px;}
+  .center{text-align:center;}
+  .center .divider{margin:0 auto 4px;}
+
+  @media(min-width:560px){
+    .cards{grid-template-columns:1fr 1fr;}
+    .gal{grid-template-columns:repeat(4,1fr);}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap">
+    <img src="assets/logo.jpg" alt="Lollapalooza" class="logo">
+    <div class="kicker">Lollapalooza · Sharm el Sheikh</div>
+    <h1>Party Night<span class="script">con Ahmad Sami</span></h1>
+    <p class="lead">Una cena italiana vera. E poi la serata che a Sharm non trovi da nessun'altra parte.</p>
+
+    <img src="assets/locandina.jpg" alt="Locandina Ahmad Sami Party Night — Sabato 16 Maggio" class="poster">
+    <div class="poster-cap">L'ospite della serata · Sabato 16 Maggio</div>
+
+    <div class="facts">
+      <div class="fact"><div class="v">Sab 16 Mag</div><div class="k">La data</div></div>
+      <div class="fact"><div class="v">21:00 — 03:00</div><div class="k">Orario</div></div>
+      <div class="fact"><div class="v">Al Motelat</div><div class="k">Sharm 2</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= SPEZZA LA ROUTINE ================= -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow left">Perché proprio qui</div>
+    <h2>Stanco dei <span class="gold">soliti locali</span> di Sharm?</h2>
+    <p class="sub">
+      Lo conosciamo il giro: gli stessi posti, la stessa musica alta, la stessa
+      cena "alla buona". Una settimana di vacanza e la sera diventa sempre uguale.
+    </p>
+    <p class="sub">
+      Il <b style="color:var(--cream)">Lollapalooza</b> nasce per spezzare quella routine.
+      È un ristorante di <span class="gold">vera cucina italiana</span> — e quando finisci
+      di cenare, la sala diventa la serata: musica, pista, e l'ospite del momento.
+      Tutto in un posto solo, senza spostarti.
+    </p>
+  </div>
+</section>
+
+<!-- ================= LA CUCINA / CHEF ================= -->
+<section class="alt">
+  <div class="wrap">
+    <div class="eyebrow left">La cucina</div>
+    <h2>35 anni di <span class="script">cucina italiana</span> nel piatto</h2>
+    <p class="sub">
+      In cucina c'è una cuoca con <b style="color:var(--cream)">35 anni di esperienza
+      nella ristorazione italiana</b>. Non "cucina internazionale": cucina italiana
+      vera, quella di casa, fatta come si deve.
+    </p>
+    <blockquote class="chef-quote">
+      Qui mangi <b>come in Italia</b>. Stessa pasta, stessi sapori, stesse mani esperte.
+    </blockquote>
+    <img src="assets/piatto.jpg" alt="Piatto di pasta italiana" class="imground">
+    <div class="imgcap">Pasta fatta come a casa — non come al villaggio</div>
+
+    <div class="usp">
+      <span class="tag">Raro a Sharm</span>
+      <h3>Sì, c'è anche il maiale. E i salumi sono italiani.</h3>
+      <p>
+        Il nostro tagliere è di <b>veri salumi italiani</b>: prosciutto crudo,
+        salame, mortadella, coppa. Una cosa che a Sharm trovi quasi solo da noi.
+        Da accompagnare con <b>alcol italiano</b> — vino e aperitivi come piace a noi.
+      </p>
+    </div>
+    <img src="assets/tagliere.jpg" alt="Tagliere di salumi italiani" class="imground">
+    <div class="imgcap">Tagliere di salumi italiani · da condividere</div>
+  </div>
+</section>
+
+<!-- ================= DUE MODI ================= -->
+<section>
+  <div class="wrap center">
+    <div class="divider"></div>
+    <div class="eyebrow center">Come vivere la serata</div>
+    <h2>Due modi. <span class="gold">Scegli il tuo.</span></h2>
+    <p class="sub">Che tu voglia la serata intera o solo la parte dopo cena, c'è posto per te.</p>
+  </div>
+  <div class="wrap">
+    <div class="cards">
+      <div class="card">
+        <div class="n">Opzione 01</div>
+        <h3>Cena + Serata</h3>
+        <p>Arrivi, ceni con calma cucina italiana vera, e resti seduto mentre la
+           sala si accende. Il modo migliore per vivere tutta la serata.</p>
+        <div class="when">Dalle 21:00 · tavolo riservato</div>
+        <a class="btn btn-wa" href="https://wa.me/393713524264?text=Ciao!%20Vorrei%20prenotare%20un%20tavolo%20per%20la%20CENA%20%2B%20serata%20di%20Sabato%2016%20Maggio%20al%20Lollapalooza%20(Ahmad%20Sami%20Party%20Night).%20In%20quanti%20siamo%3A%20" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+          Prenota la cena
+        </a>
+      </div>
+      <div class="card">
+        <div class="n">Opzione 02</div>
+        <h3>Solo Dopo Cena</h3>
+        <p>Hai già cenato in villaggio? Vieni solo per la parte bella: musica,
+           pista, un buon drink italiano e l'atmosfera giusta.</p>
+        <div class="when">Dalle 22:30 · ingresso serata</div>
+        <a class="btn btn-gold" href="https://wa.me/393713524264?text=Ciao!%20Vorrei%20prenotare%20per%20il%20DOPO%20CENA%20di%20Sabato%2016%20Maggio%20al%20Lollapalooza%20(Ahmad%20Sami%20Party%20Night).%20In%20quanti%20siamo%3A%20" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+          Prenota il dopo cena
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PERCHÉ VENIRE ================= -->
+<section class="alt">
+  <div class="wrap">
+    <div class="eyebrow left">In breve</div>
+    <h2>Perché la tua serata è <span class="gold">qui</span></h2>
+    <ul class="plus">
+      <li>Vera <b>cucina italiana</b>, da una cuoca con 35 anni di mestiere.</li>
+      <li>Salumi <b>italiani</b> e sì, anche il <b>maiale</b> — raro a Sharm.</li>
+      <li><b>Alcol italiano</b>: vino e aperitivi fatti come si deve.</li>
+      <li>Cena e serata <b>nello stesso posto</b> — non ti sposti.</li>
+      <li>L'ospite della serata: <b>Ahmad Sami</b>, musica fino alle 03:00.</li>
+      <li>Atmosfera curata, non il solito locale chiassoso.</li>
+    </ul>
+    <div class="gal">
+      <img src="assets/ambiente.jpg" alt="Atmosfera del locale">
+      <img src="assets/tagliere.jpg" alt="Tagliere di salumi italiani">
+      <img src="assets/piatto.jpg" alt="Piatto italiano">
+      <img src="assets/cocktail.jpg" alt="Drink italiani">
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA FINALE ================= -->
+<section class="cta-final">
+  <div class="wrap">
+    <div class="eyebrow center">Sabato 16 Maggio</div>
+    <h2>I posti sono limitati.<br><span class="script">Prenota adesso.</span></h2>
+    <p class="sub">Un messaggio su WhatsApp e il tavolo è tuo. Ti rispondiamo subito.</p>
+    <a class="btn btn-wa" href="https://wa.me/393713524264?text=Ciao!%20Vorrei%20prenotare%20per%20Sabato%2016%20Maggio%20al%20Lollapalooza%20(Ahmad%20Sami%20Party%20Night).%20Vorrei%20info%20su%20cena%20e%20dopo%20cena." target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+      Scrivici su WhatsApp
+    </a>
+    <div class="cta-note">+39 371 352 4264 · risposta rapida</div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <img src="assets/logo.jpg" alt="Lollapalooza" class="logo">
+    <div class="name">LOLLAPALOOZA</div>
+    <div class="addr">Al Motelat · Sharm el Sheikh 2 · Egitto</div>
+    <div class="num">WhatsApp: <a href="https://wa.me/393713524264" target="_blank" rel="noopener">+39 371 352 4264</a></div>
+  </div>
+</footer>
+
+<!-- ================= BARRA WA FISSA ================= -->
+<div class="wa-bar">
+  <a class="btn btn-wa" href="https://wa.me/393713524264?text=Ciao!%20Vorrei%20prenotare%20un%20tavolo%20per%20la%20CENA%20%2B%20serata%20di%20Sabato%2016%20Maggio%20al%20Lollapalooza%20(Ahmad%20Sami%20Party%20Night).%20In%20quanti%20siamo%3A%20" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+    Cena
+  </a>
+  <a class="btn btn-gold" href="https://wa.me/393713524264?text=Ciao!%20Vorrei%20prenotare%20per%20il%20DOPO%20CENA%20di%20Sabato%2016%20Maggio%20al%20Lollapalooza%20(Ahmad%20Sami%20Party%20Night).%20In%20quanti%20siamo%3A%20" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+    Dopo cena
+  </a>
+</div>
+
+</body>
+</html>

@@ -339,3 +339,15 @@ CREATE TABLE IF NOT EXISTS print_jobs (
     printed_at DATETIME,
     INDEX idx_print_jobs_status (tenant_id, destination, status, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS funnels (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id INT DEFAULT 1,
+    slug VARCHAR(120) NOT NULL UNIQUE,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    active TINYINT DEFAULT 1,
+    views INT DEFAULT 0,
+    created_at DATETIME,
+    updated_at DATETIME
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

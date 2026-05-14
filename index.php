@@ -100,6 +100,7 @@ $pages = [
     'reservations' => ['admin/reservations.php', ['admin','manager']],
     'customers' => ['admin/customers.php', ['admin','manager']],
     'reports' => ['admin/reports.php', ['admin','manager']],
+    'funnels' => ['admin/funnels.php', ['admin','manager']],
     'settings' => ['admin/settings.php', ['admin']],
     'qrcodes' => ['admin/qrcodes.php', ['admin','manager']],
     'waiter' => ['waiter/index.php', ['admin','manager','cameriere']],
