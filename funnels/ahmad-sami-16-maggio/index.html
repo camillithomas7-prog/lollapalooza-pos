@@ -2,7 +2,8 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0908">
 <title>Lollapalooza · Ahmad Sami Party Night — Sabato 16 Maggio</title>
 <meta name="description" content="Cucina italiana vera a Sharm el Sheikh — salumi italiani, anche maiale — e poi la serata con Ahmad Sami. Cena o dopo cena, sabato 16 maggio. Prenota su WhatsApp.">
 <meta property="og:title" content="Lollapalooza — Ahmad Sami Party Night, Sabato 16 Maggio">
@@ -10,30 +11,31 @@
 <meta property="og:image" content="assets/locandina.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --black:#0a0908; --black2:#13110e; --panel:#1a1714;
     --gold:#c9a24b; --gold-l:#e3c585; --gold-d:#9a7a32;
-    --cream:#f4ede0; --muted:#b3a892; --line:rgba(201,162,75,.22);
+    --cream:#f3ece2; --muted:#c9bda6; --line:rgba(201,162,75,.22);
     --wa:#25d366;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html{scroll-behavior:smooth;}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
   body{
     background:var(--black);color:var(--cream);
-    font-family:'Jost',system-ui,sans-serif;font-weight:300;
+    font-family:'Figtree',system-ui,sans-serif;font-weight:400;
     line-height:1.7;font-size:16px;overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
     padding-bottom:84px; /* spazio per la barra WA fissa */
   }
-  h1,h2,h3{font-family:'Playfair Display',serif;font-weight:700;line-height:1.18;letter-spacing:.2px;text-wrap:balance;}
+  h1,h2,h3{font-family:'Fraunces','Figtree',serif;font-weight:600;line-height:1.2;letter-spacing:.1px;text-wrap:balance;font-optical-sizing:auto;}
   img{max-width:100%;height:auto;}
   p{text-wrap:pretty;}
   .wrap{max-width:680px;margin:0 auto;padding:0 22px;}
   .gold{color:var(--gold);}
   .script{font-style:italic;font-weight:500;color:var(--gold-l);}
   .eyebrow{
-    font-family:'Jost',sans-serif;font-weight:500;font-size:12px;
+    font-family:'Figtree',sans-serif;font-weight:500;font-size:12px;
     letter-spacing:3.5px;text-transform:uppercase;color:var(--gold);
     display:flex;align-items:center;gap:12px;
   }
@@ -75,9 +77,9 @@
     background:var(--line);border:1px solid var(--line);border-radius:14px;
     overflow:hidden;margin:28px 0 0;
   }
-  .fact{background:var(--black2);padding:18px 8px;text-align:center;}
-  .fact .v{font-family:'Playfair Display',serif;font-size:19px;color:var(--gold-l);font-weight:700;}
-  .fact .k{font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+  .fact{background:var(--black2);padding:16px 6px;text-align:center;}
+  .fact .v{font-family:'Fraunces',serif;font-size:clamp(14px,4.1vw,18px);color:var(--gold-l);font-weight:600;white-space:nowrap;}
+  .fact .k{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);margin-top:5px;}
 
   /* ---------- SEZIONI ---------- */
   section{padding:54px 0;}
@@ -94,7 +96,7 @@
 
   /* chef */
   .chef-quote{
-    font-family:'Jost',sans-serif;font-weight:300;font-size:18.5px;
+    font-family:'Figtree',sans-serif;font-weight:400;font-size:18px;
     line-height:1.6;color:var(--cream);margin-top:22px;
     padding-left:18px;border-left:3px solid var(--gold);
   }
@@ -108,7 +110,7 @@
   .usp .tag{
     display:inline-block;font-size:11px;letter-spacing:2px;text-transform:uppercase;
     color:var(--black);background:var(--gold);font-weight:600;
-    padding:5px 12px;border-radius:99px;font-family:'Jost',sans-serif;
+    padding:5px 12px;border-radius:99px;font-family:'Figtree',sans-serif;
   }
   .usp h3{font-size:22px;margin:14px 0 8px;color:var(--gold-l);}
   .usp p{color:var(--cream);font-size:15px;}
@@ -121,7 +123,7 @@
   }
   .card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;
     background:linear-gradient(90deg,var(--gold-d),var(--gold-l),var(--gold-d));}
-  .card .n{font-family:'Playfair Display',serif;font-size:13px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;}
+  .card .n{font-family:'Fraunces',serif;font-size:13px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;}
   .card h3{font-size:23px;margin:6px 0 8px;}
   .card p{color:var(--muted);font-size:14.5px;}
   .card .when{margin-top:14px;font-size:13px;color:var(--gold-l);letter-spacing:.5px;}
@@ -147,7 +149,7 @@
   /* ---------- BOTTONI ---------- */
   .btn{
     display:flex;align-items:center;justify-content:center;gap:10px;
-    font-family:'Jost',sans-serif;font-weight:600;font-size:16px;letter-spacing:.3px;
+    font-family:'Figtree',sans-serif;font-weight:600;font-size:16px;letter-spacing:.3px;
     padding:16px 22px;border-radius:99px;text-decoration:none;cursor:pointer;
     transition:transform .15s ease,box-shadow .15s ease;border:none;
   }
@@ -181,7 +183,7 @@
     background:var(--black2);
   }
   footer .logo{width:54px;margin-bottom:14px;}
-  footer .name{font-family:'Playfair Display',serif;font-size:20px;letter-spacing:3px;color:var(--gold-l);}
+  footer .name{font-family:'Fraunces',serif;font-size:20px;letter-spacing:3px;color:var(--gold-l);}
   footer .addr{color:var(--muted);font-size:13.5px;margin-top:8px;letter-spacing:.5px;}
   footer .num{color:var(--cream);font-size:14px;margin-top:10px;}
   footer .num a{color:var(--gold-l);text-decoration:none;}
@@ -193,6 +195,19 @@
   @media(min-width:560px){
     .cards{grid-template-columns:1fr 1fr;}
     .gal{grid-template-columns:repeat(4,1fr);}
+  }
+  @media(max-width:480px){
+    .wrap{padding:0 18px;}
+    section{padding:44px 0;}
+    .hero{padding:30px 0 40px;}
+    .hero h1{font-size:clamp(32px,8.5vw,44px);}
+    .usp{padding:22px 18px;}
+    .card{padding:22px 18px;}
+    .gal{gap:9px;}
+  }
+  @media(max-width:340px){
+    .fact{padding:14px 4px;}
+    .wa-bar .btn{font-size:13px;gap:7px;padding:13px 8px;}
   }
 </style>
 </head>
@@ -211,7 +226,7 @@
 
     <div class="facts">
       <div class="fact"><div class="v">Sab 16 Mag</div><div class="k">La data</div></div>
-      <div class="fact"><div class="v">21:00 — 03:00</div><div class="k">Orario</div></div>
+      <div class="fact"><div class="v">21:00–03:00</div><div class="k">Orario</div></div>
       <div class="fact"><div class="v">Al Motelat</div><div class="k">Sharm 2</div></div>
     </div>
   </div>
