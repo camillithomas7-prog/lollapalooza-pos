@@ -72,6 +72,50 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
     font-size:11px;letter-spacing:2.2px;text-transform:uppercase;font-weight:600;
     padding:6px 14px;border-radius:99px;margin-bottom:14px;
   }
+  /* PROMO STRIP — sconto WhatsApp */
+  .promo-strip{
+    margin:16px auto 0;max-width:520px;
+    background:linear-gradient(135deg,#c9a24b 0%,#e3c585 60%,#c9a24b 100%);
+    color:#1a1410;border-radius:14px;
+    padding:14px 18px;text-align:center;
+    box-shadow:0 12px 28px rgba(201,162,75,.28);
+    position:relative;overflow:hidden;
+  }
+  .promo-strip::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at 20% 0%,rgba(255,255,255,.35),transparent 60%);
+    pointer-events:none;
+  }
+  .promo-strip .promo-tag{
+    display:inline-block;font-size:10.5px;letter-spacing:2.2px;text-transform:uppercase;
+    font-weight:700;color:#5a3d0e;background:rgba(255,255,255,.4);
+    padding:3px 9px;border-radius:99px;margin-bottom:7px;
+  }
+  .promo-strip .promo-headline{
+    font-family:'Fraunces',serif;font-weight:600;
+    font-size:clamp(18px,4.6vw,22px);line-height:1.2;color:#1a1410;
+    position:relative;
+  }
+  .promo-strip .promo-headline b{font-weight:700;}
+  .promo-strip .promo-sub{
+    font-size:12px;color:#3d2a0c;margin-top:6px;line-height:1.45;
+    position:relative;
+  }
+  .promo-strip .promo-pct{
+    display:inline-block;font-family:'Fraunces',serif;font-weight:700;
+    color:#1a1410;font-size:1.15em;
+    background:#fff;padding:0 8px;border-radius:6px;
+  }
+  /* riquadro promo prima della CTA finale */
+  .promo-final{
+    margin-bottom:14px;border:1px dashed var(--gold);
+    background:rgba(201,162,75,.08);border-radius:14px;
+    padding:14px 16px;text-align:center;
+  }
+  .promo-final .promo-pct{
+    font-family:'Fraunces',serif;font-weight:700;color:var(--gold-l);
+    font-size:1.2em;
+  }
   .hero .kicker{font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);}
   .hero h1{
     font-size:clamp(33px,8.6vw,50px);margin:8px 0 4px;
@@ -379,7 +423,13 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
 
     <img src="assets/pasta-funghi.jpg" alt="Pasta italiana — primo piatto" class="hero-img">
 
-    <a class="btn btn-wa" href="https://wa.me/393343828321?text=Salve%2C%20vorrei%20maggiori%20informazioni" target="_blank" rel="noopener">
+    <div class="promo-strip">
+      <div class="promo-tag promo-tag-t">Offerta lampo</div>
+      <div class="promo-headline promo-headline-t"><span class="promo-pct">-10%</span> sul conto se prenoti ora su WhatsApp</div>
+      <div class="promo-sub promo-sub-t">Mostra la conferma del messaggio alla cassa</div>
+    </div>
+
+    <a class="btn btn-wa" href="https://wa.me/393343828321?text=Salve%2C%20vorrei%20prenotare%20un%20tavolo%20con%20lo%20sconto%20del%2010%25" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
       Prenota un tavolo
     </a>
@@ -596,7 +646,11 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
     <div class="eyebrow center">Prenota ora</div>
     <h2>Il tuo tavolo ti <span class="script">aspetta</span></h2>
     <p class="sub">Scegli il giorno e dicci in quanti siete. Un messaggio su WhatsApp e ti confermiamo subito.</p>
-    <a class="btn btn-wa" href="https://wa.me/393343828321?text=Salve%2C%20vorrei%20maggiori%20informazioni" target="_blank" rel="noopener">
+    <div class="promo-final" style="max-width:480px;margin:18px auto 0;">
+      <div class="promo-headline-t" style="font-size:15.5px;color:var(--cream);"><span class="promo-pct">-10%</span> sul conto se prenoti ora</div>
+      <div class="promo-sub-t" style="font-size:12.5px;color:var(--muted);margin-top:6px;">Valido prenotando via WhatsApp · mostra la conferma alla cassa</div>
+    </div>
+    <a class="btn btn-wa" href="https://wa.me/393343828321?text=Salve%2C%20vorrei%20prenotare%20un%20tavolo%20con%20lo%20sconto%20del%2010%25" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
       Prenota un tavolo
     </a>
@@ -620,7 +674,7 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
 
 <!-- ================= BARRA WA FISSA ================= -->
 <div class="wa-bar">
-  <a class="btn btn-wa" href="https://wa.me/393343828321?text=Salve%2C%20vorrei%20maggiori%20informazioni" target="_blank" rel="noopener">
+  <a class="btn btn-wa" href="https://wa.me/393343828321?text=Salve%2C%20vorrei%20prenotare%20un%20tavolo%20con%20lo%20sconto%20del%2010%25" target="_blank" rel="noopener">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
     Prenota un tavolo su WhatsApp
   </a>
@@ -638,17 +692,17 @@ document.addEventListener('click', function(e){
 <script>
 (function(){
   var WA_MSG = {
-    it: "Salve, vorrei maggiori informazioni",
-    en: "Hello, I'd like more information",
-    es: "Hola, quisiera más información",
-    fr: "Bonjour, je voudrais plus d'informations",
-    de: "Hallo, ich hätte gerne mehr Informationen",
-    ar: "مرحبًا، أود الحصول على مزيد من المعلومات"
+    it: "Salve, vorrei prenotare un tavolo con lo sconto del 10%",
+    en: "Hello, I'd like to book a table with the 10% discount",
+    es: "Hola, me gustaría reservar una mesa con el descuento del 10%",
+    fr: "Bonjour, je voudrais réserver une table avec la remise de 10%",
+    de: "Hallo, ich möchte einen Tisch mit dem 10% Rabatt reservieren",
+    ar: "مرحبًا، أود حجز طاولة مع خصم 10%"
   };
 
   // Selettore degli elementi tradotti — innerHTML matching su IT
   // NB: i bottoni .btn-wa non sono qui perché contengono SVG; sono gestiti a parte
-  var SEL = 'h1, h2, h3, .lead, .kicker, .micro, .eyebrow, .new-mgmt, .fact .v, .fact .k, .sub, .chef-quote, .imgcap, .usp .tag, .usp h3, .usp p, .dishes li, .ambiente-grid figcaption, .ev-tag, .event p, .review-text, .review-loc, .review-date, .cta-note, footer .addr, footer .num, footer .maps-btn-label, [data-i18n]';
+  var SEL = 'h1, h2, h3, .lead, .kicker, .micro, .eyebrow, .new-mgmt, .fact .v, .fact .k, .sub, .chef-quote, .imgcap, .usp .tag, .usp h3, .usp p, .dishes li, .ambiente-grid figcaption, .ev-tag, .event p, .review-text, .review-loc, .review-date, .cta-note, footer .addr, footer .num, footer .maps-btn-label, .promo-tag-t, .promo-headline-t, .promo-sub-t, [data-i18n]';
 
   // Normalizza chiave: trim + collassa spazi
   function norm(s){ return s.replace(/\s+/g,' ').trim(); }
@@ -730,7 +784,12 @@ document.addEventListener('click', function(e){
       "+39 334 382 8321 · risposta rapida": "+39 334 382 8321 · quick reply",
       "Al Motelat · Sharm el Sheikh 2 · Egitto": "Al Motelat · Sharm el Sheikh 2 · Egypt",
       "Prenota un tavolo su WhatsApp": "Book a table on WhatsApp",
-      "Come arrivare · Apri in Maps": "Get directions · Open in Maps"
+      "Come arrivare · Apri in Maps": "Get directions · Open in Maps",
+      "Offerta lampo": "Flash offer",
+      "<span class=\"promo-pct\">-10%</span> sul conto se prenoti ora su WhatsApp": "<span class=\"promo-pct\">-10%</span> off your bill if you book now on WhatsApp",
+      "Mostra la conferma del messaggio alla cassa": "Show the message confirmation at the till",
+      "<span class=\"promo-pct\">-10%</span> sul conto se prenoti ora": "<span class=\"promo-pct\">-10%</span> off your bill if you book now",
+      "Valido prenotando via WhatsApp · mostra la conferma alla cassa": "Valid by booking via WhatsApp · show the confirmation at the till"
     },
     es: {
       "● Nuova gestione": "● Nueva gestión",
@@ -807,7 +866,12 @@ document.addEventListener('click', function(e){
       "+39 334 382 8321 · risposta rapida": "+39 334 382 8321 · respuesta rápida",
       "Al Motelat · Sharm el Sheikh 2 · Egitto": "Al Motelat · Sharm el Sheikh 2 · Egipto",
       "Prenota un tavolo su WhatsApp": "Reserva una mesa por WhatsApp",
-      "Come arrivare · Apri in Maps": "Cómo llegar · Abrir en Maps"
+      "Come arrivare · Apri in Maps": "Cómo llegar · Abrir en Maps",
+      "Offerta lampo": "Oferta relámpago",
+      "<span class=\"promo-pct\">-10%</span> sul conto se prenoti ora su WhatsApp": "<span class=\"promo-pct\">-10%</span> en la cuenta si reservas ahora por WhatsApp",
+      "Mostra la conferma del messaggio alla cassa": "Muestra la confirmación del mensaje en la caja",
+      "<span class=\"promo-pct\">-10%</span> sul conto se prenoti ora": "<span class=\"promo-pct\">-10%</span> en la cuenta si reservas ahora",
+      "Valido prenotando via WhatsApp · mostra la conferma alla cassa": "Válido reservando por WhatsApp · muestra la confirmación en la caja"
     },
     fr: {
       "● Nuova gestione": "● Nouvelle gestion",
@@ -884,7 +948,12 @@ document.addEventListener('click', function(e){
       "+39 334 382 8321 · risposta rapida": "+39 334 382 8321 · réponse rapide",
       "Al Motelat · Sharm el Sheikh 2 · Egitto": "Al Motelat · Sharm el Sheikh 2 · Égypte",
       "Prenota un tavolo su WhatsApp": "Réserver une table sur WhatsApp",
-      "Come arrivare · Apri in Maps": "Itinéraire · Ouvrir dans Maps"
+      "Come arrivare · Apri in Maps": "Itinéraire · Ouvrir dans Maps",
+      "Offerta lampo": "Offre flash",
+      "<span class=\"promo-pct\">-10%</span> sul conto se prenoti ora su WhatsApp": "<span class=\"promo-pct\">-10%</span> sur l'addition si vous réservez maintenant sur WhatsApp",
+      "Mostra la conferma del messaggio alla cassa": "Montrez la confirmation du message en caisse",
+      "<span class=\"promo-pct\">-10%</span> sul conto se prenoti ora": "<span class=\"promo-pct\">-10%</span> sur l'addition si vous réservez maintenant",
+      "Valido prenotando via WhatsApp · mostra la conferma alla cassa": "Valable en réservant sur WhatsApp · montrez la confirmation en caisse"
     },
     de: {
       "● Nuova gestione": "● Neue Leitung",
@@ -961,7 +1030,12 @@ document.addEventListener('click', function(e){
       "+39 334 382 8321 · risposta rapida": "+39 334 382 8321 · schnelle Antwort",
       "Al Motelat · Sharm el Sheikh 2 · Egitto": "Al Motelat · Sharm el Sheikh 2 · Ägypten",
       "Prenota un tavolo su WhatsApp": "Tisch über WhatsApp reservieren",
-      "Come arrivare · Apri in Maps": "Wegbeschreibung · In Maps öffnen"
+      "Come arrivare · Apri in Maps": "Wegbeschreibung · In Maps öffnen",
+      "Offerta lampo": "Blitzangebot",
+      "<span class=\"promo-pct\">-10%</span> sul conto se prenoti ora su WhatsApp": "<span class=\"promo-pct\">-10%</span> auf die Rechnung, wenn Sie jetzt per WhatsApp reservieren",
+      "Mostra la conferma del messaggio alla cassa": "Zeigen Sie die Nachrichtenbestätigung an der Kasse",
+      "<span class=\"promo-pct\">-10%</span> sul conto se prenoti ora": "<span class=\"promo-pct\">-10%</span> auf die Rechnung, wenn Sie jetzt reservieren",
+      "Valido prenotando via WhatsApp · mostra la conferma alla cassa": "Gültig bei Reservierung über WhatsApp · zeigen Sie die Bestätigung an der Kasse"
     },
     ar: {
       "● Nuova gestione": "● إدارة جديدة",
@@ -1038,7 +1112,12 @@ document.addEventListener('click', function(e){
       "+39 334 382 8321 · risposta rapida": "+39 334 382 8321 · ردّ سريع",
       "Al Motelat · Sharm el Sheikh 2 · Egitto": "المعتلات · شرم الشيخ 2 · مصر",
       "Prenota un tavolo su WhatsApp": "احجز طاولة عبر واتساب",
-      "Come arrivare · Apri in Maps": "كيفية الوصول · افتح في الخرائط"
+      "Come arrivare · Apri in Maps": "كيفية الوصول · افتح في الخرائط",
+      "Offerta lampo": "عرض سريع",
+      "<span class=\"promo-pct\">-10%</span> sul conto se prenoti ora su WhatsApp": "<span class=\"promo-pct\">-10%</span> على الفاتورة عند الحجز الآن عبر واتساب",
+      "Mostra la conferma del messaggio alla cassa": "أظهر تأكيد الرسالة عند الكاشير",
+      "<span class=\"promo-pct\">-10%</span> sul conto se prenoti ora": "<span class=\"promo-pct\">-10%</span> على الفاتورة عند الحجز الآن",
+      "Valido prenotando via WhatsApp · mostra la conferma alla cassa": "صالح عند الحجز عبر واتساب · أظهر التأكيد عند الكاشير"
     }
   };
 
