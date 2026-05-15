@@ -68,81 +68,159 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ brand:{400:'#a78
         </template>
     </div>
 
-    <!-- Lista raggruppata per fasce orarie -->
-    <div class="space-y-5">
+    <!-- Selettore fasce orarie del giorno -->
+    <div class="flex gap-2 mb-4 overflow-x-auto pb-1" x-show="slotsForDay.length">
         <template x-for="slot in slotsForDay" :key="slot.key">
-            <div>
-                <!-- Header fascia -->
-                <div class="sticky top-[64px] z-20 py-2 mb-2 flex items-center gap-3" :class="slot.leg==='out'?'':'mt-4'">
-                    <div class="flex-shrink-0 px-3 py-2 rounded-xl font-bold text-lg" :class="slot.leg==='out'?'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30':'bg-sky-500/20 text-sky-300 border border-sky-500/30'">
-                        <span x-text="slot.leg==='out'?'🍽️':'🏨'"></span>
-                        <span x-text="' '+slot.time"></span>
-                    </div>
+            <button @click="currentSlotKey=slot.key"
+                :class="currentSlotKey===slot.key?(slot.leg==='out'?'bg-emerald-500/25 ring-2 ring-emerald-500/40 text-emerald-200':'bg-sky-500/25 ring-2 ring-sky-500/40 text-sky-200'):'bg-white/5 text-slate-300'"
+                class="flex-shrink-0 px-3 py-2 rounded-xl flex flex-col items-center min-w-[68px] transition">
+                <span class="text-[10px] opacity-75 leading-none" x-text="(slot.leg==='out'?'🍽️ ':'🏨 ')+(slot.leg==='out'?t('out_short'):t('ret_short'))"></span>
+                <span class="text-lg font-bold leading-tight mt-0.5" x-text="slot.time"></span>
+                <span class="text-[11px] font-semibold mt-0.5">
+                    <span x-text="slot.totalPax"></span><span class="opacity-60">·</span><span x-text="slot.entries.length+' '+(slot.entries.length==1?t('booking_s'):t('booking_p'))"></span>
+                </span>
+            </button>
+        </template>
+    </div>
+
+    <!-- Dettaglio della fascia selezionata -->
+    <template x-if="currentSlot">
+        <div>
+            <!-- Big header -->
+            <div class="card p-4 mb-3" :class="currentSlot.leg==='out'?'bg-emerald-500/8 border-emerald-500/25':'bg-sky-500/8 border-sky-500/25'">
+                <div class="flex items-center gap-3">
+                    <div class="text-4xl font-bold leading-none" :class="currentSlot.leg==='out'?'text-emerald-300':'text-sky-300'" x-text="currentSlot.time"></div>
                     <div class="flex-1 min-w-0">
-                        <div class="text-xs uppercase tracking-wider font-bold" :class="slot.leg==='out'?'text-emerald-300':'text-sky-300'" x-text="slot.leg==='out'?t('outbound'):t('return_trip')"></div>
-                        <div class="text-[11px] text-slate-400" x-text="slot.entries.length+' '+(slot.entries.length==1?t('passenger'):t('passengers_l'))"></div>
+                        <div class="text-[11px] uppercase tracking-wider font-bold" :class="currentSlot.leg==='out'?'text-emerald-300':'text-sky-300'" x-text="currentSlot.leg==='out'?t('outbound'):t('return_trip')"></div>
+                        <div class="text-sm mt-0.5 font-semibold">
+                            <span x-text="currentSlot.totalPax+' '+(currentSlot.totalPax==1?t('person'):t('persons'))"></span>
+                            <span class="text-slate-500 mx-1">·</span>
+                            <span x-text="currentSlot.hotelCount+' '+(currentSlot.hotelCount==1?t('hotel_s'):t('hotel_p'))"></span>
+                        </div>
+                    </div>
+                    <!-- Avanzamento -->
+                    <div class="text-right flex-shrink-0">
+                        <div class="text-2xl font-bold" :class="currentSlot.doneCount===currentSlot.entries.length?'text-emerald-300':'text-slate-300'">
+                            <span x-text="currentSlot.doneCount"></span><span class="text-slate-500">/</span><span x-text="currentSlot.entries.length"></span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 uppercase tracking-wider" x-text="t('done_count')"></div>
                     </div>
                 </div>
+                <!-- Progress bar -->
+                <div class="mt-3 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <div class="h-full transition-all" :class="currentSlot.leg==='out'?'bg-emerald-400':'bg-sky-400'" :style="'width:'+(currentSlot.entries.length?(currentSlot.doneCount/currentSlot.entries.length*100):0)+'%'"></div>
+                </div>
+            </div>
 
-                <!-- Lista clienti della fascia -->
-                <div class="space-y-2.5">
-                    <template x-for="entry in slot.entries" :key="entry.key">
-                        <div class="card p-4">
-                            <div class="flex items-start gap-3 mb-2">
+            <!-- ANDATA: raggruppato per HOTEL -->
+            <template x-if="currentSlot.leg==='out'">
+                <div class="space-y-3">
+                    <template x-for="grp in currentSlot.groups" :key="grp.key">
+                        <div class="card overflow-hidden">
+                            <!-- Hotel header -->
+                            <div class="p-3 bg-emerald-500/8 border-b border-emerald-500/15 flex items-center gap-2 flex-wrap">
                                 <div class="flex-1 min-w-0">
-                                    <div class="font-bold text-base leading-tight" x-text="entry.customer_name"></div>
-                                    <div class="text-xs text-slate-400 mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5">
-                                        <span x-show="entry.passengers" x-text="'👤 '+entry.passengers+' '+(entry.passengers==1?t('person'):t('persons'))"></span>
-                                        <span x-show="entry.language" x-text="'🗣 '+langLabel(entry.language)"></span>
+                                    <div class="font-bold text-base leading-tight" x-text="grp.hotel || '—'"></div>
+                                    <div class="text-xs text-slate-400" x-show="grp.address" x-text="grp.address"></div>
+                                </div>
+                                <div class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 text-xs font-bold">
+                                    <span x-text="grp.totalPax"></span>
+                                    <span x-text="' '+(grp.totalPax==1?t('person'):t('persons'))"></span>
+                                </div>
+                                <a x-show="grp.mapsTarget" :href="mapsUrl(grp.mapsTarget)" target="_blank" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold">🗺 Maps</a>
+                            </div>
+                            <!-- Persone in questo hotel -->
+                            <div class="divide-y divide-white/5">
+                                <template x-for="entry in grp.entries" :key="entry.key">
+                                    <div class="p-3 flex items-center gap-2">
+                                        <button @click="cycleStatus(entry)" :class="stateChipClass(entry.status)" class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-bold text-base" :title="statusLabel(entry.status)">
+                                            <span x-text="stateChipIcon(entry.status)"></span>
+                                        </button>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="font-semibold leading-tight" x-text="entry.customer_name"></div>
+                                            <div class="text-[11px] text-slate-400 flex flex-wrap gap-x-2">
+                                                <span x-show="entry.passengers" x-text="'👤×'+entry.passengers"></span>
+                                                <span x-show="entry.language" x-text="langFlag(entry.language)+' '+langLabel(entry.language)"></span>
+                                            </div>
+                                            <div x-show="entry.notes" class="text-[11px] text-amber-300 mt-0.5 truncate" x-text="'📝 '+entry.notes"></div>
+                                        </div>
+                                        <a x-show="entry.phone" :href="'tel:'+entry.phone" class="w-9 h-9 rounded-full bg-sky-500/20 text-sky-300 flex items-center justify-center text-base">📞</a>
+                                        <a x-show="entry.phone" :href="waUrl(entry.phone, entry.language, entry.leg)" target="_blank" class="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-base">💬</a>
                                     </div>
-                                </div>
-                                <div class="text-right flex-shrink-0">
-                                    <div class="text-[10px] uppercase tracking-wider" :class="statusBadgeClass(entry.status)" x-text="statusLabel(entry.status)"></div>
-                                </div>
+                                </template>
                             </div>
-
-                            <!-- Hotel (pickup) / Locale (dropoff) sulla base della leg -->
-                            <div class="rounded-xl p-2.5 mb-2" :class="entry.leg==='out'?'bg-emerald-500/8 border border-emerald-500/20':'bg-sky-500/8 border border-sky-500/20'">
-                                <div class="text-[10px] font-bold uppercase tracking-wider mb-1" :class="entry.leg==='out'?'text-emerald-300':'text-sky-300'" x-text="entry.leg==='out'?('🏨 '+t('hotel_pickup')):('🍽️ '+t('venue_pickup'))"></div>
-                                <div class="font-semibold text-sm" x-text="entry.leg==='out'?(entry.pickup_location||'—'):(entry.dropoff_location||'Lollapalooza')"></div>
-                                <div class="text-xs text-slate-400" x-show="entry.leg==='out'?entry.pickup_address:entry.dropoff_address" x-text="entry.leg==='out'?entry.pickup_address:entry.dropoff_address"></div>
-                                <a x-show="entry.mapsTarget" :href="mapsUrl(entry.mapsTarget)" target="_blank" class="inline-flex items-center gap-1 mt-1.5 text-xs font-semibold" :class="entry.leg==='out'?'text-emerald-300':'text-sky-300'">
-                                    <span x-text="'🗺 '+t('open_maps')+' →'"></span>
-                                </a>
-                            </div>
-
-                            <div x-show="entry.notes" class="bg-amber-500/8 border border-amber-500/20 rounded-xl p-2.5 mb-2">
-                                <div class="text-[10px] text-amber-300 font-bold uppercase tracking-wider mb-1" x-text="'📝 '+t('notes')"></div>
-                                <div class="text-sm" x-text="entry.notes"></div>
-                            </div>
-
-                            <div x-show="entry.phone" class="grid grid-cols-2 gap-2 mb-2">
-                                <a :href="'tel:'+entry.phone" class="flex items-center justify-center gap-2 py-2 rounded-xl bg-sky-500/20 text-sky-300 font-semibold text-xs hover:bg-sky-500/30">
-                                    <span x-text="'📞 '+t('call')"></span>
-                                </a>
-                                <a :href="waUrl(entry.phone, entry.language, entry.leg)" target="_blank" class="flex items-center justify-center gap-2 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 font-semibold text-xs hover:bg-emerald-500/30">
-                                    <span x-text="'💬 '+t('whatsapp')"></span>
-                                </a>
-                            </div>
-
-                            <!-- Status workflow -->
-                            <div class="grid grid-cols-4 gap-1.5">
-                                <button @click="setStatus(entry, 'scheduled')" :class="entry.status==='scheduled'?'bg-white/15 ring-2 ring-white/20':'bg-white/5'" class="py-2 rounded-lg text-[11px] font-semibold" x-text="'⏰ '+t('s_todo')"></button>
-                                <button @click="setStatus(entry, 'on_way')" :class="entry.status==='on_way'?'bg-amber-500/30 ring-2 ring-amber-500/40 text-amber-200':'bg-white/5'" class="py-2 rounded-lg text-[11px] font-semibold" x-text="'🚗 '+t('s_onway')"></button>
-                                <button @click="setStatus(entry, 'picked_up')" :class="entry.status==='picked_up'?'bg-brand-500/30 ring-2 ring-brand-500/40 text-brand-200':'bg-white/5'" class="py-2 rounded-lg text-[11px] font-semibold" x-text="'✅ '+t('s_picked')"></button>
-                                <button @click="setStatus(entry, 'completed')" :class="entry.status==='completed'?'bg-emerald-500/30 ring-2 ring-emerald-500/40 text-emerald-200':'bg-white/5'" class="py-2 rounded-lg text-[11px] font-semibold" x-text="'🏁 '+t('s_done')"></button>
-                            </div>
-                            <button @click="setStatus(entry, 'no_show')" :class="entry.status==='no_show'?'bg-rose-500/30 text-rose-200':'text-rose-400/60 hover:text-rose-300'" class="mt-1.5 w-full py-1.5 rounded-lg text-[11px] font-semibold" x-text="'❌ '+t('s_noshow')"></button>
                         </div>
                     </template>
                 </div>
+            </template>
+
+            <!-- RITORNO: tutti partono dal locale, raggruppo per HOTEL di destinazione -->
+            <template x-if="currentSlot.leg==='ret'">
+                <div class="space-y-3">
+                    <!-- Pickup point unico (il locale) -->
+                    <div class="card p-3 bg-sky-500/5 border-sky-500/20 flex items-center gap-3">
+                        <div class="text-2xl">🍽️</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-[10px] text-sky-300 font-bold uppercase tracking-wider" x-text="t('venue_pickup')"></div>
+                            <div class="font-bold" x-text="currentSlot.entries[0]?.dropoff_location || 'Lollapalooza'"></div>
+                        </div>
+                    </div>
+                    <!-- Lista passeggeri raggruppati per hotel di destinazione -->
+                    <template x-for="grp in currentSlot.groups" :key="grp.key">
+                        <div class="card overflow-hidden">
+                            <div class="p-3 bg-sky-500/8 border-b border-sky-500/15 flex items-center gap-2 flex-wrap">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-[10px] text-sky-300 font-bold uppercase tracking-wider" x-text="t('drop_at')"></div>
+                                    <div class="font-bold text-base leading-tight" x-text="grp.hotel || '—'"></div>
+                                </div>
+                                <div class="px-2.5 py-1 rounded-lg bg-sky-500/20 text-sky-300 text-xs font-bold">
+                                    <span x-text="grp.totalPax"></span>
+                                    <span x-text="' '+(grp.totalPax==1?t('person'):t('persons'))"></span>
+                                </div>
+                                <a x-show="grp.mapsTarget" :href="mapsUrl(grp.mapsTarget)" target="_blank" class="px-2.5 py-1 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 text-xs font-bold">🗺 Maps</a>
+                            </div>
+                            <div class="divide-y divide-white/5">
+                                <template x-for="entry in grp.entries" :key="entry.key">
+                                    <div class="p-3 flex items-center gap-2">
+                                        <button @click="cycleStatus(entry)" :class="stateChipClass(entry.status)" class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-bold text-base" :title="statusLabel(entry.status)">
+                                            <span x-text="stateChipIcon(entry.status)"></span>
+                                        </button>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="font-semibold leading-tight" x-text="entry.customer_name"></div>
+                                            <div class="text-[11px] text-slate-400 flex flex-wrap gap-x-2">
+                                                <span x-show="entry.passengers" x-text="'👤×'+entry.passengers"></span>
+                                                <span x-show="entry.language" x-text="langFlag(entry.language)+' '+langLabel(entry.language)"></span>
+                                            </div>
+                                            <div x-show="entry.notes" class="text-[11px] text-amber-300 mt-0.5 truncate" x-text="'📝 '+entry.notes"></div>
+                                        </div>
+                                        <a x-show="entry.phone" :href="'tel:'+entry.phone" class="w-9 h-9 rounded-full bg-sky-500/20 text-sky-300 flex items-center justify-center text-base">📞</a>
+                                        <a x-show="entry.phone" :href="waUrl(entry.phone, entry.language, entry.leg)" target="_blank" class="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-base">💬</a>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Azioni bulk -->
+            <div class="mt-4 grid grid-cols-2 gap-2" x-show="currentSlot.entries.length">
+                <button @click="bulkSet('picked_up')" class="py-2.5 rounded-xl bg-brand-500/20 text-brand-200 hover:bg-brand-500/30 font-semibold text-xs">
+                    <span x-text="'✅ '+t('mark_all_onboard')"></span>
+                </button>
+                <button @click="bulkSet('completed')" class="py-2.5 rounded-xl bg-emerald-500/20 text-emerald-200 hover:bg-emerald-500/30 font-semibold text-xs">
+                    <span x-text="'🏁 '+t('mark_trip_done')"></span>
+                </button>
             </div>
-        </template>
-        <div x-show="!slotsForDay.length" class="text-center py-16 text-slate-400">
-            <div class="text-6xl mb-3 opacity-50">😴</div>
-            <div class="font-semibold" x-text="t('no_transfers')"></div>
-            <div class="text-xs mt-1" x-text="t('enjoy_break')"></div>
+
+            <div class="text-[11px] text-slate-500 text-center mt-4" x-text="t('tap_chip_hint')"></div>
         </div>
+    </template>
+
+    <div x-show="!slotsForDay.length" class="text-center py-16 text-slate-400">
+        <div class="text-6xl mb-3 opacity-50">😴</div>
+        <div class="font-semibold" x-text="t('no_transfers')"></div>
+        <div class="text-xs mt-1" x-text="t('enjoy_break')"></div>
     </div>
 
     <div class="text-center text-xs text-slate-600 mt-8">
@@ -157,59 +235,72 @@ const I18N = {
   it: {
     header_title:'Transfer', refresh:'Aggiorna',
     ride:'corsa', rides:'corse',
-    pickup:'Ritiro', destination:'Destinazione', notes:'Note',
-    open_maps:'Apri in Maps',
+    open_maps:'Apri in Maps', notes:'Note',
     call:'Chiama', whatsapp:'WhatsApp',
-    ride_status:'Stato corsa',
     s_todo:'Da fare', s_onway:'In viaggio', s_picked:'A bordo', s_done:'Fatto', s_noshow:'No-show',
     no_transfers:'Nessun transfer per oggi', enjoy_break:'Goditi la pausa.',
-    auto_refresh:'Aggiornato in automatico ogni 30 secondi', refresh_now:'aggiorna ora',
-    person:'persona', persons:'persone', passenger:'passeggero', passengers_l:'passeggeri',
+    person:'persona', persons:'persone',
     today:'oggi',
-    outbound:'Giro andata (hotel → locale)',
-    return_trip:'Giro ritorno (locale → hotel)',
-    hotel_pickup:'Hotel da cui prenderlo',
-    venue_pickup:'Ritiro al locale'
+    outbound:'Giro andata · Hotel → Locale',
+    return_trip:'Giro ritorno · Locale → Hotel',
+    out_short:'ANDATA', ret_short:'RITORNO',
+    booking_s:'prenot.', booking_p:'prenot.',
+    hotel_s:'hotel', hotel_p:'hotel',
+    done_count:'completati',
+    drop_at:'Lascia in',
+    venue_pickup:'Partenza dal locale',
+    mark_all_onboard:'Tutti a bordo',
+    mark_trip_done:'Giro completato',
+    tap_chip_hint:'Tocca il cerchietto per cambiare stato'
   },
   en: {
     header_title:'Transfer', refresh:'Refresh',
     ride:'ride', rides:'rides',
-    pickup:'Pickup', destination:'Destination', notes:'Notes',
-    open_maps:'Open in Maps',
+    open_maps:'Open in Maps', notes:'Notes',
     call:'Call', whatsapp:'WhatsApp',
-    ride_status:'Ride status',
     s_todo:'To do', s_onway:'On the way', s_picked:'On board', s_done:'Done', s_noshow:'No-show',
     no_transfers:'No transfers for today', enjoy_break:'Enjoy your break.',
-    auto_refresh:'Auto-refreshes every 30 seconds', refresh_now:'refresh now',
-    person:'person', persons:'people', passenger:'passenger', passengers_l:'passengers',
+    person:'person', persons:'people',
     today:'today',
-    outbound:'Outbound (hotel → restaurant)',
-    return_trip:'Return (restaurant → hotel)',
-    hotel_pickup:'Hotel to pick up from',
-    venue_pickup:'Pickup at the restaurant'
+    outbound:'Outbound · Hotel → Restaurant',
+    return_trip:'Return · Restaurant → Hotel',
+    out_short:'OUT', ret_short:'RET',
+    booking_s:'booking', booking_p:'bookings',
+    hotel_s:'hotel', hotel_p:'hotels',
+    done_count:'done',
+    drop_at:'Drop at',
+    venue_pickup:'Pickup at the restaurant',
+    mark_all_onboard:'All on board',
+    mark_trip_done:'Trip completed',
+    tap_chip_hint:'Tap the circle to change status'
   },
   ar: {
     header_title:'النقل', refresh:'تحديث',
     ride:'رحلة', rides:'رحلات',
-    pickup:'الاستلام', destination:'الوجهة', notes:'ملاحظات',
-    open_maps:'فتح في الخرائط',
+    open_maps:'فتح في الخرائط', notes:'ملاحظات',
     call:'اتصل', whatsapp:'واتساب',
-    ride_status:'حالة الرحلة',
     s_todo:'قيد الانتظار', s_onway:'في الطريق', s_picked:'على متن السيارة', s_done:'تم', s_noshow:'لم يحضر',
     no_transfers:'لا توجد رحلات اليوم', enjoy_break:'استمتع باستراحتك.',
-    auto_refresh:'تحديث تلقائي كل 30 ثانية', refresh_now:'تحديث الآن',
-    person:'شخص', persons:'أشخاص', passenger:'راكب', passengers_l:'ركاب',
+    person:'شخص', persons:'أشخاص',
     today:'اليوم',
-    outbound:'الذهاب (الفندق → المطعم)',
-    return_trip:'العودة (المطعم → الفندق)',
-    hotel_pickup:'الفندق المراد الاستلام منه',
-    venue_pickup:'الاستلام من المطعم'
+    outbound:'الذهاب · الفندق ← المطعم',
+    return_trip:'العودة · المطعم ← الفندق',
+    out_short:'ذهاب', ret_short:'عودة',
+    booking_s:'حجز', booking_p:'حجوزات',
+    hotel_s:'فندق', hotel_p:'فنادق',
+    done_count:'تم',
+    drop_at:'الإنزال في',
+    venue_pickup:'الانطلاق من المطعم',
+    mark_all_onboard:'الكل على متن السيارة',
+    mark_trip_done:'تم الجولة',
+    tap_chip_hint:'انقر على الدائرة لتغيير الحالة'
   }
 };
 
 function driverApp(){return {
     transfers: [],
     day: new Date().toISOString().slice(0,10),
+    currentSlotKey: null,
     lang: (function(){
         try { return localStorage.getItem('driver_lang') || 'en'; } catch(e){ return 'en'; }
     })(),
@@ -271,29 +362,48 @@ function driverApp(){return {
         });
         return out;
     },
-    // Raggruppa entries per fascia oraria, ordinate prima andata poi ritorno
+    // Raggruppa entries per fascia oraria; ogni slot raggruppa internamente per hotel
     get slotsForDay(){
-        const groups = {};
+        const slots = {};
         this.entriesForDay.forEach(e => {
-            const key = e.leg + '_' + e.time;
-            if (!groups[key]) groups[key] = { key, leg: e.leg, time: e.time, entries: [] };
-            groups[key].entries.push(e);
+            const sk = e.leg + '_' + e.time;
+            if (!slots[sk]) slots[sk] = { key: sk, leg: e.leg, time: e.time, entries: [], hotels: {} };
+            slots[sk].entries.push(e);
+            // chiave hotel: per andata usa pickup_location; per ritorno usa pickup_location del cliente (dove va riportato)
+            const hotelKey = (e.leg==='out' ? (e.pickup_location || '—') : (e.pickup_location || '—'));
+            const hotelAddr = (e.leg==='out' ? e.pickup_address : e.pickup_address);
+            if (!slots[sk].hotels[hotelKey]) {
+                slots[sk].hotels[hotelKey] = {
+                    key: sk+'_'+hotelKey, hotel: hotelKey, address: hotelAddr || '',
+                    entries: [], totalPax: 0,
+                    mapsTarget: hotelAddr || hotelKey
+                };
+            }
+            slots[sk].hotels[hotelKey].entries.push(e);
+            slots[sk].hotels[hotelKey].totalPax += (parseInt(e.passengers,10) || 1);
         });
-        // ordina: prima tutte le andate per ora, poi tutti i ritorni per ora (con 00:00/02:30 dopo 22:00)
         const slotOrder = (k) => {
             const [leg, time] = k.split('_');
             const h = parseInt(time.slice(0,2),10);
             const m = parseInt(time.slice(3,5),10);
             const minutes = h*60+m;
-            // ritorni notturni (<06) sommano 24h per ordinarli dopo
             const ordered = (leg==='ret' && h < 6) ? minutes + 24*60 : minutes;
             return (leg==='out' ? 0 : 100000) + ordered;
         };
-        return Object.values(groups).sort((a,b) => slotOrder(a.key) - slotOrder(b.key));
+        return Object.values(slots).map(s => {
+            const groups = Object.values(s.hotels);
+            const totalPax = s.entries.reduce((sum,e) => sum + (parseInt(e.passengers,10)||1), 0);
+            const doneCount = s.entries.filter(e => e.status==='completed' || e.status==='picked_up').length;
+            return { ...s, groups, totalPax, hotelCount: groups.length, doneCount };
+        }).sort((a,b) => slotOrder(a.key) - slotOrder(b.key));
+    },
+    get currentSlot(){
+        return this.slotsForDay.find(s => s.key === this.currentSlotKey) || this.slotsForDay[0] || null;
     },
     async init(){
-        // applica la lingua iniziale (RTL/LTR)
         this.setLang(this.lang);
+        // ricalcola fascia preferita quando si cambia giorno
+        this.$watch('day', () => this.pickDefaultSlot());
         await this.load();
         setInterval(()=>this.load(), 30000);
     },
@@ -302,11 +412,20 @@ function driverApp(){return {
             const r = await fetch('/api/driver_transfers.php?action=list&t='+encodeURIComponent(TOKEN));
             const d = await r.json();
             if (d.transfers) this.transfers = d.transfers;
+            this.pickDefaultSlot();
         } catch(e){}
+    },
+    pickDefaultSlot(){
+        const slots = this.slotsForDay;
+        if (!slots.length) { this.currentSlotKey = null; return; }
+        // se la selezione corrente esiste ancora nel giorno selezionato, tienila
+        if (this.currentSlotKey && slots.some(s => s.key === this.currentSlotKey)) return;
+        // altrimenti scegli la prima fascia ancora "aperta" (non tutta completata) — o la prima in assoluto
+        const open = slots.find(s => s.doneCount < s.entries.length);
+        this.currentSlotKey = (open || slots[0]).key;
     },
     async setStatus(entry, s){
         entry.status = s; // ottimistico
-        // aggiorna anche la copia in this.transfers
         const tr = this.transfers.find(x => x.id === entry.id);
         if (tr) {
             if (entry.leg === 'ret') tr.return_status = s;
@@ -317,19 +436,37 @@ function driverApp(){return {
             body: JSON.stringify({id: entry.id, status: s, leg: entry.leg})
         });
     },
+    // Tap sul cerchietto: cicla scheduled → picked_up → completed → scheduled
+    cycleStatus(entry){
+        const next = entry.status === 'scheduled' ? 'picked_up'
+                   : entry.status === 'picked_up' ? 'completed'
+                   : entry.status === 'completed' ? 'no_show'
+                   : 'scheduled';
+        return this.setStatus(entry, next);
+    },
+    // Cambia stato di tutti i pax non ancora completati nella fascia corrente
+    bulkSet(s){
+        const slot = this.currentSlot;
+        if (!slot) return;
+        slot.entries.forEach(e => { if (e.status !== s) this.setStatus(e, s); });
+    },
     statusLabel(s){
         return ({scheduled:this.t('s_todo'), on_way:this.t('s_onway'), picked_up:this.t('s_picked'), completed:this.t('s_done'), no_show:this.t('s_noshow'), cancelled:'—'})[s] || s;
     },
-    statusBadgeClass(s){
-        return ({
-            scheduled:'text-slate-400',
-            on_way:'text-amber-300',
-            picked_up:'text-brand-300',
-            completed:'text-emerald-300',
-            no_show:'text-rose-300',
-            cancelled:'text-slate-500'
-        })[s] || 'text-slate-400';
+    stateChipIcon(s){
+        return ({scheduled:'⏰', on_way:'🚗', picked_up:'✅', completed:'🏁', no_show:'❌', cancelled:'—'})[s] || '⏰';
     },
+    stateChipClass(s){
+        return ({
+            scheduled:'bg-white/8 text-slate-300 ring-1 ring-white/10',
+            on_way:'bg-amber-500/25 text-amber-200 ring-1 ring-amber-500/30',
+            picked_up:'bg-brand-500/30 text-brand-200 ring-2 ring-brand-500/40',
+            completed:'bg-emerald-500/30 text-emerald-200 ring-2 ring-emerald-500/40',
+            no_show:'bg-rose-500/25 text-rose-200 ring-1 ring-rose-500/30',
+            cancelled:'bg-white/5 text-slate-500'
+        })[s] || 'bg-white/5 text-slate-400';
+    },
+    langFlag(l){ return ({it:'🇮🇹',en:'🇬🇧',es:'🇪🇸',fr:'🇫🇷',de:'🇩🇪',ar:'🇸🇦'})[l] || '🌐'; },
     fmtTime(s){ return s ? new Date(s.replace(' ','T')).toLocaleTimeString(this.locale,{hour:'2-digit',minute:'2-digit'}) : ''; },
     timeAgo(s){
         if (!s) return '';
