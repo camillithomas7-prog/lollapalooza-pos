@@ -1,5 +1,5 @@
 <?php layout_head('Prenotazioni'); layout_sidebar('reservations'); layout_topbar('Prenotazioni', 'Calendario coperti e tavoli'); ?>
-<main class="md:ml-64 lg:ml-72 p-4 md:p-8 pb-24 md:pb-8" x-data="resPage()" x-init="load()">
+<main class="md:ml-64 lg:ml-72 p-4 md:p-8 pb-24 md:pb-8" x-data="resPage()" x-init="loadTables(); load()">
     <div class="flex justify-between items-center mb-4">
         <input type="date" x-model="from" @change="load" class="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm">
         <button @click="add" class="px-4 py-2 rounded-lg btn-primary text-sm font-semibold">+ Prenotazione</button>
@@ -21,7 +21,8 @@
                 <select :value="r.status" @change="setStatus(r,$event.target.value)" class="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs">
                     <option value="confirmed">Confermata</option><option value="seated">Seduta</option><option value="no_show">No-show</option><option value="cancelled">Annullata</option>
                 </select>
-                <button @click="edit(r)" class="text-brand-400">✏️</button>
+                <button @click="edit(r)" class="text-brand-400" title="Modifica">✏️</button>
+                <button @click="del(r)" class="text-red-400 hover:text-red-300" title="Elimina">🗑️</button>
             </div>
         </template>
         <div x-show="!reservations.length" class="text-center py-12 text-slate-400">Nessuna prenotazione</div>
@@ -38,6 +39,19 @@
                     <input type="time" x-model="modal.time" class="px-3 py-2 rounded-lg bg-white/5 border border-white/10">
                 </div>
                 <input type="number" x-model.number="modal.guests" placeholder="Coperti" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
+                <select x-model="modal.table_id" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
+                    <option :value="null">— Nessun tavolo assegnato —</option>
+                    <template x-for="room in rooms" :key="room.id">
+                        <optgroup :label="room.name">
+                            <template x-for="tbl in tables.filter(t=>t.room_id===room.id)" :key="tbl.id">
+                                <option :value="tbl.id" x-text="`Tavolo ${tbl.code} · ${tbl.seats} posti`"></option>
+                            </template>
+                        </optgroup>
+                    </template>
+                    <template x-for="tbl in tables.filter(t=>!rooms.some(r=>r.id===t.room_id))" :key="tbl.id">
+                        <option :value="tbl.id" x-text="`Tavolo ${tbl.code} · ${tbl.seats} posti`"></option>
+                    </template>
+                </select>
                 <textarea x-model="modal.notes" rows="2" placeholder="Note" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10"></textarea>
                 <div class="flex gap-2 mt-3">
                     <button @click="save" class="flex-1 btn-primary py-2.5 rounded-lg font-semibold">Salva</button>
@@ -50,11 +64,14 @@
 <script>
 function resPage(){return {
     from:new Date().toISOString().slice(0,10), reservations:[], modal:null,
+    rooms:[], tables:[],
     async load(){const r=await fetch('/api/reservations.php?action=list&from='+this.from);this.reservations=(await r.json()).reservations;},
-    add(){this.modal={customer_name:'',phone:'',date:this.from,time:'20:00',guests:2,notes:'',status:'confirmed'};},
-    edit(r){this.modal={...r};},
+    async loadTables(){const r=await fetch('/api/tables.php?action=list');const d=await r.json();this.rooms=d.rooms||[];this.tables=d.tables||[];},
+    add(){this.modal={customer_name:'',phone:'',date:this.from,time:'20:00',guests:2,table_id:null,notes:'',status:'confirmed'};},
+    edit(r){this.modal={...r, table_id: r.table_id || null};},
     async save(){await fetch('/api/reservations.php?action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(this.modal)});this.modal=null;this.load();},
-    async setStatus(r,s){await fetch('/api/reservations.php?action=set_status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:r.id,status:s})});this.load();}
+    async setStatus(r,s){await fetch('/api/reservations.php?action=set_status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:r.id,status:s})});this.load();},
+    async del(r){if(!confirm(`Eliminare la prenotazione di ${r.customer_name||'questo cliente'}?`))return;await fetch('/api/reservations.php?action=delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:r.id})});this.load();}
 }}
 </script>
 <?php layout_mobile_nav('reservations'); layout_foot(); ?>
