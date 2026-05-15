@@ -263,22 +263,57 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
   .review-date{font-size:11px;color:var(--muted);margin-top:12px;letter-spacing:1.2px;text-transform:uppercase;}
   @media(min-width:640px){.review{flex:0 0 320px;}}
 
-  /* lingua switcher */
+  /* lingua switcher — dropdown */
   .lang-switcher{
-    position:absolute;top:14px;right:14px;z-index:30;
-    display:flex;gap:3px;
-    background:rgba(10,9,8,.7);backdrop-filter:blur(8px);
+    position:absolute;top:14px;right:14px;z-index:40;
+    font-family:'Figtree',sans-serif;
+  }
+  .lang-trigger{
+    display:flex;align-items:center;gap:8px;
+    background:rgba(10,9,8,.78);backdrop-filter:blur(8px);
     -webkit-backdrop-filter:blur(8px);
-    border:1px solid var(--line);border-radius:99px;padding:3px;
+    border:1px solid var(--line);border-radius:99px;
+    padding:7px 10px 7px 12px;cursor:pointer;
+    color:var(--cream);font-weight:600;font-size:11.5px;letter-spacing:1.4px;
+    transition:border-color .15s ease;
   }
-  .lang-switcher button{
-    background:transparent;border:none;color:var(--muted);
-    font-family:'Figtree',sans-serif;font-weight:600;
-    font-size:10px;letter-spacing:1px;
-    padding:5px 7px;border-radius:99px;cursor:pointer;min-width:26px;
+  .lang-trigger:hover{border-color:var(--gold-d);}
+  .lang-trigger .flag{font-size:15px;line-height:1;}
+  .lang-trigger .code{min-width:18px;text-align:left;}
+  .lang-trigger .chev{
+    width:0;height:0;
+    border-left:4px solid transparent;border-right:4px solid transparent;
+    border-top:5px solid var(--gold-l);
+    transition:transform .2s ease;margin-left:1px;
   }
-  .lang-switcher button.active{background:var(--gold);color:var(--black);}
+  .lang-switcher.open .lang-trigger .chev{transform:rotate(180deg);}
+  .lang-menu{
+    position:absolute;top:calc(100% + 6px);right:0;
+    background:rgba(15,13,10,.96);backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border:1px solid var(--line);border-radius:14px;
+    padding:5px;min-width:148px;
+    box-shadow:0 14px 40px rgba(0,0,0,.55);
+    opacity:0;visibility:hidden;transform:translateY(-4px);
+    transition:opacity .18s ease,transform .18s ease,visibility .18s;
+    list-style:none;
+  }
+  .lang-switcher.open .lang-menu{opacity:1;visibility:visible;transform:translateY(0);}
+  .lang-menu button{
+    display:flex;align-items:center;gap:10px;width:100%;
+    background:transparent;border:none;color:var(--cream);
+    font-family:'Figtree',sans-serif;font-weight:500;
+    font-size:13px;letter-spacing:.3px;text-align:left;
+    padding:8px 12px;border-radius:9px;cursor:pointer;
+  }
+  .lang-menu button:hover{background:rgba(201,162,75,.12);}
+  .lang-menu button.active{background:rgba(201,162,75,.18);color:var(--gold-l);}
+  .lang-menu .flag{font-size:16px;line-height:1;}
+  .lang-menu .name{flex:1;}
+  .lang-menu .code{font-size:10.5px;color:var(--muted);letter-spacing:1.4px;font-weight:600;}
   html[dir="rtl"] .lang-switcher{right:auto;left:14px;}
+  html[dir="rtl"] .lang-menu{right:auto;left:0;}
+  html[dir="rtl"] .lang-menu button{text-align:right;}
   html[dir="rtl"] .reviews{direction:rtl;}
   html[dir="rtl"] .ambiente-grid figcaption{left:auto;right:12px;}
   html[dir="rtl"] .chef-quote{padding-left:0;padding-right:18px;border-left:none;border-right:3px solid var(--gold);}
@@ -297,8 +332,8 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
     .gal{gap:9px;}
     .event{flex-direction:column;text-align:center;padding:18px;}
     .event img{width:120px;flex:0 0 auto;}
-    .lang-switcher{top:10px;right:10px;padding:2px;gap:2px;}
-    .lang-switcher button{font-size:9.5px;padding:4px 6px;min-width:24px;}
+    .lang-switcher{top:10px;right:10px;}
+    .lang-trigger{padding:6px 9px 6px 11px;font-size:11px;}
     html[dir="rtl"] .lang-switcher{right:auto;left:10px;}
   }
   @media(max-width:340px){
@@ -312,12 +347,19 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
 <!-- ================= HERO ================= -->
 <header class="hero">
   <div class="lang-switcher" aria-label="Lingua">
-    <button type="button" data-lang="it" class="active">IT</button>
-    <button type="button" data-lang="en">EN</button>
-    <button type="button" data-lang="es">ES</button>
-    <button type="button" data-lang="fr">FR</button>
-    <button type="button" data-lang="de">DE</button>
-    <button type="button" data-lang="ar">AR</button>
+    <button type="button" class="lang-trigger" aria-haspopup="listbox" aria-expanded="false">
+      <span class="flag" data-flag>🇮🇹</span>
+      <span class="code" data-code>IT</span>
+      <span class="chev" aria-hidden="true"></span>
+    </button>
+    <ul class="lang-menu" role="listbox">
+      <li><button type="button" data-lang="it" class="active"><span class="flag">🇮🇹</span><span class="name">Italiano</span><span class="code">IT</span></button></li>
+      <li><button type="button" data-lang="en"><span class="flag">🇬🇧</span><span class="name">English</span><span class="code">EN</span></button></li>
+      <li><button type="button" data-lang="es"><span class="flag">🇪🇸</span><span class="name">Español</span><span class="code">ES</span></button></li>
+      <li><button type="button" data-lang="fr"><span class="flag">🇫🇷</span><span class="name">Français</span><span class="code">FR</span></button></li>
+      <li><button type="button" data-lang="de"><span class="flag">🇩🇪</span><span class="name">Deutsch</span><span class="code">DE</span></button></li>
+      <li><button type="button" data-lang="ar"><span class="flag">🇸🇦</span><span class="name">العربية</span><span class="code">AR</span></button></li>
+    </ul>
   </div>
   <div class="wrap">
     <div class="new-mgmt">● Nuova gestione</div>
@@ -1033,12 +1075,28 @@ document.addEventListener('click', function(e){
         a.href = u.toString();
       } catch(e){}
     });
-    // aggiorna stato bottoni
-    document.querySelectorAll('.lang-switcher button').forEach(function(b){
+    // aggiorna stato bottoni nel menu
+    document.querySelectorAll('.lang-menu button').forEach(function(b){
       b.classList.toggle('active', b.dataset.lang === lang);
     });
+    // aggiorna trigger (bandiera + codice)
+    var meta = LANG_META[lang] || LANG_META.it;
+    var trig = document.querySelector('.lang-trigger');
+    if (trig){
+      trig.querySelector('[data-flag]').textContent = meta.flag;
+      trig.querySelector('[data-code]').textContent = meta.code;
+    }
     try { localStorage.setItem('funnel_lang', lang); } catch(e){}
   }
+
+  var LANG_META = {
+    it: {flag:'🇮🇹', code:'IT'},
+    en: {flag:'🇬🇧', code:'EN'},
+    es: {flag:'🇪🇸', code:'ES'},
+    fr: {flag:'🇫🇷', code:'FR'},
+    de: {flag:'🇩🇪', code:'DE'},
+    ar: {flag:'🇸🇦', code:'AR'}
+  };
 
   document.addEventListener('DOMContentLoaded', function(){
     snap();
@@ -1048,8 +1106,34 @@ document.addEventListener('click', function(e){
     try { stored = localStorage.getItem('funnel_lang'); } catch(e){}
     var initial = urlLang || stored || 'it';
     applyLang(initial);
-    document.querySelectorAll('.lang-switcher button').forEach(function(b){
-      b.addEventListener('click', function(){ applyLang(b.dataset.lang); });
+
+    var sw = document.querySelector('.lang-switcher');
+    var trig = sw && sw.querySelector('.lang-trigger');
+    if (trig){
+      trig.addEventListener('click', function(e){
+        e.stopPropagation();
+        var open = sw.classList.toggle('open');
+        trig.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    }
+    document.querySelectorAll('.lang-menu button').forEach(function(b){
+      b.addEventListener('click', function(){
+        applyLang(b.dataset.lang);
+        sw.classList.remove('open');
+        if (trig) trig.setAttribute('aria-expanded', 'false');
+      });
+    });
+    document.addEventListener('click', function(e){
+      if (sw && !sw.contains(e.target)){
+        sw.classList.remove('open');
+        if (trig) trig.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && sw){
+        sw.classList.remove('open');
+        if (trig) trig.setAttribute('aria-expanded', 'false');
+      }
     });
   });
 })();
