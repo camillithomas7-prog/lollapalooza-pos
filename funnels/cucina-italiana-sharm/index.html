@@ -140,6 +140,30 @@
   .gal{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px;}
   .gal img{width:100%;height:100%;object-fit:cover;border-radius:12px;border:1px solid var(--line);aspect-ratio:1/1;}
 
+  /* atmosfera — galleria foto reali */
+  .ambiente-grid{display:grid;gap:14px;margin-top:24px;}
+  .ambiente-grid figure{
+    margin:0;border-radius:14px;overflow:hidden;
+    border:1px solid var(--line);
+    box-shadow:0 16px 44px rgba(0,0,0,.5);
+    position:relative;
+  }
+  .ambiente-grid img{
+    display:block;width:100%;height:100%;object-fit:cover;
+    aspect-ratio:4/3;
+  }
+  .ambiente-grid figcaption{
+    position:absolute;left:12px;bottom:12px;
+    background:rgba(10,9,8,.72);backdrop-filter:blur(6px);
+    color:var(--gold-l);font-size:11px;letter-spacing:1.8px;
+    text-transform:uppercase;font-weight:600;
+    padding:6px 12px;border-radius:99px;
+    border:1px solid rgba(201,162,75,.3);
+  }
+  @media(min-width:600px){
+    .ambiente-grid{grid-template-columns:repeat(3,1fr);}
+  }
+
   /* box evento (in fondo, secondario) */
   .event{
     margin-top:26px;display:flex;gap:16px;align-items:center;
@@ -331,7 +355,20 @@
       Luci calde, tavoli curati, il giusto tono. Si cena con calma, si chiacchiera,
       ci si gode la serata. Né caotico né freddo: accogliente, come deve essere.
     </p>
-    <img src="assets/ambiente.jpg" alt="Atmosfera del locale Lollapalooza" class="imground">
+    <div class="ambiente-grid">
+      <figure>
+        <img src="assets/foto-ingresso.jpg" alt="L'ingresso del Lollapalooza">
+        <figcaption>L'ingresso</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/foto-sala.jpg" alt="Sala ristorante del Lollapalooza">
+        <figcaption>Sala ristorante</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/foto-serata.jpg" alt="La serata al Lollapalooza">
+        <figcaption>La serata</figcaption>
+      </figure>
+    </div>
 
     <!-- Box evento — secondario, in fondo -->
     <div class="event">
