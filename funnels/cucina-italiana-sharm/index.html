@@ -228,6 +228,15 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
   footer .addr{color:var(--muted);font-size:13.5px;margin-top:8px;letter-spacing:.5px;}
   footer .num{color:var(--cream);font-size:14px;margin-top:10px;}
   footer .num a{color:var(--gold-l);text-decoration:none;}
+  footer .maps-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    margin-top:18px;padding:11px 20px;border-radius:99px;
+    background:rgba(201,162,75,.14);border:1px solid var(--gold-d);
+    color:var(--gold-l);text-decoration:none;font-weight:600;
+    font-size:13.5px;letter-spacing:.5px;
+  }
+  footer .maps-btn:hover{background:rgba(201,162,75,.22);}
+  footer .maps-btn svg{width:18px;height:18px;}
 
   .divider{width:46px;height:2px;background:var(--gold);margin:0 0 4px;}
   .center{text-align:center;}
@@ -602,6 +611,10 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
     <div class="name">LOLLAPALOOZA</div>
     <div class="addr">Al Motelat · Sharm el Sheikh 2 · Egitto</div>
     <div class="num">WhatsApp: <a href="https://wa.me/393343828321" target="_blank" rel="noopener">+39 334 382 8321</a></div>
+    <a class="maps-btn" href="https://maps.app.goo.gl/Hat4YvEX3TtL8ZRf8" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+      <span class="maps-btn-label">Come arrivare · Apri in Maps</span>
+    </a>
   </div>
 </footer>
 
@@ -635,7 +648,7 @@ document.addEventListener('click', function(e){
 
   // Selettore degli elementi tradotti — innerHTML matching su IT
   // NB: i bottoni .btn-wa non sono qui perché contengono SVG; sono gestiti a parte
-  var SEL = 'h1, h2, h3, .lead, .kicker, .micro, .eyebrow, .new-mgmt, .fact .v, .fact .k, .sub, .chef-quote, .imgcap, .usp .tag, .usp h3, .usp p, .dishes li, .ambiente-grid figcaption, .ev-tag, .event p, .review-text, .review-loc, .review-date, .cta-note, footer .addr, footer .num, [data-i18n]';
+  var SEL = 'h1, h2, h3, .lead, .kicker, .micro, .eyebrow, .new-mgmt, .fact .v, .fact .k, .sub, .chef-quote, .imgcap, .usp .tag, .usp h3, .usp p, .dishes li, .ambiente-grid figcaption, .ev-tag, .event p, .review-text, .review-loc, .review-date, .cta-note, footer .addr, footer .num, footer .maps-btn-label, [data-i18n]';
 
   // Normalizza chiave: trim + collassa spazi
   function norm(s){ return s.replace(/\s+/g,' ').trim(); }
@@ -716,7 +729,8 @@ document.addEventListener('click', function(e){
       "Scegli il giorno e dicci in quanti siete. Un messaggio su WhatsApp e ti confermiamo subito.": "Pick the day and tell us how many you'll be. One WhatsApp message and we confirm right away.",
       "+39 334 382 8321 · risposta rapida": "+39 334 382 8321 · quick reply",
       "Al Motelat · Sharm el Sheikh 2 · Egitto": "Al Motelat · Sharm el Sheikh 2 · Egypt",
-      "Prenota un tavolo su WhatsApp": "Book a table on WhatsApp"
+      "Prenota un tavolo su WhatsApp": "Book a table on WhatsApp",
+      "Come arrivare · Apri in Maps": "Get directions · Open in Maps"
     },
     es: {
       "● Nuova gestione": "● Nueva gestión",
@@ -792,7 +806,8 @@ document.addEventListener('click', function(e){
       "Scegli il giorno e dicci in quanti siete. Un messaggio su WhatsApp e ti confermiamo subito.": "Elige el día y dinos cuántos sois. Un mensaje por WhatsApp y te confirmamos al momento.",
       "+39 334 382 8321 · risposta rapida": "+39 334 382 8321 · respuesta rápida",
       "Al Motelat · Sharm el Sheikh 2 · Egitto": "Al Motelat · Sharm el Sheikh 2 · Egipto",
-      "Prenota un tavolo su WhatsApp": "Reserva una mesa por WhatsApp"
+      "Prenota un tavolo su WhatsApp": "Reserva una mesa por WhatsApp",
+      "Come arrivare · Apri in Maps": "Cómo llegar · Abrir en Maps"
     },
     fr: {
       "● Nuova gestione": "● Nouvelle gestion",
@@ -868,7 +883,8 @@ document.addEventListener('click', function(e){
       "Scegli il giorno e dicci in quanti siete. Un messaggio su WhatsApp e ti confermiamo subito.": "Choisissez le jour et dites-nous combien vous êtes. Un message sur WhatsApp et nous confirmons aussitôt.",
       "+39 334 382 8321 · risposta rapida": "+39 334 382 8321 · réponse rapide",
       "Al Motelat · Sharm el Sheikh 2 · Egitto": "Al Motelat · Sharm el Sheikh 2 · Égypte",
-      "Prenota un tavolo su WhatsApp": "Réserver une table sur WhatsApp"
+      "Prenota un tavolo su WhatsApp": "Réserver une table sur WhatsApp",
+      "Come arrivare · Apri in Maps": "Itinéraire · Ouvrir dans Maps"
     },
     de: {
       "● Nuova gestione": "● Neue Leitung",
@@ -944,7 +960,8 @@ document.addEventListener('click', function(e){
       "Scegli il giorno e dicci in quanti siete. Un messaggio su WhatsApp e ti confermiamo subito.": "Wählen Sie den Tag und sagen Sie uns, wie viele Sie sind. Eine WhatsApp-Nachricht und wir bestätigen sofort.",
       "+39 334 382 8321 · risposta rapida": "+39 334 382 8321 · schnelle Antwort",
       "Al Motelat · Sharm el Sheikh 2 · Egitto": "Al Motelat · Sharm el Sheikh 2 · Ägypten",
-      "Prenota un tavolo su WhatsApp": "Tisch über WhatsApp reservieren"
+      "Prenota un tavolo su WhatsApp": "Tisch über WhatsApp reservieren",
+      "Come arrivare · Apri in Maps": "Wegbeschreibung · In Maps öffnen"
     },
     ar: {
       "● Nuova gestione": "● إدارة جديدة",
@@ -1020,7 +1037,8 @@ document.addEventListener('click', function(e){
       "Scegli il giorno e dicci in quanti siete. Un messaggio su WhatsApp e ti confermiamo subito.": "اختر اليوم وأخبرنا بعددكم. رسالة واحدة على واتساب ونؤكّد لك فورًا.",
       "+39 334 382 8321 · risposta rapida": "+39 334 382 8321 · ردّ سريع",
       "Al Motelat · Sharm el Sheikh 2 · Egitto": "المعتلات · شرم الشيخ 2 · مصر",
-      "Prenota un tavolo su WhatsApp": "احجز طاولة عبر واتساب"
+      "Prenota un tavolo su WhatsApp": "احجز طاولة عبر واتساب",
+      "Come arrivare · Apri in Maps": "كيفية الوصول · افتح في الخرائط"
     }
   };
 
