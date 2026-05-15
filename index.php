@@ -80,6 +80,12 @@ if ($page === 'prenota' || $page === 'book') {
     exit;
 }
 
+// Driver transfer dashboard (pubblico, accesso via token)
+if ($page === 'driver') {
+    require __DIR__ . '/pages/public/driver.php';
+    exit;
+}
+
 // Auth required
 require_auth();
 
@@ -98,6 +104,7 @@ $pages = [
     'finance' => ['admin/finance.php', ['admin','manager']],
     'staff' => ['admin/staff.php', ['admin','manager']],
     'reservations' => ['admin/reservations.php', ['admin','manager']],
+    'transfers' => ['admin/transfers.php', ['admin','manager']],
     'customers' => ['admin/customers.php', ['admin','manager']],
     'reports' => ['admin/reports.php', ['admin','manager']],
     'funnels' => ['admin/funnels.php', ['admin','manager']],

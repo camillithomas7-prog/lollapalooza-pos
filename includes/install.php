@@ -25,6 +25,65 @@ try {
     if ($upd->rowCount() > 0) echo "✓ Tenant aggiornati a valuta EGP (Lira Egiziana): " . $upd->rowCount() . "\n";
 } catch (Throwable $e) {}
 
+// Migrazione: crea tabella transfers se mancante
+try {
+    if (DB_DRIVER === 'mysql') {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS transfers (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            tenant_id INT,
+            customer_name VARCHAR(255) NOT NULL,
+            phone VARCHAR(50),
+            language VARCHAR(8) DEFAULT 'it',
+            direction VARCHAR(20) DEFAULT 'arrival',
+            pickup_when DATETIME NOT NULL,
+            pickup_location VARCHAR(255),
+            pickup_address VARCHAR(500),
+            dropoff_location VARCHAR(255),
+            dropoff_address VARCHAR(500),
+            passengers INT DEFAULT 1,
+            luggage INT DEFAULT 0,
+            flight_no VARCHAR(50),
+            vehicle VARCHAR(100),
+            driver_name VARCHAR(100),
+            price_egp DECIMAL(10,2) DEFAULT 0,
+            reservation_id INT,
+            notes TEXT,
+            status VARCHAR(20) DEFAULT 'scheduled',
+            created_at DATETIME,
+            updated_at DATETIME,
+            INDEX idx_transfers_when (tenant_id, pickup_when),
+            INDEX idx_transfers_status (tenant_id, status)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    } else {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS transfers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            tenant_id INTEGER,
+            customer_name TEXT NOT NULL,
+            phone TEXT,
+            language TEXT DEFAULT 'it',
+            direction TEXT DEFAULT 'arrival',
+            pickup_when TEXT NOT NULL,
+            pickup_location TEXT,
+            pickup_address TEXT,
+            dropoff_location TEXT,
+            dropoff_address TEXT,
+            passengers INTEGER DEFAULT 1,
+            luggage INTEGER DEFAULT 0,
+            flight_no TEXT,
+            vehicle TEXT,
+            driver_name TEXT,
+            price_egp REAL DEFAULT 0,
+            reservation_id INTEGER,
+            notes TEXT,
+            status TEXT DEFAULT 'scheduled',
+            created_at TEXT,
+            updated_at TEXT
+        )");
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_transfers_when ON transfers(tenant_id, pickup_when)");
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_transfers_status ON transfers(tenant_id, status)");
+    }
+} catch (Throwable $e) { echo "⚠ Errore migrazione transfers: " . $e->getMessage() . "\n"; }
+
 // Migrazione: aggiunge products.destination se mancante (override categoria)
 try {
     if (DB_DRIVER === 'mysql') {

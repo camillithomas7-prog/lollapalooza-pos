@@ -351,3 +351,30 @@ CREATE TABLE IF NOT EXISTS funnels (
     created_at DATETIME,
     updated_at DATETIME
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS transfers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id INT,
+    customer_name VARCHAR(255) NOT NULL,
+    phone VARCHAR(50),
+    language VARCHAR(8) DEFAULT 'it',
+    direction ENUM('arrival','departure','internal') DEFAULT 'arrival',
+    pickup_when DATETIME NOT NULL,
+    pickup_location VARCHAR(255),
+    pickup_address VARCHAR(500),
+    dropoff_location VARCHAR(255),
+    dropoff_address VARCHAR(500),
+    passengers INT DEFAULT 1,
+    luggage INT DEFAULT 0,
+    flight_no VARCHAR(50),
+    vehicle VARCHAR(100),
+    driver_name VARCHAR(100),
+    price_egp DECIMAL(10,2) DEFAULT 0,
+    reservation_id INT,
+    notes TEXT,
+    status ENUM('scheduled','on_way','picked_up','completed','cancelled','no_show') DEFAULT 'scheduled',
+    created_at DATETIME,
+    updated_at DATETIME,
+    INDEX idx_transfers_when (tenant_id, pickup_when),
+    INDEX idx_transfers_status (tenant_id, status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

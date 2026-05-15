@@ -331,3 +331,30 @@ CREATE TABLE IF NOT EXISTS funnels (
     updated_at TEXT
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_funnels_slug ON funnels(slug);
+
+CREATE TABLE IF NOT EXISTS transfers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tenant_id INTEGER,
+    customer_name TEXT NOT NULL,
+    phone TEXT,
+    language TEXT DEFAULT 'it',
+    direction TEXT DEFAULT 'arrival',
+    pickup_when TEXT NOT NULL,
+    pickup_location TEXT,
+    pickup_address TEXT,
+    dropoff_location TEXT,
+    dropoff_address TEXT,
+    passengers INTEGER DEFAULT 1,
+    luggage INTEGER DEFAULT 0,
+    flight_no TEXT,
+    vehicle TEXT,
+    driver_name TEXT,
+    price_egp REAL DEFAULT 0,
+    reservation_id INTEGER,
+    notes TEXT,
+    status TEXT DEFAULT 'scheduled',
+    created_at TEXT,
+    updated_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_transfers_when ON transfers(tenant_id, pickup_when);
+CREATE INDEX IF NOT EXISTS idx_transfers_status ON transfers(tenant_id, status);
