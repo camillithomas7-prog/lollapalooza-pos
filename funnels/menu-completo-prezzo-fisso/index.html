@@ -193,6 +193,30 @@
   .divider{width:46px;height:2px;background:var(--gold);margin:0 auto 4px;}
   .center{text-align:center;}
 
+  /* recensioni */
+  .reviews{
+    display:flex;gap:14px;
+    overflow-x:auto;scroll-snap-type:x mandatory;
+    padding:6px 22px 16px;margin:24px -22px 0;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;scrollbar-color:rgba(201,162,75,.4) transparent;
+  }
+  .reviews::-webkit-scrollbar{height:6px;}
+  .reviews::-webkit-scrollbar-thumb{background:rgba(201,162,75,.4);border-radius:99px;}
+  .review{
+    flex:0 0 84%;max-width:320px;scroll-snap-align:start;
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:18px;display:flex;flex-direction:column;
+  }
+  .review-head{display:flex;gap:12px;align-items:center;margin-bottom:8px;}
+  .review-head img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:1px solid var(--line);flex:0 0 48px;}
+  .review-name{font-weight:600;color:var(--cream);font-size:14.5px;line-height:1.2;}
+  .review-loc{font-size:11.5px;color:var(--muted);margin-top:2px;letter-spacing:.3px;}
+  .review-stars{color:var(--gold);font-size:14px;letter-spacing:2px;margin:4px 0 8px;}
+  .review-text{color:var(--cream);font-size:14px;line-height:1.55;flex:1;}
+  .review-date{font-size:11px;color:var(--muted);margin-top:12px;letter-spacing:1.2px;text-transform:uppercase;}
+  @media(min-width:640px){.review{flex:0 0 320px;}}
+
   @media(max-width:480px){
     .wrap{padding:0 18px;}
     section{padding:44px 0;}
@@ -325,6 +349,87 @@
       <p>Il menù completo è la nostra proposta consigliata. Resta sempre disponibile
          anche il menù alla carta, se preferisci scegliere piatto per piatto. Le bevande
          extra sono a parte — te le diciamo sempre prima.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RECENSIONI ================= -->
+<section class="alt">
+  <div class="wrap">
+    <div class="eyebrow left">Cosa dicono</div>
+    <h2>Le voci di chi <span class="script">è già stato</span></h2>
+    <p class="sub">Recensioni dai nostri clienti italiani — scorri per leggerle tutte.</p>
+    <div class="reviews">
+      <div class="review">
+        <div class="review-head"><img src="assets/r1.jpg" alt="">
+          <div><div class="review-name">Giulia M.</div><div class="review-loc">Milano · in vacanza a Sharm</div></div></div>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">Finalmente un posto a Sharm dove si mangia italiano vero. Sapori autentici, ambiente curato, prezzi onesti. I titolari ti accolgono con il sorriso — ti senti subito a casa.</p>
+        <div class="review-date">Aprile 2026</div>
+      </div>
+      <div class="review">
+        <div class="review-head"><img src="assets/r2.jpg" alt="">
+          <div><div class="review-name">Stefano L.</div><div class="review-loc">Bologna · coppia</div></div></div>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">Cena italiana come si deve, fatta con cura. È l'unico posto a Sharm dove la sera ti diverti davvero: si cena, si chiacchiera, e poi resti per la serata. Da consigliare.</p>
+        <div class="review-date">Marzo 2026</div>
+      </div>
+      <div class="review">
+        <div class="review-head"><img src="assets/r3.jpg" alt="">
+          <div><div class="review-name">Laura B.</div><div class="review-loc">Firenze · gruppo amici</div></div></div>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">Locale stupendo, accoglienza calorosa. I gestori sono simpaticissimi, ti fanno sentire parte della loro famiglia. Cucina autentica e prezzi giusti — perfetto.</p>
+        <div class="review-date">Aprile 2026</div>
+      </div>
+      <div class="review">
+        <div class="review-head"><img src="assets/r4.jpg" alt="">
+          <div><div class="review-name">Marco R.</div><div class="review-loc">Roma · coppia</div></div></div>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">Cercavo sapori di casa in vacanza e li ho trovati qui. Cucina italiana vera, ambiente caldo, la serata è andata via in un lampo. Tornerò sicuro.</p>
+        <div class="review-date">Maggio 2026</div>
+      </div>
+      <div class="review">
+        <div class="review-head"><img src="assets/r5.jpg" alt="">
+          <div><div class="review-name">Francesca P.</div><div class="review-loc">Verona · in vacanza</div></div></div>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">Serata indimenticabile. Atmosfera elegante ma senza esagerare, ottima cena, e l'ospitalità dei titolari fa la differenza. Non un locale qualunque.</p>
+        <div class="review-date">Marzo 2026</div>
+      </div>
+      <div class="review">
+        <div class="review-head"><img src="assets/r6.jpg" alt="">
+          <div><div class="review-name">Andrea T.</div><div class="review-loc">Torino · famiglia</div></div></div>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">A Sharm c'è bisogno di posti così: cucina vera, servizio attento, prezzi onesti. Cena + serata nello stesso posto, niente spostamenti. Promosso a pieni voti.</p>
+        <div class="review-date">Febbraio 2026</div>
+      </div>
+      <div class="review">
+        <div class="review-head"><img src="assets/r7.jpg" alt="">
+          <div><div class="review-name">Chiara S.</div><div class="review-loc">Padova · viaggio amici</div></div></div>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">Mi sono divertita un sacco. Cucina ottima, ambiente molto curato, e abbiamo fatto pure amicizia con altre coppie italiane. Il Lollapalooza è una scoperta.</p>
+        <div class="review-date">Aprile 2026</div>
+      </div>
+      <div class="review">
+        <div class="review-head"><img src="assets/r8.jpg" alt="">
+          <div><div class="review-name">Roberto V.</div><div class="review-loc">Genova · coppia</div></div></div>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">Cibo italiano autentico, sapori che riportano a casa. Personale gentile, conto onesto, niente sorprese. La sera a Sharm finalmente diventa interessante.</p>
+        <div class="review-date">Gennaio 2026</div>
+      </div>
+      <div class="review">
+        <div class="review-head"><img src="assets/r9.jpg" alt="">
+          <div><div class="review-name">Elena G.</div><div class="review-loc">Trieste · in vacanza</div></div></div>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">Mi aspettavo il solito locale per turisti, invece ho trovato qualità vera. Cucina che ricorda l'Italia, atmosfera rilassata, gestori meravigliosi. Da provare.</p>
+        <div class="review-date">Marzo 2026</div>
+      </div>
+      <div class="review">
+        <div class="review-head"><img src="assets/r10.jpg" alt="">
+          <div><div class="review-name">Alessandro D.</div><div class="review-loc">Bergamo · gruppo amici</div></div></div>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">Una cena come a casa e una serata che non finisce mai. Il bello è che fai amicizia subito — i titolari ti coinvolgono, gli altri ospiti italiani diventano compagnia. Bellissimo.</p>
+        <div class="review-date">Aprile 2026</div>
+      </div>
     </div>
   </div>
 </section>
