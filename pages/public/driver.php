@@ -75,9 +75,7 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ brand:{400:'#a78
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase" :class="dirClass(t.direction)" x-text="dirLabel(t.direction)"></span>
                         </div>
                         <div class="text-xs text-slate-400 mt-1 flex flex-wrap gap-x-3 gap-y-1">
-                            <span x-show="t.passengers" x-text="'👤 '+t.passengers+' pax'"></span>
-                            <span x-show="t.luggage>0" x-text="'🧳 '+t.luggage+' bag'"></span>
-                            <span x-show="t.flight_no" class="font-mono text-sky-300" x-text="'✈ '+t.flight_no"></span>
+                            <span x-show="t.passengers" x-text="'👤 '+t.passengers+' '+(t.passengers==1?'persona':'persone')"></span>
                             <span x-show="t.language" x-text="'🗣 '+langLabel(t.language)"></span>
                         </div>
                     </div>
@@ -206,18 +204,18 @@ function driverApp(){return {
     },
     isPast(s){ return s ? new Date(s.replace(' ','T')) < new Date() : false; },
     mapsUrl(q){ return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q); },
-    dirLabel(d){ return ({arrival:'🛬 Arrivo', departure:'🛫 Partenza', internal:'🏨 Interno'})[d] || d; },
-    dirClass(d){ return ({arrival:'bg-emerald-500/15 text-emerald-300', departure:'bg-sky-500/15 text-sky-300', internal:'bg-brand-500/15 text-brand-400'})[d] || 'bg-white/10'; },
+    dirLabel(d){ return ({to_venue:'🍽️ Verso il locale', to_hotel:'🏨 Ritorno hotel', arrival:'🍽️ Verso il locale', departure:'🏨 Ritorno hotel', internal:'🍽️ Verso il locale'})[d] || '🚗 Transfer'; },
+    dirClass(d){ return ({to_venue:'bg-emerald-500/15 text-emerald-300', to_hotel:'bg-sky-500/15 text-sky-300', arrival:'bg-emerald-500/15 text-emerald-300', departure:'bg-sky-500/15 text-sky-300', internal:'bg-emerald-500/15 text-emerald-300'})[d] || 'bg-white/10'; },
     langLabel(l){ return ({it:'Italiano',en:'English',es:'Español',fr:'Français',de:'Deutsch',ar:'العربية'})[l] || l; },
     waUrl(phone, lang){
         const msg = ({
-            it: 'Salve, sono l autista del Lollapalooza. La sto raggiungendo al punto di ritiro.',
-            en: 'Hello, I am the Lollapalooza driver. I am on my way to pick you up.',
-            es: 'Hola, soy el conductor de Lollapalooza. Estoy en camino para recogerle.',
-            fr: 'Bonjour, je suis le chauffeur du Lollapalooza. J arrive pour vous chercher.',
-            de: 'Hallo, ich bin der Lollapalooza-Fahrer. Ich bin auf dem Weg zu Ihnen.',
-            ar: 'مرحبًا، أنا سائق لولابالوزا. أنا في طريقي إليك.'
-        })[lang] || 'Hello, this is Lollapalooza driver. On my way.';
+            it: 'Salve, sono l autista del Lollapalooza. La sto raggiungendo all hotel per portarla al ristorante.',
+            en: 'Hello, I am the Lollapalooza driver. I am on my way to your hotel to take you to the restaurant.',
+            es: 'Hola, soy el conductor de Lollapalooza. Estoy en camino a su hotel para llevarle al restaurante.',
+            fr: 'Bonjour, je suis le chauffeur du Lollapalooza. J arrive à votre hôtel pour vous emmener au restaurant.',
+            de: 'Hallo, ich bin der Lollapalooza-Fahrer. Ich bin auf dem Weg zu Ihrem Hotel, um Sie zum Restaurant zu bringen.',
+            ar: 'مرحبًا، أنا سائق لولابالوزا. أنا في طريقي إلى فندقكم لأخذكم إلى المطعم.'
+        })[lang] || 'Hello, this is Lollapalooza driver. On my way to your hotel.';
         const clean = (phone||'').replace(/[^0-9+]/g,'').replace(/^\+/,'');
         return 'https://wa.me/'+clean+'?text='+encodeURIComponent(msg);
     }

@@ -56,10 +56,9 @@
             <option value="no_show">No-show</option>
         </select>
         <select x-model="filterDir" class="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm">
-            <option value="">Tutte le direzioni</option>
-            <option value="arrival">Arrivo (da aeroporto)</option>
-            <option value="departure">Partenza (verso aeroporto)</option>
-            <option value="internal">Interno (hotel ↔ locale)</option>
+            <option value="">Andata + ritorno</option>
+            <option value="to_venue">Verso il locale</option>
+            <option value="to_hotel">Ritorno all'hotel</option>
         </select>
         <button @click="add" class="ml-auto px-4 py-2 rounded-lg btn-primary text-sm font-semibold">+ Nuovo transfer</button>
     </div>
@@ -78,12 +77,10 @@
                         <div class="flex items-center gap-2 flex-wrap mb-1">
                             <span class="font-bold" x-text="t.customer_name"></span>
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase" :class="dirClass(t.direction)" x-text="dirLabel(t.direction)"></span>
-                            <span x-show="t.flight_no" class="px-2 py-0.5 rounded text-[10px] bg-sky-500/15 text-sky-300 font-mono" x-text="'✈ '+t.flight_no"></span>
                         </div>
                         <div class="text-xs text-slate-400 mb-1">
                             <span x-show="t.phone" x-text="'📞 '+t.phone"></span>
                             <span x-show="t.passengers" x-text="' · 👤×'+t.passengers"></span>
-                            <span x-show="t.luggage" x-text="' · 🧳×'+t.luggage"></span>
                         </div>
                         <div class="text-sm">
                             <span class="text-emerald-300" x-text="'📍 '+(t.pickup_location||t.pickup_address||'—')"></span>
@@ -137,9 +134,8 @@
                         <option value="ar">🇸🇦 العربية</option>
                     </select>
                     <select x-model="modal.direction" class="px-3 py-2 rounded-lg bg-white/5 border border-white/10">
-                        <option value="arrival">🛬 Arrivo (da aeroporto)</option>
-                        <option value="departure">🛫 Partenza (verso aeroporto)</option>
-                        <option value="internal">🏨 Interno (hotel ↔ locale)</option>
+                        <option value="to_venue">🍽️ Verso il locale (andata)</option>
+                        <option value="to_hotel">🏨 Ritorno all'hotel</option>
                     </select>
                 </div>
 
@@ -151,46 +147,31 @@
 
                 <!-- Pickup -->
                 <div class="card p-3 bg-emerald-500/5 border-emerald-500/20">
-                    <div class="text-xs text-emerald-300 font-bold uppercase tracking-wider mb-2">📍 Punto di ritiro</div>
-                    <input x-model="modal.pickup_location" placeholder="Nome luogo (es. Aeroporto SSH, Hotel Marriott)" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 mb-2">
-                    <input x-model="modal.pickup_address" placeholder="Indirizzo completo (per Maps)" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
+                    <div class="text-xs text-emerald-300 font-bold uppercase tracking-wider mb-2">📍 Dove andarlo a prendere</div>
+                    <input x-model="modal.pickup_location" placeholder="Hotel / villaggio (es. Domina Coral Bay)" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 mb-2">
+                    <input x-model="modal.pickup_address" placeholder="Indirizzo o riferimento per Maps (opzionale)" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
                 </div>
 
                 <!-- Dropoff -->
                 <div class="card p-3 bg-rose-500/5 border-rose-500/20">
-                    <div class="text-xs text-rose-300 font-bold uppercase tracking-wider mb-2">🏁 Destinazione</div>
-                    <input x-model="modal.dropoff_location" placeholder="Nome luogo (default: Lollapalooza)" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 mb-2">
+                    <div class="text-xs text-rose-300 font-bold uppercase tracking-wider mb-2">🏁 Dove portarlo</div>
+                    <input x-model="modal.dropoff_location" placeholder="Lollapalooza (di default)" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 mb-2">
                     <input x-model="modal.dropoff_address" placeholder="Indirizzo (opzionale)" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
                 </div>
 
                 <!-- Dettagli pratici -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div class="grid grid-cols-3 gap-2">
                     <div>
-                        <label class="text-xs text-slate-400">Passeggeri</label>
+                        <label class="text-xs text-slate-400">Persone</label>
                         <input type="number" min="1" x-model.number="modal.passengers" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-400">Bagagli</label>
-                        <input type="number" min="0" x-model.number="modal.luggage" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-400">Volo</label>
-                        <input x-model="modal.flight_no" placeholder="es. MS794" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 font-mono">
                     </div>
                     <div>
                         <label class="text-xs text-slate-400">Prezzo (LE)</label>
                         <input type="number" min="0" step="50" x-model.number="modal.price_egp" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
                     </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-xs text-slate-400">Veicolo (opzionale)</label>
-                        <input x-model="modal.vehicle" placeholder="es. Hyundai H1 bianco" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
-                    </div>
                     <div>
                         <label class="text-xs text-slate-400">Autista (opzionale)</label>
-                        <input x-model="modal.driver_name" placeholder="Nome autista" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
+                        <input x-model="modal.driver_name" placeholder="Nome" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
                     </div>
                 </div>
 
@@ -236,11 +217,11 @@ function transfersPage(){return {
     add(){
         const now = new Date(); now.setMinutes(0); now.setHours(now.getHours()+2);
         this.modal = {
-            customer_name: '', phone: '', language: 'it', direction: 'arrival',
+            customer_name: '', phone: '', language: 'it', direction: 'to_venue',
             pickup_when: now.toISOString().slice(0,16),
             pickup_location: '', pickup_address: '',
             dropoff_location: 'Lollapalooza', dropoff_address: 'Al Motelat, Sharm el Sheikh 2',
-            passengers: 2, luggage: 2, flight_no: '', vehicle: '', driver_name: '',
+            passengers: 2, luggage: 0, flight_no: '', vehicle: '', driver_name: '',
             price_egp: 0, notes: '', status: 'scheduled'
         };
     },
@@ -278,8 +259,8 @@ function transfersPage(){return {
     fmtDayName(s){ return s ? new Date(s.replace(' ','T')).toLocaleDateString('it-IT',{weekday:'short'}) : ''; },
     fmtTime(s){ return s ? new Date(s.replace(' ','T')).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}) : ''; },
     isPast(s){ return s ? new Date(s.replace(' ','T')) < new Date() : false; },
-    dirLabel(d){ return ({arrival:'🛬 Arrivo', departure:'🛫 Partenza', internal:'🏨 Interno'})[d] || d; },
-    dirClass(d){ return ({arrival:'bg-emerald-500/15 text-emerald-300', departure:'bg-sky-500/15 text-sky-300', internal:'bg-brand-500/15 text-brand-400'})[d] || 'bg-white/5'; },
+    dirLabel(d){ return ({to_venue:'🍽️ Verso il locale', to_hotel:'🏨 Ritorno hotel', arrival:'🍽️ Verso il locale', departure:'🏨 Ritorno hotel', internal:'🍽️ Verso il locale'})[d] || '🚗 Transfer'; },
+    dirClass(d){ return ({to_venue:'bg-emerald-500/15 text-emerald-300', to_hotel:'bg-sky-500/15 text-sky-300', arrival:'bg-emerald-500/15 text-emerald-300', departure:'bg-sky-500/15 text-sky-300', internal:'bg-emerald-500/15 text-emerald-300'})[d] || 'bg-white/5'; },
     statusClass(s){ return ({
         scheduled:'bg-white/5 border-white/10',
         on_way:'bg-amber-500/15 border-amber-500/30 text-amber-300',
