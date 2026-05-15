@@ -36,7 +36,11 @@
                 <input x-model="modal.phone" placeholder="Telefono" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
                 <div class="grid grid-cols-2 gap-2">
                     <input type="date" x-model="modal.date" class="px-3 py-2 rounded-lg bg-white/5 border border-white/10">
-                    <input type="time" x-model="modal.time" class="px-3 py-2 rounded-lg bg-white/5 border border-white/10">
+                    <select x-model="modal.time" class="px-3 py-2 rounded-lg bg-white/5 border border-white/10">
+                        <option value="20:00">20:00 (1° turno)</option>
+                        <option value="20:30">20:30 (2° turno)</option>
+                        <option value="22:00">22:00 (3° turno)</option>
+                    </select>
                 </div>
                 <input type="number" x-model.number="modal.guests" placeholder="Coperti" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">
                 <select x-model="modal.table_id" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10">

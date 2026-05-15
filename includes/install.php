@@ -25,6 +25,23 @@ try {
     if ($upd->rowCount() > 0) echo "✓ Tenant aggiornati a valuta EGP (Lira Egiziana): " . $upd->rowCount() . "\n";
 } catch (Throwable $e) {}
 
+// Migrazione: aggiunge return_when e return_status a transfers
+try {
+    if (DB_DRIVER === 'mysql') {
+        $has = $pdo->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'transfers' AND column_name = 'return_when'")->fetchColumn();
+        if (!$has) {
+            $pdo->exec("ALTER TABLE transfers ADD COLUMN return_when DATETIME NULL");
+            $pdo->exec("ALTER TABLE transfers ADD COLUMN return_status VARCHAR(20) DEFAULT 'scheduled'");
+            echo "✓ Aggiunte colonne return_when, return_status a transfers\n";
+        }
+    } else {
+        $cols = $pdo->query("PRAGMA table_info(transfers)")->fetchAll(PDO::FETCH_ASSOC);
+        $names = array_column($cols, 'name');
+        if (!in_array('return_when', $names)) $pdo->exec("ALTER TABLE transfers ADD COLUMN return_when TEXT");
+        if (!in_array('return_status', $names)) $pdo->exec("ALTER TABLE transfers ADD COLUMN return_status TEXT DEFAULT 'scheduled'");
+    }
+} catch (Throwable $e) { /* tabella ancora non esiste — verrà gestita dal blocco successivo */ }
+
 // Migrazione: crea tabella transfers se mancante
 try {
     if (DB_DRIVER === 'mysql') {
@@ -36,6 +53,7 @@ try {
             language VARCHAR(8) DEFAULT 'it',
             direction VARCHAR(20) DEFAULT 'arrival',
             pickup_when DATETIME NOT NULL,
+            return_when DATETIME NULL,
             pickup_location VARCHAR(255),
             pickup_address VARCHAR(500),
             dropoff_location VARCHAR(255),
@@ -49,6 +67,7 @@ try {
             reservation_id INT,
             notes TEXT,
             status VARCHAR(20) DEFAULT 'scheduled',
+            return_status VARCHAR(20) DEFAULT 'scheduled',
             created_at DATETIME,
             updated_at DATETIME,
             INDEX idx_transfers_when (tenant_id, pickup_when),
@@ -63,6 +82,7 @@ try {
             language TEXT DEFAULT 'it',
             direction TEXT DEFAULT 'arrival',
             pickup_when TEXT NOT NULL,
+            return_when TEXT,
             pickup_location TEXT,
             pickup_address TEXT,
             dropoff_location TEXT,
@@ -76,6 +96,7 @@ try {
             reservation_id INTEGER,
             notes TEXT,
             status TEXT DEFAULT 'scheduled',
+            return_status TEXT DEFAULT 'scheduled',
             created_at TEXT,
             updated_at TEXT
         )");

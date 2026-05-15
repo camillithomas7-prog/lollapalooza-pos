@@ -68,83 +68,77 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ brand:{400:'#a78
         </template>
     </div>
 
-    <!-- Lista transfer del giorno -->
-    <div class="space-y-3">
-        <template x-for="t_ in todayTransfers" :key="t_.id">
-            <div class="card p-4">
-                <div class="flex items-start gap-3 mb-3">
-                    <div class="flex-shrink-0 w-16 text-center">
-                        <div class="text-2xl font-bold leading-none" :class="isPast(t_.pickup_when)?'text-rose-400':'text-brand-400'" x-text="fmtTime(t_.pickup_when)"></div>
-                        <div class="text-[10px] uppercase tracking-wider mt-1" :class="isPast(t_.pickup_when)?'text-rose-400':'text-slate-500'" x-text="timeAgo(t_.pickup_when)"></div>
+    <!-- Lista raggruppata per fasce orarie -->
+    <div class="space-y-5">
+        <template x-for="slot in slotsForDay" :key="slot.key">
+            <div>
+                <!-- Header fascia -->
+                <div class="sticky top-[64px] z-20 py-2 mb-2 flex items-center gap-3" :class="slot.leg==='out'?'':'mt-4'">
+                    <div class="flex-shrink-0 px-3 py-2 rounded-xl font-bold text-lg" :class="slot.leg==='out'?'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30':'bg-sky-500/20 text-sky-300 border border-sky-500/30'">
+                        <span x-text="slot.leg==='out'?'🍽️':'🏨'"></span>
+                        <span x-text="' '+slot.time"></span>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="font-bold text-lg" x-text="t_.customer_name"></span>
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase" :class="dirClass(t_.direction)" x-text="dirLabel(t_.direction)"></span>
-                        </div>
-                        <div class="text-xs text-slate-400 mt-1 flex flex-wrap gap-x-3 gap-y-1">
-                            <span x-show="t_.passengers" x-text="'👤 '+t_.passengers+' '+(t_.passengers==1?t('person'):t('persons'))"></span>
-                            <span x-show="t_.language" x-text="'🗣 '+langLabel(t_.language)"></span>
-                        </div>
+                        <div class="text-xs uppercase tracking-wider font-bold" :class="slot.leg==='out'?'text-emerald-300':'text-sky-300'" x-text="slot.leg==='out'?t('outbound'):t('return_trip')"></div>
+                        <div class="text-[11px] text-slate-400" x-text="slot.entries.length+' '+(slot.entries.length==1?t('passenger'):t('passengers_l'))"></div>
                     </div>
                 </div>
 
-                <!-- Pickup -->
-                <div class="bg-emerald-500/8 border border-emerald-500/20 rounded-xl p-3 mb-2">
-                    <div class="text-[10px] text-emerald-300 font-bold uppercase tracking-wider mb-1" x-text="'📍 '+t('pickup')"></div>
-                    <div class="font-semibold text-sm" x-text="t_.pickup_location || '—'"></div>
-                    <div class="text-xs text-slate-400" x-show="t_.pickup_address" x-text="t_.pickup_address"></div>
-                    <a x-show="t_.pickup_address || t_.pickup_location" :href="mapsUrl(t_.pickup_address||t_.pickup_location)" target="_blank" class="inline-flex items-center gap-1 mt-2 text-xs font-semibold text-emerald-300 hover:text-emerald-200">
-                        <span x-text="'🗺 '+t('open_maps')+' →'"></span>
-                    </a>
-                </div>
+                <!-- Lista clienti della fascia -->
+                <div class="space-y-2.5">
+                    <template x-for="entry in slot.entries" :key="entry.key">
+                        <div class="card p-4">
+                            <div class="flex items-start gap-3 mb-2">
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-bold text-base leading-tight" x-text="entry.customer_name"></div>
+                                    <div class="text-xs text-slate-400 mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5">
+                                        <span x-show="entry.passengers" x-text="'👤 '+entry.passengers+' '+(entry.passengers==1?t('person'):t('persons'))"></span>
+                                        <span x-show="entry.language" x-text="'🗣 '+langLabel(entry.language)"></span>
+                                    </div>
+                                </div>
+                                <div class="text-right flex-shrink-0">
+                                    <div class="text-[10px] uppercase tracking-wider" :class="statusBadgeClass(entry.status)" x-text="statusLabel(entry.status)"></div>
+                                </div>
+                            </div>
 
-                <!-- Dropoff -->
-                <div x-show="t_.dropoff_location || t_.dropoff_address" class="bg-rose-500/8 border border-rose-500/20 rounded-xl p-3 mb-2">
-                    <div class="text-[10px] text-rose-300 font-bold uppercase tracking-wider mb-1" x-text="'🏁 '+t('destination')"></div>
-                    <div class="font-semibold text-sm" x-text="t_.dropoff_location || t_.dropoff_address"></div>
-                    <div class="text-xs text-slate-400" x-show="t_.dropoff_address && t_.dropoff_location" x-text="t_.dropoff_address"></div>
-                    <a x-show="t_.dropoff_address || t_.dropoff_location" :href="mapsUrl(t_.dropoff_address||t_.dropoff_location)" target="_blank" class="inline-flex items-center gap-1 mt-2 text-xs font-semibold text-rose-300 hover:text-rose-200">
-                        <span x-text="'🗺 '+t('open_maps')+' →'"></span>
-                    </a>
-                </div>
+                            <!-- Hotel (pickup) / Locale (dropoff) sulla base della leg -->
+                            <div class="rounded-xl p-2.5 mb-2" :class="entry.leg==='out'?'bg-emerald-500/8 border border-emerald-500/20':'bg-sky-500/8 border border-sky-500/20'">
+                                <div class="text-[10px] font-bold uppercase tracking-wider mb-1" :class="entry.leg==='out'?'text-emerald-300':'text-sky-300'" x-text="entry.leg==='out'?('🏨 '+t('hotel_pickup')):('🍽️ '+t('venue_pickup'))"></div>
+                                <div class="font-semibold text-sm" x-text="entry.leg==='out'?(entry.pickup_location||'—'):(entry.dropoff_location||'Lollapalooza')"></div>
+                                <div class="text-xs text-slate-400" x-show="entry.leg==='out'?entry.pickup_address:entry.dropoff_address" x-text="entry.leg==='out'?entry.pickup_address:entry.dropoff_address"></div>
+                                <a x-show="entry.mapsTarget" :href="mapsUrl(entry.mapsTarget)" target="_blank" class="inline-flex items-center gap-1 mt-1.5 text-xs font-semibold" :class="entry.leg==='out'?'text-emerald-300':'text-sky-300'">
+                                    <span x-text="'🗺 '+t('open_maps')+' →'"></span>
+                                </a>
+                            </div>
 
-                <!-- Note -->
-                <div x-show="t_.notes" class="bg-amber-500/8 border border-amber-500/20 rounded-xl p-3 mb-2">
-                    <div class="text-[10px] text-amber-300 font-bold uppercase tracking-wider mb-1" x-text="'📝 '+t('notes')"></div>
-                    <div class="text-sm" x-text="t_.notes"></div>
-                </div>
+                            <div x-show="entry.notes" class="bg-amber-500/8 border border-amber-500/20 rounded-xl p-2.5 mb-2">
+                                <div class="text-[10px] text-amber-300 font-bold uppercase tracking-wider mb-1" x-text="'📝 '+t('notes')"></div>
+                                <div class="text-sm" x-text="entry.notes"></div>
+                            </div>
 
-                <!-- Azioni contatto -->
-                <div x-show="t_.phone" class="grid grid-cols-2 gap-2 mb-2">
-                    <a :href="'tel:'+t_.phone" class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-sky-500/20 text-sky-300 font-semibold text-sm hover:bg-sky-500/30">
-                        <span x-text="'📞 '+t('call')"></span>
-                    </a>
-                    <a :href="waUrl(t_.phone, t_.language)" target="_blank" class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-500/20 text-emerald-300 font-semibold text-sm hover:bg-emerald-500/30">
-                        <span x-text="'💬 '+t('whatsapp')"></span>
-                    </a>
-                </div>
+                            <div x-show="entry.phone" class="grid grid-cols-2 gap-2 mb-2">
+                                <a :href="'tel:'+entry.phone" class="flex items-center justify-center gap-2 py-2 rounded-xl bg-sky-500/20 text-sky-300 font-semibold text-xs hover:bg-sky-500/30">
+                                    <span x-text="'📞 '+t('call')"></span>
+                                </a>
+                                <a :href="waUrl(entry.phone, entry.language, entry.leg)" target="_blank" class="flex items-center justify-center gap-2 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 font-semibold text-xs hover:bg-emerald-500/30">
+                                    <span x-text="'💬 '+t('whatsapp')"></span>
+                                </a>
+                            </div>
 
-                <!-- Status workflow -->
-                <div class="mt-3">
-                    <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-2" x-text="t('ride_status')"></div>
-                    <div class="grid grid-cols-4 gap-1.5">
-                        <button @click="setStatus(t_, 'scheduled')" :class="t_.status==='scheduled'?'bg-white/15 ring-2 ring-white/20':'bg-white/5'" class="py-2 rounded-lg text-[11px] font-semibold" x-text="'⏰ '+t('s_todo')"></button>
-                        <button @click="setStatus(t_, 'on_way')" :class="t_.status==='on_way'?'bg-amber-500/30 ring-2 ring-amber-500/40 text-amber-200':'bg-white/5'" class="py-2 rounded-lg text-[11px] font-semibold" x-text="'🚗 '+t('s_onway')"></button>
-                        <button @click="setStatus(t_, 'picked_up')" :class="t_.status==='picked_up'?'bg-brand-500/30 ring-2 ring-brand-500/40 text-brand-200':'bg-white/5'" class="py-2 rounded-lg text-[11px] font-semibold" x-text="'✅ '+t('s_picked')"></button>
-                        <button @click="setStatus(t_, 'completed')" :class="t_.status==='completed'?'bg-emerald-500/30 ring-2 ring-emerald-500/40 text-emerald-200':'bg-white/5'" class="py-2 rounded-lg text-[11px] font-semibold" x-text="'🏁 '+t('s_done')"></button>
-                    </div>
-                    <button @click="setStatus(t_, 'no_show')" :class="t_.status==='no_show'?'bg-rose-500/30 text-rose-200':'text-rose-400/60 hover:text-rose-300'" class="mt-1.5 w-full py-1.5 rounded-lg text-[11px] font-semibold" x-text="'❌ '+t('s_noshow')"></button>
-                </div>
-
-                <div x-show="t_.vehicle || t_.driver_name" class="mt-3 pt-3 border-t border-white/5 text-xs text-slate-500">
-                    <span x-show="t_.vehicle" x-text="'🚐 '+t_.vehicle"></span>
-                    <span x-show="t_.vehicle && t_.driver_name"> · </span>
-                    <span x-show="t_.driver_name" x-text="'🧑‍✈️ '+t_.driver_name"></span>
+                            <!-- Status workflow -->
+                            <div class="grid grid-cols-4 gap-1.5">
+                                <button @click="setStatus(entry, 'scheduled')" :class="entry.status==='scheduled'?'bg-white/15 ring-2 ring-white/20':'bg-white/5'" class="py-2 rounded-lg text-[11px] font-semibold" x-text="'⏰ '+t('s_todo')"></button>
+                                <button @click="setStatus(entry, 'on_way')" :class="entry.status==='on_way'?'bg-amber-500/30 ring-2 ring-amber-500/40 text-amber-200':'bg-white/5'" class="py-2 rounded-lg text-[11px] font-semibold" x-text="'🚗 '+t('s_onway')"></button>
+                                <button @click="setStatus(entry, 'picked_up')" :class="entry.status==='picked_up'?'bg-brand-500/30 ring-2 ring-brand-500/40 text-brand-200':'bg-white/5'" class="py-2 rounded-lg text-[11px] font-semibold" x-text="'✅ '+t('s_picked')"></button>
+                                <button @click="setStatus(entry, 'completed')" :class="entry.status==='completed'?'bg-emerald-500/30 ring-2 ring-emerald-500/40 text-emerald-200':'bg-white/5'" class="py-2 rounded-lg text-[11px] font-semibold" x-text="'🏁 '+t('s_done')"></button>
+                            </div>
+                            <button @click="setStatus(entry, 'no_show')" :class="entry.status==='no_show'?'bg-rose-500/30 text-rose-200':'text-rose-400/60 hover:text-rose-300'" class="mt-1.5 w-full py-1.5 rounded-lg text-[11px] font-semibold" x-text="'❌ '+t('s_noshow')"></button>
+                        </div>
+                    </template>
                 </div>
             </div>
         </template>
-        <div x-show="!todayTransfers.length" class="text-center py-16 text-slate-400">
+        <div x-show="!slotsForDay.length" class="text-center py-16 text-slate-400">
             <div class="text-6xl mb-3 opacity-50">😴</div>
             <div class="font-semibold" x-text="t('no_transfers')"></div>
             <div class="text-xs mt-1" x-text="t('enjoy_break')"></div>
@@ -167,13 +161,15 @@ const I18N = {
     open_maps:'Apri in Maps',
     call:'Chiama', whatsapp:'WhatsApp',
     ride_status:'Stato corsa',
-    s_todo:'Da fare', s_onway:'In viaggio', s_picked:'A bordo', s_done:'Fatto', s_noshow:'Cliente non si è presentato',
+    s_todo:'Da fare', s_onway:'In viaggio', s_picked:'A bordo', s_done:'Fatto', s_noshow:'No-show',
     no_transfers:'Nessun transfer per oggi', enjoy_break:'Goditi la pausa.',
     auto_refresh:'Aggiornato in automatico ogni 30 secondi', refresh_now:'aggiorna ora',
-    person:'persona', persons:'persone',
+    person:'persona', persons:'persone', passenger:'passeggero', passengers_l:'passeggeri',
     today:'oggi',
-    dir_to_venue:'Verso il locale', dir_to_hotel:'Ritorno hotel', dir_transfer:'Transfer',
-    h_ago:'h fa', min_ago:'min fa', in_min:'tra', in_h:'tra'
+    outbound:'Giro andata (hotel → locale)',
+    return_trip:'Giro ritorno (locale → hotel)',
+    hotel_pickup:'Hotel da cui prenderlo',
+    venue_pickup:'Ritiro al locale'
   },
   en: {
     header_title:'Transfer', refresh:'Refresh',
@@ -182,13 +178,15 @@ const I18N = {
     open_maps:'Open in Maps',
     call:'Call', whatsapp:'WhatsApp',
     ride_status:'Ride status',
-    s_todo:'To do', s_onway:'On the way', s_picked:'On board', s_done:'Done', s_noshow:'Customer no-show',
+    s_todo:'To do', s_onway:'On the way', s_picked:'On board', s_done:'Done', s_noshow:'No-show',
     no_transfers:'No transfers for today', enjoy_break:'Enjoy your break.',
     auto_refresh:'Auto-refreshes every 30 seconds', refresh_now:'refresh now',
-    person:'person', persons:'people',
+    person:'person', persons:'people', passenger:'passenger', passengers_l:'passengers',
     today:'today',
-    dir_to_venue:'To restaurant', dir_to_hotel:'Back to hotel', dir_transfer:'Transfer',
-    h_ago:'h ago', min_ago:'min ago', in_min:'in', in_h:'in'
+    outbound:'Outbound (hotel → restaurant)',
+    return_trip:'Return (restaurant → hotel)',
+    hotel_pickup:'Hotel to pick up from',
+    venue_pickup:'Pickup at the restaurant'
   },
   ar: {
     header_title:'النقل', refresh:'تحديث',
@@ -197,13 +195,15 @@ const I18N = {
     open_maps:'فتح في الخرائط',
     call:'اتصل', whatsapp:'واتساب',
     ride_status:'حالة الرحلة',
-    s_todo:'قيد الانتظار', s_onway:'في الطريق', s_picked:'على متن السيارة', s_done:'تم', s_noshow:'العميل لم يحضر',
+    s_todo:'قيد الانتظار', s_onway:'في الطريق', s_picked:'على متن السيارة', s_done:'تم', s_noshow:'لم يحضر',
     no_transfers:'لا توجد رحلات اليوم', enjoy_break:'استمتع باستراحتك.',
     auto_refresh:'تحديث تلقائي كل 30 ثانية', refresh_now:'تحديث الآن',
-    person:'شخص', persons:'أشخاص',
+    person:'شخص', persons:'أشخاص', passenger:'راكب', passengers_l:'ركاب',
     today:'اليوم',
-    dir_to_venue:'إلى المطعم', dir_to_hotel:'العودة إلى الفندق', dir_transfer:'نقل',
-    h_ago:'س مضت', min_ago:'د مضت', in_min:'خلال', in_h:'خلال'
+    outbound:'الذهاب (الفندق → المطعم)',
+    return_trip:'العودة (المطعم → الفندق)',
+    hotel_pickup:'الفندق المراد الاستلام منه',
+    venue_pickup:'الاستلام من المطعم'
   }
 };
 
@@ -228,7 +228,11 @@ function driverApp(){return {
             const d = new Date(today);
             d.setDate(today.getDate()+i);
             const iso = d.toISOString().slice(0,10);
-            const count = this.transfers.filter(x => (x.pickup_when||'').slice(0,10)===iso).length;
+            let count = 0;
+            this.transfers.forEach(x => {
+                if (x.pickup_when && x.pickup_when.slice(0,10) === iso && x.status !== 'cancelled') count++;
+                if (x.return_when && x.return_when.slice(0,10) === iso && x.return_status !== 'cancelled') count++;
+            });
             let dayName;
             if (i===0) dayName = this.t('today');
             else dayName = d.toLocaleDateString(this.locale, {weekday:'short'}).replace('.','');
@@ -236,10 +240,56 @@ function driverApp(){return {
         }
         return out;
     },
-    get todayTransfers(){
-        return this.transfers
-            .filter(x => (x.pickup_when||'').slice(0,10) === this.day)
-            .sort((a,b) => (a.pickup_when||'').localeCompare(b.pickup_when||''));
+    // Costruisce entries (una per andata, una per ritorno) per il giorno selezionato
+    get entriesForDay(){
+        const out = [];
+        this.transfers.forEach(x => {
+            if (x.pickup_when && x.pickup_when.slice(0,10) === this.day && x.status !== 'cancelled') {
+                out.push({
+                    key: x.id+'_out', id: x.id, leg: 'out',
+                    when: x.pickup_when, time: x.pickup_when.slice(11,16),
+                    customer_name: x.customer_name, phone: x.phone, language: x.language,
+                    passengers: x.passengers,
+                    pickup_location: x.pickup_location, pickup_address: x.pickup_address,
+                    dropoff_location: x.dropoff_location, dropoff_address: x.dropoff_address,
+                    notes: x.notes, status: x.status,
+                    mapsTarget: x.pickup_address || x.pickup_location
+                });
+            }
+            if (x.return_when && x.return_when.slice(0,10) === this.day && x.return_status !== 'cancelled') {
+                out.push({
+                    key: x.id+'_ret', id: x.id, leg: 'ret',
+                    when: x.return_when, time: x.return_when.slice(11,16),
+                    customer_name: x.customer_name, phone: x.phone, language: x.language,
+                    passengers: x.passengers,
+                    pickup_location: x.pickup_location, pickup_address: x.pickup_address,
+                    dropoff_location: x.dropoff_location, dropoff_address: x.dropoff_address,
+                    notes: x.notes, status: x.return_status,
+                    mapsTarget: x.dropoff_address || x.dropoff_location || x.pickup_address || x.pickup_location
+                });
+            }
+        });
+        return out;
+    },
+    // Raggruppa entries per fascia oraria, ordinate prima andata poi ritorno
+    get slotsForDay(){
+        const groups = {};
+        this.entriesForDay.forEach(e => {
+            const key = e.leg + '_' + e.time;
+            if (!groups[key]) groups[key] = { key, leg: e.leg, time: e.time, entries: [] };
+            groups[key].entries.push(e);
+        });
+        // ordina: prima tutte le andate per ora, poi tutti i ritorni per ora (con 00:00/02:30 dopo 22:00)
+        const slotOrder = (k) => {
+            const [leg, time] = k.split('_');
+            const h = parseInt(time.slice(0,2),10);
+            const m = parseInt(time.slice(3,5),10);
+            const minutes = h*60+m;
+            // ritorni notturni (<06) sommano 24h per ordinarli dopo
+            const ordered = (leg==='ret' && h < 6) ? minutes + 24*60 : minutes;
+            return (leg==='out' ? 0 : 100000) + ordered;
+        };
+        return Object.values(groups).sort((a,b) => slotOrder(a.key) - slotOrder(b.key));
     },
     async init(){
         // applica la lingua iniziale (RTL/LTR)
@@ -254,12 +304,31 @@ function driverApp(){return {
             if (d.transfers) this.transfers = d.transfers;
         } catch(e){}
     },
-    async setStatus(t_, s){
-        t_.status = s; // ottimistico
+    async setStatus(entry, s){
+        entry.status = s; // ottimistico
+        // aggiorna anche la copia in this.transfers
+        const tr = this.transfers.find(x => x.id === entry.id);
+        if (tr) {
+            if (entry.leg === 'ret') tr.return_status = s;
+            else tr.status = s;
+        }
         await fetch('/api/driver_transfers.php?action=set_status&t='+encodeURIComponent(TOKEN), {
             method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({id:t_.id, status:s})
+            body: JSON.stringify({id: entry.id, status: s, leg: entry.leg})
         });
+    },
+    statusLabel(s){
+        return ({scheduled:this.t('s_todo'), on_way:this.t('s_onway'), picked_up:this.t('s_picked'), completed:this.t('s_done'), no_show:this.t('s_noshow'), cancelled:'—'})[s] || s;
+    },
+    statusBadgeClass(s){
+        return ({
+            scheduled:'text-slate-400',
+            on_way:'text-amber-300',
+            picked_up:'text-brand-300',
+            completed:'text-emerald-300',
+            no_show:'text-rose-300',
+            cancelled:'text-slate-500'
+        })[s] || 'text-slate-400';
     },
     fmtTime(s){ return s ? new Date(s.replace(' ','T')).toLocaleTimeString(this.locale,{hour:'2-digit',minute:'2-digit'}) : ''; },
     timeAgo(s){
@@ -279,18 +348,27 @@ function driverApp(){return {
     },
     dirClass(d){ return ({to_venue:'bg-emerald-500/15 text-emerald-300', to_hotel:'bg-sky-500/15 text-sky-300', arrival:'bg-emerald-500/15 text-emerald-300', departure:'bg-sky-500/15 text-sky-300', internal:'bg-emerald-500/15 text-emerald-300'})[d] || 'bg-white/10'; },
     langLabel(l){ return ({it:'Italiano',en:'English',es:'Español',fr:'Français',de:'Deutsch',ar:'العربية'})[l] || l; },
-    // Messaggio WhatsApp generato nella lingua del CLIENTE (non dell'autista)
-    waUrl(phone, lang){
-        const msg = ({
+    // Messaggio WhatsApp generato nella lingua del CLIENTE (non dell'autista). Differenzia andata/ritorno.
+    waUrl(phone, lang, leg){
+        const isRet = (leg === 'ret');
+        const msg = isRet ? ({
+            it: 'Salve, sono l autista del Lollapalooza. Sono al locale per riportarla in hotel quando vuole.',
+            en: 'Hello, I am the Lollapalooza driver. I am at the restaurant to take you back to your hotel whenever you are ready.',
+            es: 'Hola, soy el conductor de Lollapalooza. Estoy en el restaurante para llevarle de vuelta al hotel cuando guste.',
+            fr: 'Bonjour, je suis le chauffeur du Lollapalooza. Je suis au restaurant pour vous ramener à votre hôtel quand vous voulez.',
+            de: 'Hallo, ich bin der Lollapalooza-Fahrer. Ich bin am Restaurant, um Sie zurück zum Hotel zu bringen, wann immer Sie möchten.',
+            ar: 'مرحبًا، أنا سائق لولابالوزا. أنا في المطعم لإعادتكم إلى الفندق متى شئتم.'
+        })[lang] : ({
             it: 'Salve, sono l autista del Lollapalooza. La sto raggiungendo all hotel per portarla al ristorante.',
             en: 'Hello, I am the Lollapalooza driver. I am on my way to your hotel to take you to the restaurant.',
             es: 'Hola, soy el conductor de Lollapalooza. Estoy en camino a su hotel para llevarle al restaurante.',
             fr: 'Bonjour, je suis le chauffeur du Lollapalooza. J arrive à votre hôtel pour vous emmener au restaurant.',
             de: 'Hallo, ich bin der Lollapalooza-Fahrer. Ich bin auf dem Weg zu Ihrem Hotel, um Sie zum Restaurant zu bringen.',
             ar: 'مرحبًا، أنا سائق لولابالوزا. أنا في طريقي إلى فندقكم لأخذكم إلى المطعم.'
-        })[lang] || 'Hello, this is Lollapalooza driver. On my way to your hotel.';
+        })[lang];
+        const fallback = isRet ? 'Hello, this is Lollapalooza driver. Ready to take you back to your hotel.' : 'Hello, this is Lollapalooza driver. On my way to your hotel.';
         const clean = (phone||'').replace(/[^0-9+]/g,'').replace(/^\+/,'');
-        return 'https://wa.me/'+clean+'?text='+encodeURIComponent(msg);
+        return 'https://wa.me/'+clean+'?text='+encodeURIComponent(msg || fallback);
     }
 }}
 </script>

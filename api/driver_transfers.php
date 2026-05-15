@@ -25,17 +25,18 @@ $action = $_GET['action'] ?? $in['action'] ?? 'list';
 switch ($action) {
     case 'list':
         $from = $in['from'] ?? date('Y-m-d');
-        // 7 giorni avanti by default — l'autista pianifica
         $to = $in['to'] ?? date('Y-m-d', strtotime($from . ' +7 days'));
-        $st = db()->prepare("SELECT id, customer_name, phone, language, direction, pickup_when, pickup_location, pickup_address, dropoff_location, dropoff_address, passengers, luggage, flight_no, vehicle, driver_name, notes, status FROM transfers WHERE tenant_id=? AND DATE(pickup_when) BETWEEN ? AND ? AND status NOT IN ('cancelled') ORDER BY pickup_when");
-        $st->execute([$tid, $from, $to]);
+        $st = db()->prepare("SELECT id, customer_name, phone, language, pickup_when, return_when, pickup_location, pickup_address, dropoff_location, dropoff_address, passengers, vehicle, driver_name, notes, status, return_status FROM transfers WHERE tenant_id=? AND ((DATE(pickup_when) BETWEEN ? AND ? AND status NOT IN ('cancelled')) OR (DATE(return_when) BETWEEN ? AND ? AND return_status NOT IN ('cancelled'))) ORDER BY pickup_when");
+        $st->execute([$tid, $from, $to, $from, $to]);
         json_response(['transfers' => $st->fetchAll()]);
 
     case 'set_status':
         $allowed = ['scheduled','on_way','picked_up','completed','no_show'];
         $s = $in['status'] ?? '';
         if (!in_array($s, $allowed, true)) json_response(['error' => 'invalid status'], 400);
-        db()->prepare('UPDATE transfers SET status=?, updated_at=? WHERE id=? AND tenant_id=?')
+        $leg = $in['leg'] ?? 'out';
+        $col = ($leg === 'ret') ? 'return_status' : 'status';
+        db()->prepare("UPDATE transfers SET $col=?, updated_at=? WHERE id=? AND tenant_id=?")
             ->execute([$s, date('Y-m-d H:i:s'), (int)$in['id'], $tid]);
         json_response(['ok' => true]);
 

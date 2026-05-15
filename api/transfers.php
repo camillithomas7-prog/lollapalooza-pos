@@ -23,19 +23,22 @@ switch ($action) {
     case 'list':
         $from = $in['from'] ?? date('Y-m-d');
         $to = $in['to'] ?? date('Y-m-d', strtotime($from . ' +14 days'));
-        $st = db()->prepare('SELECT * FROM transfers WHERE tenant_id=? AND DATE(pickup_when) BETWEEN ? AND ? ORDER BY pickup_when');
-        $st->execute([$t, $from, $to]);
+        // include sia transfer con pickup nel range, sia transfer con ritorno nel range
+        $st = db()->prepare('SELECT * FROM transfers WHERE tenant_id=? AND (DATE(pickup_when) BETWEEN ? AND ? OR DATE(return_when) BETWEEN ? AND ?) ORDER BY pickup_when');
+        $st->execute([$t, $from, $to, $from, $to]);
         $rows = $st->fetchAll();
 
-        // Stats giornaliere (oggi)
+        // Stats giornaliere (oggi) — somma andata + ritorno
         $today = date('Y-m-d');
         $stats = db()->prepare("SELECT
-            COUNT(*) AS total,
-            SUM(CASE WHEN status IN ('scheduled','on_way') THEN 1 ELSE 0 END) AS pending,
-            SUM(CASE WHEN status='picked_up' THEN 1 ELSE 0 END) AS in_progress,
-            SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) AS completed
-            FROM transfers WHERE tenant_id=? AND DATE(pickup_when)=?");
-        $stats->execute([$t, $today]);
+            (SELECT COUNT(*) FROM transfers WHERE tenant_id=? AND (DATE(pickup_when)=? OR DATE(return_when)=?)) AS total,
+            (SELECT COUNT(*) FROM transfers WHERE tenant_id=? AND DATE(pickup_when)=? AND status IN ('scheduled','on_way'))
+              + (SELECT COUNT(*) FROM transfers WHERE tenant_id=? AND DATE(return_when)=? AND return_status IN ('scheduled','on_way')) AS pending,
+            (SELECT COUNT(*) FROM transfers WHERE tenant_id=? AND DATE(pickup_when)=? AND status='picked_up')
+              + (SELECT COUNT(*) FROM transfers WHERE tenant_id=? AND DATE(return_when)=? AND return_status='picked_up') AS in_progress,
+            (SELECT COUNT(*) FROM transfers WHERE tenant_id=? AND DATE(pickup_when)=? AND status='completed')
+              + (SELECT COUNT(*) FROM transfers WHERE tenant_id=? AND DATE(return_when)=? AND return_status='completed') AS completed");
+        $stats->execute([$t,$today,$today, $t,$today, $t,$today, $t,$today, $t,$today, $t,$today, $t,$today]);
         json_response(['transfers' => $rows, 'stats' => $stats->fetch(), 'token' => transfer_token($t)]);
 
     case 'get_link':
@@ -61,8 +64,9 @@ switch ($action) {
             $in['customer_name'] ?? '',
             $in['phone'] ?? '',
             $in['language'] ?? 'it',
-            $in['direction'] ?? 'arrival',
+            $in['direction'] ?? 'to_venue',
             $in['pickup_when'] ?? $now,
+            !empty($in['return_when']) ? $in['return_when'] : null,
             $in['pickup_location'] ?? '',
             $in['pickup_address'] ?? '',
             $in['dropoff_location'] ?? '',
@@ -76,16 +80,17 @@ switch ($action) {
             !empty($in['reservation_id']) ? (int)$in['reservation_id'] : null,
             $in['notes'] ?? '',
             $in['status'] ?? 'scheduled',
+            $in['return_status'] ?? 'scheduled',
         ];
         if (!empty($in['id'])) {
-            $sql = 'UPDATE transfers SET customer_name=?, phone=?, language=?, direction=?, pickup_when=?, pickup_location=?, pickup_address=?, dropoff_location=?, dropoff_address=?, passengers=?, luggage=?, flight_no=?, vehicle=?, driver_name=?, price_egp=?, reservation_id=?, notes=?, status=?, updated_at=? WHERE id=? AND tenant_id=?';
+            $sql = 'UPDATE transfers SET customer_name=?, phone=?, language=?, direction=?, pickup_when=?, return_when=?, pickup_location=?, pickup_address=?, dropoff_location=?, dropoff_address=?, passengers=?, luggage=?, flight_no=?, vehicle=?, driver_name=?, price_egp=?, reservation_id=?, notes=?, status=?, return_status=?, updated_at=? WHERE id=? AND tenant_id=?';
             $fields[] = $now;
             $fields[] = (int)$in['id'];
             $fields[] = $t;
             db()->prepare($sql)->execute($fields);
             audit('update_transfer', 'transfers', (int)$in['id']);
         } else {
-            $sql = 'INSERT INTO transfers (customer_name, phone, language, direction, pickup_when, pickup_location, pickup_address, dropoff_location, dropoff_address, passengers, luggage, flight_no, vehicle, driver_name, price_egp, reservation_id, notes, status, created_at, updated_at, tenant_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+            $sql = 'INSERT INTO transfers (customer_name, phone, language, direction, pickup_when, return_when, pickup_location, pickup_address, dropoff_location, dropoff_address, passengers, luggage, flight_no, vehicle, driver_name, price_egp, reservation_id, notes, status, return_status, created_at, updated_at, tenant_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
             $fields[] = $now;
             $fields[] = $now;
             $fields[] = $t;
@@ -96,9 +101,12 @@ switch ($action) {
         json_response(['ok' => true]);
 
     case 'set_status':
-        db()->prepare('UPDATE transfers SET status=?, updated_at=? WHERE id=? AND tenant_id=?')
+        // leg: 'out' (andata) | 'ret' (ritorno). Default 'out' per retrocompatibilità
+        $leg = $in['leg'] ?? 'out';
+        $col = ($leg === 'ret') ? 'return_status' : 'status';
+        db()->prepare("UPDATE transfers SET $col=?, updated_at=? WHERE id=? AND tenant_id=?")
             ->execute([$in['status'], date('Y-m-d H:i:s'), (int)$in['id'], $t]);
-        audit('set_transfer_status', 'transfers', (int)$in['id'], ['status' => $in['status']]);
+        audit('set_transfer_status', 'transfers', (int)$in['id'], ['leg' => $leg, 'status' => $in['status']]);
         json_response(['ok' => true]);
 
     case 'delete':

@@ -1,4 +1,9 @@
-<?php layout_head('Transfer'); layout_sidebar('transfers'); layout_topbar('Transfer', 'Pickup e drop-off clienti'); ?>
+<?php
+layout_head('Transfer'); layout_sidebar('transfers'); layout_topbar('Transfer', 'Pickup e drop-off clienti');
+// Fasce orarie fisse
+$SLOTS_OUT = ['20:00','20:30','22:00'];
+$SLOTS_RET = ['22:00','00:00','02:30'];
+?>
 <main class="md:ml-64 lg:ml-72 p-4 md:p-8 pb-24 md:pb-8" x-data="transfersPage()" x-init="init()">
 
     <!-- Stats oggi -->
@@ -67,39 +72,57 @@
     <div class="space-y-2">
         <template x-for="t in filteredTransfers" :key="t.id">
             <div class="card p-4">
-                <div class="flex flex-wrap items-start gap-3">
+                <div class="flex flex-wrap items-start gap-3 mb-3">
                     <div class="text-center w-20 flex-shrink-0">
-                        <div class="text-xs text-slate-400" x-text="fmtDayName(t.pickup_when)"></div>
-                        <div class="text-2xl font-bold" x-text="fmtDay(t.pickup_when)"></div>
-                        <div class="text-sm font-semibold" :class="isPast(t.pickup_when)?'text-rose-400':'text-brand-400'" x-text="fmtTime(t.pickup_when)"></div>
+                        <div class="text-xs text-slate-400" x-text="fmtDayName(t.pickup_when || t.return_when)"></div>
+                        <div class="text-2xl font-bold" x-text="fmtDay(t.pickup_when || t.return_when)"></div>
                     </div>
                     <div class="flex-1 min-w-[200px]">
-                        <div class="flex items-center gap-2 flex-wrap mb-1">
-                            <span class="font-bold" x-text="t.customer_name"></span>
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase" :class="dirClass(t.direction)" x-text="dirLabel(t.direction)"></span>
-                        </div>
-                        <div class="text-xs text-slate-400 mb-1">
+                        <div class="font-bold text-lg" x-text="t.customer_name"></div>
+                        <div class="text-xs text-slate-400">
                             <span x-show="t.phone" x-text="'📞 '+t.phone"></span>
                             <span x-show="t.passengers" x-text="' · 👤×'+t.passengers"></span>
-                        </div>
-                        <div class="text-sm">
-                            <span class="text-emerald-300" x-text="'📍 '+(t.pickup_location||t.pickup_address||'—')"></span>
-                            <span class="text-slate-500" x-show="t.dropoff_location||t.dropoff_address"> → </span>
-                            <span class="text-rose-300" x-show="t.dropoff_location||t.dropoff_address" x-text="'🏁 '+(t.dropoff_location||t.dropoff_address||'')"></span>
+                            <span x-show="t.pickup_location" x-text="' · 🏨 '+t.pickup_location"></span>
                         </div>
                         <div x-show="t.notes" class="text-xs text-amber-300 mt-1" x-text="'📝 '+t.notes"></div>
                     </div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <select :value="t.status" @change="setStatus(t,$event.target.value)" class="px-2 py-1.5 rounded-lg border text-xs font-semibold" :class="statusClass(t.status)">
-                            <option value="scheduled">Programmato</option>
-                            <option value="on_way">In viaggio</option>
-                            <option value="picked_up">Cliente a bordo</option>
-                            <option value="completed">Completato</option>
-                            <option value="cancelled">Annullato</option>
-                            <option value="no_show">No-show</option>
-                        </select>
+                    <div class="flex items-center gap-2 flex-shrink-0">
                         <button @click="edit(t)" class="text-brand-400 hover:text-brand-300 text-lg" title="Modifica">✏️</button>
                         <button @click="del(t)" class="text-rose-400 hover:text-rose-300 text-lg" title="Elimina">🗑️</button>
+                    </div>
+                </div>
+
+                <!-- Le due fasce -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <!-- Andata -->
+                    <div x-show="t.pickup_when" class="rounded-lg bg-emerald-500/8 border border-emerald-500/20 p-2.5 flex items-center gap-3">
+                        <div class="flex-shrink-0">
+                            <div class="text-[10px] text-emerald-300 font-bold uppercase tracking-wider">🍽️ Andata</div>
+                            <div class="text-xl font-bold text-emerald-300" x-text="fmtTime(t.pickup_when)"></div>
+                        </div>
+                        <select :value="t.status" @change="setStatus(t,$event.target.value,'out')" class="flex-1 px-2 py-1.5 rounded-lg border text-xs font-semibold" :class="statusClass(t.status)">
+                            <option value="scheduled">⏰ Programmata</option>
+                            <option value="on_way">🚗 In viaggio</option>
+                            <option value="picked_up">✅ A bordo</option>
+                            <option value="completed">🏁 Completata</option>
+                            <option value="cancelled">❌ Annullata</option>
+                            <option value="no_show">⚠️ No-show</option>
+                        </select>
+                    </div>
+                    <!-- Ritorno -->
+                    <div x-show="t.return_when" class="rounded-lg bg-sky-500/8 border border-sky-500/20 p-2.5 flex items-center gap-3">
+                        <div class="flex-shrink-0">
+                            <div class="text-[10px] text-sky-300 font-bold uppercase tracking-wider">🏨 Ritorno</div>
+                            <div class="text-xl font-bold text-sky-300" x-text="fmtTime(t.return_when)"></div>
+                        </div>
+                        <select :value="t.return_status" @change="setStatus(t,$event.target.value,'ret')" class="flex-1 px-2 py-1.5 rounded-lg border text-xs font-semibold" :class="statusClass(t.return_status)">
+                            <option value="scheduled">⏰ Programmato</option>
+                            <option value="on_way">🚗 In viaggio</option>
+                            <option value="picked_up">✅ A bordo</option>
+                            <option value="completed">🏁 Completato</option>
+                            <option value="cancelled">❌ Annullato</option>
+                            <option value="no_show">⚠️ No-show</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -124,7 +147,7 @@
                     <input x-model="modal.customer_name" placeholder="Nome cliente *" class="px-3 py-2 rounded-lg bg-white/5 border border-white/10">
                     <input x-model="modal.phone" placeholder="Telefono (+39...)" class="px-3 py-2 rounded-lg bg-white/5 border border-white/10">
                 </div>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-1 gap-2">
                     <select x-model="modal.language" class="px-3 py-2 rounded-lg bg-white/5 border border-white/10">
                         <option value="it">🇮🇹 Italiano</option>
                         <option value="en">🇬🇧 English</option>
@@ -133,16 +156,36 @@
                         <option value="de">🇩🇪 Deutsch</option>
                         <option value="ar">🇸🇦 العربية</option>
                     </select>
-                    <select x-model="modal.direction" class="px-3 py-2 rounded-lg bg-white/5 border border-white/10">
-                        <option value="to_venue">🍽️ Verso il locale (andata)</option>
-                        <option value="to_hotel">🏨 Ritorno all'hotel</option>
-                    </select>
                 </div>
 
-                <!-- Data/ora pickup -->
+                <!-- Data della serata -->
                 <div>
-                    <label class="text-xs text-slate-400 uppercase tracking-wider">Quando andarlo a prendere *</label>
-                    <input type="datetime-local" x-model="modal.pickup_when" class="w-full mt-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10">
+                    <label class="text-xs text-slate-400 uppercase tracking-wider">Data della serata *</label>
+                    <input type="date" x-model="modal.date" class="w-full mt-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10">
+                </div>
+
+                <!-- Fasce orarie -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="card p-3 bg-emerald-500/5 border-emerald-500/20">
+                        <label class="text-xs text-emerald-300 font-bold uppercase tracking-wider mb-2 block">🍽️ Fascia ANDATA</label>
+                        <select x-model="modal.pickup_slot" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-base font-bold">
+                            <option value="">— Nessuna andata —</option>
+                            <?php foreach ($SLOTS_OUT as $s): ?>
+                                <option value="<?= e($s) ?>"><?= e($s) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="text-[10px] text-slate-500 mt-1.5">Hotel → Lollapalooza</div>
+                    </div>
+                    <div class="card p-3 bg-sky-500/5 border-sky-500/20">
+                        <label class="text-xs text-sky-300 font-bold uppercase tracking-wider mb-2 block">🏨 Fascia RITORNO</label>
+                        <select x-model="modal.return_slot" class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-base font-bold">
+                            <option value="">— Nessun ritorno —</option>
+                            <?php foreach ($SLOTS_RET as $s): ?>
+                                <option value="<?= e($s) ?>"><?= e($s) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="text-[10px] text-slate-500 mt-1.5">Lollapalooza → Hotel</div>
+                    </div>
                 </div>
 
                 <!-- Pickup -->
@@ -215,28 +258,57 @@ function transfersPage(){return {
         this.driverUrl = base + '/index.php?p=driver&t=' + this.token;
     },
     add(){
-        const now = new Date(); now.setMinutes(0); now.setHours(now.getHours()+2);
+        const today = new Date().toISOString().slice(0,10);
         this.modal = {
             customer_name: '', phone: '', language: 'it', direction: 'to_venue',
-            pickup_when: now.toISOString().slice(0,16),
+            date: today, pickup_slot: '20:00', return_slot: '',
             pickup_location: '', pickup_address: '',
             dropoff_location: 'Lollapalooza', dropoff_address: 'Al Motelat, Sharm el Sheikh 2',
             passengers: 2, luggage: 0, flight_no: '', vehicle: '', driver_name: '',
-            price_egp: 0, notes: '', status: 'scheduled'
+            price_egp: 0, notes: '', status: 'scheduled', return_status: 'scheduled'
         };
     },
     edit(t){
-        this.modal = {...t, pickup_when: (t.pickup_when||'').replace(' ','T').slice(0,16)};
+        // Deriva date + slot dai datetime memorizzati
+        const date = (t.pickup_when||'').slice(0,10);
+        const pickup_slot = (t.pickup_when||'').slice(11,16);
+        const return_slot = (t.return_when||'').slice(11,16);
+        this.modal = {...t, date, pickup_slot, return_slot};
+    },
+    buildPickupWhen(){
+        if (!this.modal.date || !this.modal.pickup_slot) return null;
+        return this.modal.date + ' ' + this.modal.pickup_slot + ':00';
+    },
+    buildReturnWhen(){
+        if (!this.modal.return_slot) return null;
+        const h = parseInt(this.modal.return_slot.slice(0,2), 10);
+        let d = this.modal.date;
+        // Slot di ritorno notturni (< 06:00) appartengono al giorno dopo
+        if (h < 6) {
+            const dt = new Date(this.modal.date + 'T00:00:00');
+            dt.setDate(dt.getDate()+1);
+            d = dt.toISOString().slice(0,10);
+        }
+        return d + ' ' + this.modal.return_slot + ':00';
     },
     async save(){
         if (!this.modal.customer_name?.trim()){ alert('Nome cliente obbligatorio'); return; }
-        if (!this.modal.pickup_when){ alert('Data/ora pickup obbligatoria'); return; }
-        const payload = {...this.modal, pickup_when: this.modal.pickup_when.replace('T',' ') + (this.modal.pickup_when.length===16?':00':'')};
+        if (!this.modal.date){ alert('Data obbligatoria'); return; }
+        if (!this.modal.pickup_slot && !this.modal.return_slot){ alert('Seleziona almeno fascia andata o ritorno'); return; }
+        const payload = {
+            ...this.modal,
+            pickup_when: this.buildPickupWhen() || this.buildReturnWhen(),
+            return_when: this.buildReturnWhen(),
+            direction: this.modal.return_slot && !this.modal.pickup_slot ? 'to_hotel' : 'to_venue'
+        };
+        delete payload.date;
+        delete payload.pickup_slot;
+        delete payload.return_slot;
         await fetch('/api/transfers.php?action=save', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
         this.modal = null; this.load();
     },
-    async setStatus(t, s){
-        await fetch('/api/transfers.php?action=set_status', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id:t.id, status:s})});
+    async setStatus(t, s, leg){
+        await fetch('/api/transfers.php?action=set_status', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id:t.id, status:s, leg: leg||'out'})});
         this.load();
     },
     async del(t){
