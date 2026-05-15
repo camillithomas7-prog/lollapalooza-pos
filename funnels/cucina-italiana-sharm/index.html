@@ -238,16 +238,19 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
   }
   /* recensioni */
   .reviews{
-    display:flex;gap:14px;
+    display:flex;gap:12px;
     overflow-x:auto;scroll-snap-type:x mandatory;
-    padding:6px 22px 16px;margin:24px -22px 0;
+    padding:6px 22px 20px;margin:24px -22px 0;
+    scroll-padding-left:22px;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:thin;scrollbar-color:rgba(201,162,75,.4) transparent;
+    -webkit-mask-image:linear-gradient(to right, black 0, black calc(100% - 28px), transparent 100%);
+    mask-image:linear-gradient(to right, black 0, black calc(100% - 28px), transparent 100%);
   }
   .reviews::-webkit-scrollbar{height:6px;}
   .reviews::-webkit-scrollbar-thumb{background:rgba(201,162,75,.4);border-radius:99px;}
   .review{
-    flex:0 0 84%;max-width:320px;scroll-snap-align:start;
+    flex:0 0 calc(100% - 56px);max-width:300px;scroll-snap-align:start;
     background:var(--panel);border:1px solid var(--line);border-radius:16px;
     padding:18px;display:flex;flex-direction:column;
   }
