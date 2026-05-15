@@ -263,6 +263,31 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
   .review-date{font-size:11px;color:var(--muted);margin-top:12px;letter-spacing:1.2px;text-transform:uppercase;}
   @media(min-width:640px){.review{flex:0 0 320px;}}
 
+  /* lingua switcher */
+  .lang-switcher{
+    position:absolute;top:14px;right:14px;z-index:30;
+    display:flex;gap:3px;
+    background:rgba(10,9,8,.7);backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border:1px solid var(--line);border-radius:99px;padding:3px;
+  }
+  .lang-switcher button{
+    background:transparent;border:none;color:var(--muted);
+    font-family:'Figtree',sans-serif;font-weight:600;
+    font-size:10px;letter-spacing:1px;
+    padding:5px 7px;border-radius:99px;cursor:pointer;min-width:26px;
+  }
+  .lang-switcher button.active{background:var(--gold);color:var(--black);}
+  html[dir="rtl"] .lang-switcher{right:auto;left:14px;}
+  html[dir="rtl"] .reviews{direction:rtl;}
+  html[dir="rtl"] .ambiente-grid figcaption{left:auto;right:12px;}
+  html[dir="rtl"] .chef-quote{padding-left:0;padding-right:18px;border-left:none;border-right:3px solid var(--gold);}
+  html[dir="rtl"] .dishes li{padding-left:0;padding-right:26px;}
+  html[dir="rtl"] .dishes li::before{left:auto;right:0;}
+  html[dir="rtl"] .eyebrow{direction:rtl;}
+  html[dir="rtl"] body{text-align:right;}
+  html[dir="rtl"] .center,html[dir="rtl"] .cta-final,html[dir="rtl"] .hero,html[dir="rtl"] footer{text-align:center;}
+
   @media(max-width:480px){
     .wrap{padding:0 18px;}
     section{padding:44px 0;}
@@ -272,6 +297,9 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
     .gal{gap:9px;}
     .event{flex-direction:column;text-align:center;padding:18px;}
     .event img{width:120px;flex:0 0 auto;}
+    .lang-switcher{top:10px;right:10px;padding:2px;gap:2px;}
+    .lang-switcher button{font-size:9.5px;padding:4px 6px;min-width:24px;}
+    html[dir="rtl"] .lang-switcher{right:auto;left:10px;}
   }
   @media(max-width:340px){
     .fact{padding:14px 4px;}
@@ -283,6 +311,14 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
 
 <!-- ================= HERO ================= -->
 <header class="hero">
+  <div class="lang-switcher" aria-label="Lingua">
+    <button type="button" data-lang="it" class="active">IT</button>
+    <button type="button" data-lang="en">EN</button>
+    <button type="button" data-lang="es">ES</button>
+    <button type="button" data-lang="fr">FR</button>
+    <button type="button" data-lang="de">DE</button>
+    <button type="button" data-lang="ar">AR</button>
+  </div>
   <div class="wrap">
     <div class="new-mgmt">● Nuova gestione</div>
     <img src="assets/logo.jpg" alt="Lollapalooza" class="logo">
@@ -542,5 +578,482 @@ document.addEventListener('click', function(e){
   if (a && window.ttq) ttq.track('Contact', { content_name: 'WhatsApp click', content_type: 'product' });
 }, true);
 </script>
+
+<!-- ================= I18N ================= -->
+<script>
+(function(){
+  var WA_MSG = {
+    it: "Salve, vorrei maggiori informazioni",
+    en: "Hello, I'd like more information",
+    es: "Hola, quisiera más información",
+    fr: "Bonjour, je voudrais plus d'informations",
+    de: "Hallo, ich hätte gerne mehr Informationen",
+    ar: "مرحبًا، أود الحصول على مزيد من المعلومات"
+  };
+
+  // Selettore degli elementi tradotti — innerHTML matching su IT
+  // NB: i bottoni .btn-wa non sono qui perché contengono SVG; sono gestiti a parte
+  var SEL = 'h1, h2, h3, .lead, .kicker, .micro, .eyebrow, .new-mgmt, .fact .v, .fact .k, .sub, .chef-quote, .imgcap, .usp .tag, .usp h3, .usp p, .dishes li, .ambiente-grid figcaption, .ev-tag, .event p, .review-text, .review-loc, .review-date, .cta-note, footer .addr, footer .num, [data-i18n]';
+
+  // Normalizza chiave: trim + collassa spazi
+  function norm(s){ return s.replace(/\s+/g,' ').trim(); }
+
+  // Dizionari — chiave = innerHTML IT normalizzato
+  var I18N = {
+    en: {
+      "● Nuova gestione": "● Under new management",
+      "Lollapalooza · Sharm el Sheikh": "Lollapalooza · Sharm el Sheikh",
+      "Cucina italiana vera<span class=\"script\">qui a Sharm el Sheikh</span>": "Real Italian cooking<span class=\"script\">here in Sharm el Sheikh</span>",
+      "Pasta e primi italiani, antipasti all'italiana e secondi preparati a regola d'arte. Come in Italia, in vacanza.": "Italian pasta and first courses, Italian-style starters and mains cooked the proper way. Just like Italy, on holiday.",
+      "Prenota un tavolo": "Book a table",
+      "Un messaggio su WhatsApp · ti rispondiamo subito": "One WhatsApp message · we reply right away",
+      "Autentica": "Authentic", "Cucina italiana": "Italian cooking",
+      "Antipasti": "Starters", "All'italiana": "Italian-style",
+      "35 anni": "35 years", "Di esperienza": "Of experience",
+      "Perché proprio qui": "Why here",
+      "Stanco di mangiare <span class=\"gold\">sempre uguale</span> a Sharm?": "Tired of eating <span class=\"gold\">the same thing</span> in Sharm?",
+      "Una settimana di villaggio e i pasti diventano tutti la stessa cosa: buffet, piatti \"internazionali\", niente che sappia davvero di casa.": "A week at the resort and every meal feels the same: buffet, \"international\" dishes, nothing that really tastes of home.",
+      "Il <b style=\"color:var(--cream)\">Lollapalooza</b> è un'altra storia. È un ristorante di <span class=\"gold\">vera cucina italiana</span>: ti siedi, ordini, e mangi come mangeresti in Italia. Pasta, secondi, taglieri — fatti bene, con ingredienti di qualità.": "<b style=\"color:var(--cream)\">Lollapalooza</b> is a different story. A <span class=\"gold\">true Italian restaurant</span>: you sit down, you order, and you eat the way you would back home. Pasta, mains, sharing boards — done properly, with quality ingredients.",
+      "In cucina": "In the kitchen",
+      "35 anni di <span class=\"script\">mestiere italiano</span>": "35 years of <span class=\"script\">Italian craft</span>",
+      "Ai fornelli c'è una cuoca con <b style=\"color:var(--cream)\">35 anni di esperienza nella ristorazione italiana</b>. Non improvvisa: cucina italiana vera, quella di casa, fatta a regola d'arte — ogni piatto.": "Behind the stove is a chef with <b style=\"color:var(--cream)\">35 years of experience in Italian restaurants</b>. She doesn't improvise: real Italian home cooking, done the proper way — every single dish.",
+      "Qui mangi <b>come in Italia</b>. Stesse ricette, stessi sapori, stesse mani esperte.": "Here you eat <b>like in Italy</b>. The same recipes, the same flavours, the same skilled hands.",
+      "La cuoca con la sua squadra · cucina del Lollapalooza": "The chef with her team · Lollapalooza kitchen",
+      "La nostra firma": "Our signature",
+      "Antipasti <span class=\"gold\">all'italiana</span>": "<span class=\"gold\">Italian-style</span> starters",
+      "Il modo migliore per iniziare: un tagliere da condividere, fatto con ingredienti di qualità.": "The best way to start: a sharing board, made with quality ingredients.",
+      "Cucina tradizionale italiana": "Traditional Italian cooking",
+      "Il tagliere all'italiana, da condividere": "The Italian sharing board",
+      "Formaggi italiani, bruschette, verdure grigliate, olive: un <b>antipasto all'italiana</b> a regola d'arte, da mettere in mezzo al tavolo.": "Italian cheeses, bruschetta, grilled vegetables, olives: an <b>Italian-style starter</b> done properly, to put in the middle of the table.",
+      "Tagliere all'italiana · da condividere": "Italian sharing board · for the table",
+      "A tavola": "At the table",
+      "Cosa trovi <span class=\"gold\">da noi</span>": "What you'll find <span class=\"gold\">with us</span>",
+      "<b>Pasta e primi italiani</b>, a regola d'arte.": "<b>Italian pasta and first courses</b>, done properly.",
+      "<b>Antipasti all'italiana</b> — formaggi, bruschette, verdure grigliate.": "<b>Italian-style starters</b> — cheeses, bruschetta, grilled vegetables.",
+      "<b>Secondi di carne</b> cucinati come in una trattoria italiana.": "<b>Meat mains</b> cooked like in a real Italian trattoria.",
+      "<b>Dolci della casa</b> per chiudere a regola d'arte.": "<b>Homemade desserts</b> to finish on a high note.",
+      "Ingredienti di qualità e ricette italiane, non \"internazionali\".": "Quality ingredients and Italian recipes — not \"international\" ones.",
+      "Una sala curata e accogliente — si sta bene, senza caos.": "A well-kept, welcoming room — comfortable, never chaotic.",
+      "L'atmosfera": "The atmosphere",
+      "Un posto dove <span class=\"script\">stare bene</span>": "A place where you <span class=\"script\">feel at ease</span>",
+      "Luci calde, tavoli curati, il giusto tono. Si cena con calma, si chiacchiera, ci si gode la serata. E dopo cena la musica accompagna fino a tardi — non serve spostarsi per continuare la serata.": "Warm lights, well-laid tables, the right mood. You dine slowly, you chat, you enjoy the evening. And after dinner the music carries on late — no need to move on to keep the night going.",
+      "L'ingresso": "The entrance",
+      "Sala ristorante": "Dining room",
+      "La serata": "The evening",
+      "E sabato sera, c'è di più": "And on Saturday night, there's more",
+      "Sabato 16 Maggio: serata con Ahmed Sami": "Saturday 16 May: night with Ahmed Sami",
+      "Dopo cena la sala si accende con musica dal vivo. Se vieni sabato, prenota pure il tavolo come sempre — la serata è inclusa.": "After dinner the room comes alive with live music. If you're coming on Saturday, book your table as usual — the night is included.",
+      "Cosa dicono": "What they say",
+      "Le voci di chi <span class=\"script\">ci è già stato</span>": "What guests <span class=\"script\">who've been here say</span>",
+      "Recensioni dai nostri clienti italiani — scorri per leggerle tutte.": "Reviews from our Italian guests — swipe to read them all.",
+      "Finalmente un posto a Sharm dove si mangia italiano vero. Sapori autentici, ambiente curato, prezzi onesti. I titolari ti accolgono con il sorriso — ti senti subito a casa.": "Finally a place in Sharm where you eat real Italian food. Authentic flavours, lovely setting, honest prices. The owners welcome you with a smile — you feel at home right away.",
+      "Cena italiana a regola d'arte, fatta con cura. È l'unico posto a Sharm dove la sera ti diverti davvero: si cena, si chiacchiera, e poi resti per la serata. Da consigliare.": "A proper Italian dinner, done with care. It's the only spot in Sharm where the evening is genuinely fun: dinner, conversation, and you stay on for the night. Highly recommended.",
+      "Locale stupendo, accoglienza calorosa. I gestori sono simpaticissimi, ti fanno sentire parte della loro famiglia. Cucina autentica e prezzi giusti — perfetto.": "Wonderful venue, warm welcome. The owners are so friendly, they make you feel like family. Authentic cooking and fair prices — perfect.",
+      "Cercavo sapori di casa in vacanza e li ho trovati qui. Cucina italiana vera, ambiente caldo, la serata è andata via in un lampo. Tornerò sicuro.": "I was looking for the taste of home on holiday and I found it here. Real Italian cooking, warm atmosphere, the evening flew by. I'll definitely be back.",
+      "Serata indimenticabile. Atmosfera elegante ma senza esagerare, ottima cena, e l'ospitalità dei titolari fa la differenza. Non un locale qualunque.": "An unforgettable evening. Elegant without being over the top, great food, and the hospitality of the owners makes all the difference. Not your average place.",
+      "A Sharm c'è bisogno di posti così: cucina vera, servizio attento, prezzi onesti. Cena + serata nello stesso posto, niente spostamenti. Promosso a pieni voti.": "Sharm needs more places like this: real cooking, attentive service, honest prices. Dinner + the evening in one spot, no moving around. Full marks.",
+      "Mi sono divertita un sacco. Cucina ottima, ambiente molto curato, e abbiamo fatto pure amicizia con altre coppie italiane. Il Lollapalooza è una scoperta.": "I had so much fun. Great food, lovely setting, and we even made friends with other Italian couples. Lollapalooza is a real find.",
+      "Cibo italiano autentico, sapori che riportano a casa. Personale gentile, conto onesto, niente sorprese. La sera a Sharm finalmente diventa interessante.": "Authentic Italian food, flavours that take you home. Kind staff, honest bill, no surprises. Evenings in Sharm finally get interesting.",
+      "Mi aspettavo il solito locale per turisti, invece ho trovato qualità vera. Cucina che ricorda l'Italia, atmosfera rilassata, gestori meravigliosi. Da provare.": "I expected the usual tourist spot, instead I found real quality. Food that reminds you of Italy, relaxed atmosphere, wonderful owners. Worth trying.",
+      "Una cena come a casa e una serata che non finisce mai. Il bello è che fai amicizia subito — i titolari ti coinvolgono, gli altri ospiti italiani diventano compagnia. Bellissimo.": "Dinner that feels like home and an evening that never ends. The best part is how quickly you make friends — the owners draw you in, the other Italian guests become company. Lovely.",
+      "Milano · in vacanza a Sharm": "Milan · on holiday in Sharm",
+      "Bologna · coppia": "Bologna · couple",
+      "Firenze · gruppo amici": "Florence · with friends",
+      "Roma · coppia": "Rome · couple",
+      "Verona · in vacanza": "Verona · on holiday",
+      "Torino · famiglia": "Turin · family",
+      "Padova · viaggio amici": "Padua · trip with friends",
+      "Genova · coppia": "Genoa · couple",
+      "Trieste · in vacanza": "Trieste · on holiday",
+      "Bergamo · gruppo amici": "Bergamo · with friends",
+      "Aprile 2026": "April 2026", "Marzo 2026": "March 2026",
+      "Maggio 2026": "May 2026", "Febbraio 2026": "February 2026",
+      "Gennaio 2026": "January 2026",
+      "Prenota ora": "Book now",
+      "Il tuo tavolo ti <span class=\"script\">aspetta</span>": "Your table is <span class=\"script\">waiting</span>",
+      "Scegli il giorno e dicci in quanti siete. Un messaggio su WhatsApp e ti confermiamo subito.": "Pick the day and tell us how many you'll be. One WhatsApp message and we confirm right away.",
+      "+39 334 382 8321 · risposta rapida": "+39 334 382 8321 · quick reply",
+      "Al Motelat · Sharm el Sheikh 2 · Egitto": "Al Motelat · Sharm el Sheikh 2 · Egypt",
+      "Prenota un tavolo su WhatsApp": "Book a table on WhatsApp"
+    },
+    es: {
+      "● Nuova gestione": "● Nueva gestión",
+      "Lollapalooza · Sharm el Sheikh": "Lollapalooza · Sharm el Sheikh",
+      "Cucina italiana vera<span class=\"script\">qui a Sharm el Sheikh</span>": "Auténtica cocina italiana<span class=\"script\">aquí en Sharm el Sheikh</span>",
+      "Pasta e primi italiani, antipasti all'italiana e secondi preparati a regola d'arte. Come in Italia, in vacanza.": "Pasta y primeros italianos, entrantes a la italiana y segundos hechos como Dios manda. Como en Italia, de vacaciones.",
+      "Prenota un tavolo": "Reserva una mesa",
+      "Un messaggio su WhatsApp · ti rispondiamo subito": "Un mensaje por WhatsApp · te respondemos enseguida",
+      "Autentica": "Auténtica", "Cucina italiana": "Cocina italiana",
+      "Antipasti": "Entrantes", "All'italiana": "A la italiana",
+      "35 anni": "35 años", "Di esperienza": "De experiencia",
+      "Perché proprio qui": "Por qué aquí",
+      "Stanco di mangiare <span class=\"gold\">sempre uguale</span> a Sharm?": "¿Cansado de comer <span class=\"gold\">siempre lo mismo</span> en Sharm?",
+      "Una settimana di villaggio e i pasti diventano tutti la stessa cosa: buffet, piatti \"internazionali\", niente che sappia davvero di casa.": "Una semana en el resort y las comidas se vuelven todas iguales: bufé, platos \"internacionales\", nada que sepa de verdad a casa.",
+      "Il <b style=\"color:var(--cream)\">Lollapalooza</b> è un'altra storia. È un ristorante di <span class=\"gold\">vera cucina italiana</span>: ti siedi, ordini, e mangi come mangeresti in Italia. Pasta, secondi, taglieri — fatti bene, con ingredienti di qualità.": "<b style=\"color:var(--cream)\">Lollapalooza</b> es otra historia. Es un restaurante de <span class=\"gold\">verdadera cocina italiana</span>: te sientas, pides, y comes como comerías en Italia. Pasta, segundos, tablas — bien hechos, con ingredientes de calidad.",
+      "In cucina": "En la cocina",
+      "35 anni di <span class=\"script\">mestiere italiano</span>": "35 años de <span class=\"script\">oficio italiano</span>",
+      "Ai fornelli c'è una cuoca con <b style=\"color:var(--cream)\">35 anni di esperienza nella ristorazione italiana</b>. Non improvvisa: cucina italiana vera, quella di casa, fatta a regola d'arte — ogni piatto.": "En los fogones hay una cocinera con <b style=\"color:var(--cream)\">35 años de experiencia en la restauración italiana</b>. No improvisa: cocina italiana auténtica, la de casa, hecha como debe ser — cada plato.",
+      "Qui mangi <b>come in Italia</b>. Stesse ricette, stessi sapori, stesse mani esperte.": "Aquí comes <b>como en Italia</b>. Las mismas recetas, los mismos sabores, las mismas manos expertas.",
+      "La cuoca con la sua squadra · cucina del Lollapalooza": "La cocinera con su equipo · cocina del Lollapalooza",
+      "La nostra firma": "Nuestra firma",
+      "Antipasti <span class=\"gold\">all'italiana</span>": "Entrantes <span class=\"gold\">a la italiana</span>",
+      "Il modo migliore per iniziare: un tagliere da condividere, fatto con ingredienti di qualità.": "La mejor forma de empezar: una tabla para compartir, hecha con ingredientes de calidad.",
+      "Cucina tradizionale italiana": "Cocina tradicional italiana",
+      "Il tagliere all'italiana, da condividere": "La tabla a la italiana, para compartir",
+      "Formaggi italiani, bruschette, verdure grigliate, olive: un <b>antipasto all'italiana</b> a regola d'arte, da mettere in mezzo al tavolo.": "Quesos italianos, bruschettas, verduras a la parrilla, aceitunas: un <b>entrante a la italiana</b> hecho como debe ser, para poner en medio de la mesa.",
+      "Tagliere all'italiana · da condividere": "Tabla a la italiana · para compartir",
+      "A tavola": "A la mesa",
+      "Cosa trovi <span class=\"gold\">da noi</span>": "Qué encuentras <span class=\"gold\">aquí</span>",
+      "<b>Pasta e primi italiani</b>, a regola d'arte.": "<b>Pasta y primeros italianos</b>, hechos como debe ser.",
+      "<b>Antipasti all'italiana</b> — formaggi, bruschette, verdure grigliate.": "<b>Entrantes a la italiana</b> — quesos, bruschettas, verduras a la parrilla.",
+      "<b>Secondi di carne</b> cucinati come in una trattoria italiana.": "<b>Segundos de carne</b> cocinados como en una trattoria italiana.",
+      "<b>Dolci della casa</b> per chiudere a regola d'arte.": "<b>Postres de la casa</b> para cerrar con broche de oro.",
+      "Ingredienti di qualità e ricette italiane, non \"internazionali\".": "Ingredientes de calidad y recetas italianas, no \"internacionales\".",
+      "Una sala curata e accogliente — si sta bene, senza caos.": "Una sala cuidada y acogedora — se está bien, sin caos.",
+      "L'atmosfera": "El ambiente",
+      "Un posto dove <span class=\"script\">stare bene</span>": "Un lugar donde <span class=\"script\">se está a gusto</span>",
+      "Luci calde, tavoli curati, il giusto tono. Si cena con calma, si chiacchiera, ci si gode la serata. E dopo cena la musica accompagna fino a tardi — non serve spostarsi per continuare la serata.": "Luces cálidas, mesas cuidadas, el tono justo. Se cena con calma, se charla, se disfruta de la velada. Y después de cenar la música acompaña hasta tarde — no hace falta moverse para seguir la noche.",
+      "L'ingresso": "La entrada",
+      "Sala ristorante": "Sala del restaurante",
+      "La serata": "La velada",
+      "E sabato sera, c'è di più": "Y el sábado por la noche, hay más",
+      "Sabato 16 Maggio: serata con Ahmed Sami": "Sábado 16 de mayo: noche con Ahmed Sami",
+      "Dopo cena la sala si accende con musica dal vivo. Se vieni sabato, prenota pure il tavolo come sempre — la serata è inclusa.": "Después de cenar la sala se enciende con música en vivo. Si vienes el sábado, reserva tu mesa como siempre — la velada está incluida.",
+      "Cosa dicono": "Qué dicen",
+      "Le voci di chi <span class=\"script\">ci è già stato</span>": "Las voces de quienes <span class=\"script\">ya han estado</span>",
+      "Recensioni dai nostri clienti italiani — scorri per leggerle tutte.": "Reseñas de nuestros clientes italianos — desliza para leerlas todas.",
+      "Finalmente un posto a Sharm dove si mangia italiano vero. Sapori autentici, ambiente curato, prezzi onesti. I titolari ti accolgono con il sorriso — ti senti subito a casa.": "Por fin un sitio en Sharm donde se come italiano de verdad. Sabores auténticos, ambiente cuidado, precios honestos. Los dueños te reciben con una sonrisa — te sientes en casa enseguida.",
+      "Cena italiana a regola d'arte, fatta con cura. È l'unico posto a Sharm dove la sera ti diverti davvero: si cena, si chiacchiera, e poi resti per la serata. Da consigliare.": "Cena italiana como debe ser, hecha con esmero. Es el único sitio en Sharm donde la noche se disfruta de verdad: cenas, charlas y te quedas para la velada. Muy recomendable.",
+      "Locale stupendo, accoglienza calorosa. I gestori sono simpaticissimi, ti fanno sentire parte della loro famiglia. Cucina autentica e prezzi giusti — perfetto.": "Local maravilloso, acogida cálida. Los dueños son super simpáticos, te hacen sentir parte de la familia. Cocina auténtica y precios justos — perfecto.",
+      "Cercavo sapori di casa in vacanza e li ho trovati qui. Cucina italiana vera, ambiente caldo, la serata è andata via in un lampo. Tornerò sicuro.": "Buscaba sabores de casa estando de vacaciones y los encontré aquí. Cocina italiana auténtica, ambiente cálido, la velada se me pasó volando. Volveré seguro.",
+      "Serata indimenticabile. Atmosfera elegante ma senza esagerare, ottima cena, e l'ospitalità dei titolari fa la differenza. Non un locale qualunque.": "Velada inolvidable. Ambiente elegante pero sin pasarse, cena excelente, y la hospitalidad de los dueños marca la diferencia. No es un local cualquiera.",
+      "A Sharm c'è bisogno di posti così: cucina vera, servizio attento, prezzi onesti. Cena + serata nello stesso posto, niente spostamenti. Promosso a pieni voti.": "En Sharm hacen falta sitios así: cocina de verdad, servicio atento, precios honestos. Cena + velada en el mismo lugar, sin moverte. Aprobado con nota.",
+      "Mi sono divertita un sacco. Cucina ottima, ambiente molto curato, e abbiamo fatto pure amicizia con altre coppie italiane. Il Lollapalooza è una scoperta.": "Me divertí muchísimo. Comida estupenda, ambiente muy cuidado, e incluso hicimos amistad con otras parejas italianas. El Lollapalooza es un descubrimiento.",
+      "Cibo italiano autentico, sapori che riportano a casa. Personale gentile, conto onesto, niente sorprese. La sera a Sharm finalmente diventa interessante.": "Comida italiana auténtica, sabores que te llevan a casa. Personal amable, cuenta honesta, sin sorpresas. La noche en Sharm por fin se vuelve interesante.",
+      "Mi aspettavo il solito locale per turisti, invece ho trovato qualità vera. Cucina che ricorda l'Italia, atmosfera rilassata, gestori meravigliosi. Da provare.": "Esperaba el típico sitio para turistas y en cambio encontré calidad de verdad. Cocina que recuerda a Italia, ambiente relajado, dueños maravillosos. Hay que probarlo.",
+      "Una cena come a casa e una serata che non finisce mai. Il bello è che fai amicizia subito — i titolari ti coinvolgono, gli altri ospiti italiani diventano compagnia. Bellissimo.": "Una cena como en casa y una velada que no acaba nunca. Lo mejor es que haces amistad enseguida — los dueños te integran y los demás italianos se vuelven compañía. Precioso.",
+      "Milano · in vacanza a Sharm": "Milán · de vacaciones en Sharm",
+      "Bologna · coppia": "Bolonia · pareja",
+      "Firenze · gruppo amici": "Florencia · con amigos",
+      "Roma · coppia": "Roma · pareja",
+      "Verona · in vacanza": "Verona · de vacaciones",
+      "Torino · famiglia": "Turín · familia",
+      "Padova · viaggio amici": "Padua · viaje con amigos",
+      "Genova · coppia": "Génova · pareja",
+      "Trieste · in vacanza": "Trieste · de vacaciones",
+      "Bergamo · gruppo amici": "Bérgamo · con amigos",
+      "Aprile 2026": "Abril 2026", "Marzo 2026": "Marzo 2026",
+      "Maggio 2026": "Mayo 2026", "Febbraio 2026": "Febrero 2026",
+      "Gennaio 2026": "Enero 2026",
+      "Prenota ora": "Reserva ahora",
+      "Il tuo tavolo ti <span class=\"script\">aspetta</span>": "Tu mesa te <span class=\"script\">está esperando</span>",
+      "Scegli il giorno e dicci in quanti siete. Un messaggio su WhatsApp e ti confermiamo subito.": "Elige el día y dinos cuántos sois. Un mensaje por WhatsApp y te confirmamos al momento.",
+      "+39 334 382 8321 · risposta rapida": "+39 334 382 8321 · respuesta rápida",
+      "Al Motelat · Sharm el Sheikh 2 · Egitto": "Al Motelat · Sharm el Sheikh 2 · Egipto",
+      "Prenota un tavolo su WhatsApp": "Reserva una mesa por WhatsApp"
+    },
+    fr: {
+      "● Nuova gestione": "● Nouvelle gestion",
+      "Lollapalooza · Sharm el Sheikh": "Lollapalooza · Sharm el Sheikh",
+      "Cucina italiana vera<span class=\"script\">qui a Sharm el Sheikh</span>": "Vraie cuisine italienne<span class=\"script\">ici à Sharm el Sheikh</span>",
+      "Pasta e primi italiani, antipasti all'italiana e secondi preparati a regola d'arte. Come in Italia, in vacanza.": "Pâtes et entrées italiennes, antipasti à l'italienne et plats principaux préparés dans les règles de l'art. Comme en Italie, en vacances.",
+      "Prenota un tavolo": "Réserver une table",
+      "Un messaggio su WhatsApp · ti rispondiamo subito": "Un message sur WhatsApp · réponse immédiate",
+      "Autentica": "Authentique", "Cucina italiana": "Cuisine italienne",
+      "Antipasti": "Antipasti", "All'italiana": "À l'italienne",
+      "35 anni": "35 ans", "Di esperienza": "D'expérience",
+      "Perché proprio qui": "Pourquoi ici",
+      "Stanco di mangiare <span class=\"gold\">sempre uguale</span> a Sharm?": "Fatigué de manger <span class=\"gold\">toujours pareil</span> à Sharm ?",
+      "Una settimana di villaggio e i pasti diventano tutti la stessa cosa: buffet, piatti \"internazionali\", niente che sappia davvero di casa.": "Une semaine au club et les repas finissent tous par se ressembler : buffet, plats \"internationaux\", rien qui ait vraiment le goût de chez soi.",
+      "Il <b style=\"color:var(--cream)\">Lollapalooza</b> è un'altra storia. È un ristorante di <span class=\"gold\">vera cucina italiana</span>: ti siedi, ordini, e mangi come mangeresti in Italia. Pasta, secondi, taglieri — fatti bene, con ingredienti di qualità.": "Le <b style=\"color:var(--cream)\">Lollapalooza</b>, c'est une autre histoire. Un restaurant de <span class=\"gold\">vraie cuisine italienne</span> : on s'assoit, on commande, on mange comme on mangerait en Italie. Pâtes, plats, planches — bien faits, avec des ingrédients de qualité.",
+      "In cucina": "En cuisine",
+      "35 anni di <span class=\"script\">mestiere italiano</span>": "35 ans de <span class=\"script\">savoir-faire italien</span>",
+      "Ai fornelli c'è una cuoca con <b style=\"color:var(--cream)\">35 anni di esperienza nella ristorazione italiana</b>. Non improvvisa: cucina italiana vera, quella di casa, fatta a regola d'arte — ogni piatto.": "Aux fourneaux, une cuisinière avec <b style=\"color:var(--cream)\">35 ans d'expérience dans la restauration italienne</b>. Elle n'improvise pas : vraie cuisine italienne, celle de la maison, faite dans les règles de l'art — pour chaque plat.",
+      "Qui mangi <b>come in Italia</b>. Stesse ricette, stessi sapori, stesse mani esperte.": "Ici on mange <b>comme en Italie</b>. Mêmes recettes, mêmes saveurs, mêmes mains expertes.",
+      "La cuoca con la sua squadra · cucina del Lollapalooza": "La cuisinière et son équipe · cuisine du Lollapalooza",
+      "La nostra firma": "Notre signature",
+      "Antipasti <span class=\"gold\">all'italiana</span>": "Antipasti <span class=\"gold\">à l'italienne</span>",
+      "Il modo migliore per iniziare: un tagliere da condividere, fatto con ingredienti di qualità.": "La meilleure façon de commencer : une planche à partager, avec des ingrédients de qualité.",
+      "Cucina tradizionale italiana": "Cuisine traditionnelle italienne",
+      "Il tagliere all'italiana, da condividere": "La planche à l'italienne, à partager",
+      "Formaggi italiani, bruschette, verdure grigliate, olive: un <b>antipasto all'italiana</b> a regola d'arte, da mettere in mezzo al tavolo.": "Fromages italiens, bruschettas, légumes grillés, olives : un <b>antipasto à l'italienne</b> fait dans les règles de l'art, à poser au milieu de la table.",
+      "Tagliere all'italiana · da condividere": "Planche à l'italienne · à partager",
+      "A tavola": "À table",
+      "Cosa trovi <span class=\"gold\">da noi</span>": "Ce que vous trouvez <span class=\"gold\">chez nous</span>",
+      "<b>Pasta e primi italiani</b>, a regola d'arte.": "<b>Pâtes et entrées italiennes</b>, dans les règles de l'art.",
+      "<b>Antipasti all'italiana</b> — formaggi, bruschette, verdure grigliate.": "<b>Antipasti à l'italienne</b> — fromages, bruschettas, légumes grillés.",
+      "<b>Secondi di carne</b> cucinati come in una trattoria italiana.": "<b>Plats de viande</b> cuisinés comme dans une trattoria italienne.",
+      "<b>Dolci della casa</b> per chiudere a regola d'arte.": "<b>Desserts maison</b> pour finir en beauté.",
+      "Ingredienti di qualità e ricette italiane, non \"internazionali\".": "Des ingrédients de qualité et des recettes italiennes, pas \"internationales\".",
+      "Una sala curata e accogliente — si sta bene, senza caos.": "Une salle soignée et accueillante — on s'y sent bien, sans tumulte.",
+      "L'atmosfera": "L'atmosphère",
+      "Un posto dove <span class=\"script\">stare bene</span>": "Un endroit où <span class=\"script\">on se sent bien</span>",
+      "Luci calde, tavoli curati, il giusto tono. Si cena con calma, si chiacchiera, ci si gode la serata. E dopo cena la musica accompagna fino a tardi — non serve spostarsi per continuare la serata.": "Lumières chaudes, tables soignées, le ton juste. On dîne tranquillement, on discute, on profite de la soirée. Et après le dîner, la musique nous accompagne tard — pas besoin de bouger pour prolonger la soirée.",
+      "L'ingresso": "L'entrée",
+      "Sala ristorante": "Salle du restaurant",
+      "La serata": "La soirée",
+      "E sabato sera, c'è di più": "Et le samedi soir, il y a mieux",
+      "Sabato 16 Maggio: serata con Ahmed Sami": "Samedi 16 mai : soirée avec Ahmed Sami",
+      "Dopo cena la sala si accende con musica dal vivo. Se vieni sabato, prenota pure il tavolo come sempre — la serata è inclusa.": "Après le dîner, la salle s'anime avec de la musique live. Si vous venez samedi, réservez votre table comme d'habitude — la soirée est incluse.",
+      "Cosa dicono": "Ce qu'ils disent",
+      "Le voci di chi <span class=\"script\">ci è già stato</span>": "Les voix de ceux qui <span class=\"script\">y sont déjà allés</span>",
+      "Recensioni dai nostri clienti italiani — scorri per leggerle tutte.": "Avis de nos clients italiens — faites défiler pour les lire tous.",
+      "Finalmente un posto a Sharm dove si mangia italiano vero. Sapori autentici, ambiente curato, prezzi onesti. I titolari ti accolgono con il sorriso — ti senti subito a casa.": "Enfin un endroit à Sharm où l'on mange vraiment italien. Saveurs authentiques, cadre soigné, prix honnêtes. Les patrons vous accueillent avec le sourire — on se sent tout de suite chez soi.",
+      "Cena italiana a regola d'arte, fatta con cura. È l'unico posto a Sharm dove la sera ti diverti davvero: si cena, si chiacchiera, e poi resti per la serata. Da consigliare.": "Un dîner italien dans les règles de l'art, préparé avec soin. C'est le seul endroit à Sharm où l'on s'amuse vraiment le soir : on dîne, on discute, on reste pour la soirée. À recommander.",
+      "Locale stupendo, accoglienza calorosa. I gestori sono simpaticissimi, ti fanno sentire parte della loro famiglia. Cucina autentica e prezzi giusti — perfetto.": "Endroit magnifique, accueil chaleureux. Les gérants sont adorables, ils vous font sentir comme en famille. Cuisine authentique et prix justes — parfait.",
+      "Cercavo sapori di casa in vacanza e li ho trovati qui. Cucina italiana vera, ambiente caldo, la serata è andata via in un lampo. Tornerò sicuro.": "Je cherchais les saveurs de la maison en vacances et je les ai trouvées ici. Vraie cuisine italienne, ambiance chaleureuse, la soirée est passée en un éclair. Je reviendrai, c'est sûr.",
+      "Serata indimenticabile. Atmosfera elegante ma senza esagerare, ottima cena, e l'ospitalità dei titolari fa la differenza. Non un locale qualunque.": "Soirée inoubliable. Atmosphère élégante mais sans en faire trop, excellent dîner, et l'hospitalité des patrons fait la différence. Pas un endroit ordinaire.",
+      "A Sharm c'è bisogno di posti così: cucina vera, servizio attento, prezzi onesti. Cena + serata nello stesso posto, niente spostamenti. Promosso a pieni voti.": "Sharm a besoin d'endroits comme ça : vraie cuisine, service attentif, prix honnêtes. Dîner + soirée au même endroit, pas besoin de bouger. Mention très bien.",
+      "Mi sono divertita un sacco. Cucina ottima, ambiente molto curato, e abbiamo fatto pure amicizia con altre coppie italiane. Il Lollapalooza è una scoperta.": "Je me suis beaucoup amusée. Cuisine excellente, cadre très soigné, et on s'est même fait des amis parmi d'autres couples italiens. Le Lollapalooza est une découverte.",
+      "Cibo italiano autentico, sapori che riportano a casa. Personale gentile, conto onesto, niente sorprese. La sera a Sharm finalmente diventa interessante.": "Cuisine italienne authentique, des saveurs qui ramènent à la maison. Personnel gentil, addition honnête, aucune surprise. Les soirées à Sharm deviennent enfin intéressantes.",
+      "Mi aspettavo il solito locale per turisti, invece ho trovato qualità vera. Cucina che ricorda l'Italia, atmosfera rilassata, gestori meravigliosi. Da provare.": "Je m'attendais au resto à touristes habituel, mais j'ai trouvé une vraie qualité. Une cuisine qui rappelle l'Italie, une ambiance détendue, des gérants formidables. À essayer.",
+      "Una cena come a casa e una serata che non finisce mai. Il bello è che fai amicizia subito — i titolari ti coinvolgono, gli altri ospiti italiani diventano compagnia. Bellissimo.": "Un dîner comme à la maison et une soirée qui n'en finit pas. Le mieux, c'est qu'on se fait des amis tout de suite — les patrons vous embarquent, les autres clients italiens deviennent vos compagnons. Magnifique.",
+      "Milano · in vacanza a Sharm": "Milan · en vacances à Sharm",
+      "Bologna · coppia": "Bologne · en couple",
+      "Firenze · gruppo amici": "Florence · entre amis",
+      "Roma · coppia": "Rome · en couple",
+      "Verona · in vacanza": "Vérone · en vacances",
+      "Torino · famiglia": "Turin · en famille",
+      "Padova · viaggio amici": "Padoue · entre amis",
+      "Genova · coppia": "Gênes · en couple",
+      "Trieste · in vacanza": "Trieste · en vacances",
+      "Bergamo · gruppo amici": "Bergame · entre amis",
+      "Aprile 2026": "Avril 2026", "Marzo 2026": "Mars 2026",
+      "Maggio 2026": "Mai 2026", "Febbraio 2026": "Février 2026",
+      "Gennaio 2026": "Janvier 2026",
+      "Prenota ora": "Réserver maintenant",
+      "Il tuo tavolo ti <span class=\"script\">aspetta</span>": "Votre table vous <span class=\"script\">attend</span>",
+      "Scegli il giorno e dicci in quanti siete. Un messaggio su WhatsApp e ti confermiamo subito.": "Choisissez le jour et dites-nous combien vous êtes. Un message sur WhatsApp et nous confirmons aussitôt.",
+      "+39 334 382 8321 · risposta rapida": "+39 334 382 8321 · réponse rapide",
+      "Al Motelat · Sharm el Sheikh 2 · Egitto": "Al Motelat · Sharm el Sheikh 2 · Égypte",
+      "Prenota un tavolo su WhatsApp": "Réserver une table sur WhatsApp"
+    },
+    de: {
+      "● Nuova gestione": "● Neue Leitung",
+      "Lollapalooza · Sharm el Sheikh": "Lollapalooza · Sharm el Sheikh",
+      "Cucina italiana vera<span class=\"script\">qui a Sharm el Sheikh</span>": "Echte italienische Küche<span class=\"script\">hier in Sharm el Sheikh</span>",
+      "Pasta e primi italiani, antipasti all'italiana e secondi preparati a regola d'arte. Come in Italia, in vacanza.": "Italienische Pasta und Vorspeisen, Antipasti nach italienischer Art und Hauptgerichte, fachgerecht zubereitet. Wie in Italien — im Urlaub.",
+      "Prenota un tavolo": "Tisch reservieren",
+      "Un messaggio su WhatsApp · ti rispondiamo subito": "Eine WhatsApp-Nachricht · wir antworten sofort",
+      "Autentica": "Authentisch", "Cucina italiana": "Italienische Küche",
+      "Antipasti": "Antipasti", "All'italiana": "Italienisch",
+      "35 anni": "35 Jahre", "Di esperienza": "Erfahrung",
+      "Perché proprio qui": "Warum gerade hier",
+      "Stanco di mangiare <span class=\"gold\">sempre uguale</span> a Sharm?": "Müde, in Sharm immer <span class=\"gold\">dasselbe</span> zu essen?",
+      "Una settimana di villaggio e i pasti diventano tutti la stessa cosa: buffet, piatti \"internazionali\", niente che sappia davvero di casa.": "Eine Woche im Resort und alle Mahlzeiten schmecken gleich: Buffet, \"internationale\" Gerichte, nichts, was wirklich nach Zuhause schmeckt.",
+      "Il <b style=\"color:var(--cream)\">Lollapalooza</b> è un'altra storia. È un ristorante di <span class=\"gold\">vera cucina italiana</span>: ti siedi, ordini, e mangi come mangeresti in Italia. Pasta, secondi, taglieri — fatti bene, con ingredienti di qualità.": "Das <b style=\"color:var(--cream)\">Lollapalooza</b> ist anders. Ein Restaurant mit <span class=\"gold\">echter italienischer Küche</span>: Sie setzen sich, bestellen und essen wie in Italien. Pasta, Hauptgerichte, Brettchen — gut gemacht, mit hochwertigen Zutaten.",
+      "In cucina": "In der Küche",
+      "35 anni di <span class=\"script\">mestiere italiano</span>": "35 Jahre <span class=\"script\">italienisches Handwerk</span>",
+      "Ai fornelli c'è una cuoca con <b style=\"color:var(--cream)\">35 anni di esperienza nella ristorazione italiana</b>. Non improvvisa: cucina italiana vera, quella di casa, fatta a regola d'arte — ogni piatto.": "Am Herd steht eine Köchin mit <b style=\"color:var(--cream)\">35 Jahren Erfahrung in der italienischen Gastronomie</b>. Sie improvisiert nicht: echte italienische Hausmannskost, fachgerecht zubereitet — bei jedem Gericht.",
+      "Qui mangi <b>come in Italia</b>. Stesse ricette, stessi sapori, stesse mani esperte.": "Hier essen Sie <b>wie in Italien</b>. Dieselben Rezepte, dieselben Aromen, dieselben erfahrenen Hände.",
+      "La cuoca con la sua squadra · cucina del Lollapalooza": "Die Köchin mit ihrem Team · Küche des Lollapalooza",
+      "La nostra firma": "Unsere Handschrift",
+      "Antipasti <span class=\"gold\">all'italiana</span>": "<span class=\"gold\">Italienische</span> Antipasti",
+      "Il modo migliore per iniziare: un tagliere da condividere, fatto con ingredienti di qualità.": "Der beste Anfang: ein Brettchen zum Teilen, mit hochwertigen Zutaten.",
+      "Cucina tradizionale italiana": "Traditionelle italienische Küche",
+      "Il tagliere all'italiana, da condividere": "Das italienische Brettchen zum Teilen",
+      "Formaggi italiani, bruschette, verdure grigliate, olive: un <b>antipasto all'italiana</b> a regola d'arte, da mettere in mezzo al tavolo.": "Italienische Käse, Bruschetta, gegrilltes Gemüse, Oliven: eine <b>italienische Antipasti-Platte</b> nach allen Regeln der Kunst, mitten auf den Tisch.",
+      "Tagliere all'italiana · da condividere": "Italienisches Brettchen · zum Teilen",
+      "A tavola": "Am Tisch",
+      "Cosa trovi <span class=\"gold\">da noi</span>": "Was Sie <span class=\"gold\">bei uns</span> finden",
+      "<b>Pasta e primi italiani</b>, a regola d'arte.": "<b>Italienische Pasta und Vorspeisen</b>, fachgerecht zubereitet.",
+      "<b>Antipasti all'italiana</b> — formaggi, bruschette, verdure grigliate.": "<b>Italienische Antipasti</b> — Käse, Bruschetta, gegrilltes Gemüse.",
+      "<b>Secondi di carne</b> cucinati come in una trattoria italiana.": "<b>Fleischgerichte</b>, zubereitet wie in einer italienischen Trattoria.",
+      "<b>Dolci della casa</b> per chiudere a regola d'arte.": "<b>Hausgemachte Desserts</b> zum würdigen Abschluss.",
+      "Ingredienti di qualità e ricette italiane, non \"internazionali\".": "Hochwertige Zutaten und italienische Rezepte, keine \"internationalen\".",
+      "Una sala curata e accogliente — si sta bene, senza caos.": "Ein gepflegter, einladender Raum — man fühlt sich wohl, ganz ohne Chaos.",
+      "L'atmosfera": "Die Atmosphäre",
+      "Un posto dove <span class=\"script\">stare bene</span>": "Ein Ort, an dem man sich <span class=\"script\">wohlfühlt</span>",
+      "Luci calde, tavoli curati, il giusto tono. Si cena con calma, si chiacchiera, ci si gode la serata. E dopo cena la musica accompagna fino a tardi — non serve spostarsi per continuare la serata.": "Warmes Licht, sorgfältig eingedeckte Tische, der richtige Ton. Man isst in Ruhe, plaudert, genießt den Abend. Und nach dem Essen begleitet die Musik bis spät — niemand muss umziehen, um den Abend fortzusetzen.",
+      "L'ingresso": "Der Eingang",
+      "Sala ristorante": "Restaurantsaal",
+      "La serata": "Der Abend",
+      "E sabato sera, c'è di più": "Und am Samstagabend wird's noch besser",
+      "Sabato 16 Maggio: serata con Ahmed Sami": "Samstag, 16. Mai: Abend mit Ahmed Sami",
+      "Dopo cena la sala si accende con musica dal vivo. Se vieni sabato, prenota pure il tavolo come sempre — la serata è inclusa.": "Nach dem Essen kommt der Saal mit Livemusik in Schwung. Wenn Sie samstags kommen, reservieren Sie einfach wie immer — der Abend ist inklusive.",
+      "Cosa dicono": "Was die Gäste sagen",
+      "Le voci di chi <span class=\"script\">ci è già stato</span>": "Stimmen derer, die <span class=\"script\">schon hier waren</span>",
+      "Recensioni dai nostri clienti italiani — scorri per leggerle tutte.": "Bewertungen unserer italienischen Gäste — wischen Sie, um alle zu lesen.",
+      "Finalmente un posto a Sharm dove si mangia italiano vero. Sapori autentici, ambiente curato, prezzi onesti. I titolari ti accolgono con il sorriso — ti senti subito a casa.": "Endlich ein Ort in Sharm, an dem man echt italienisch isst. Authentische Aromen, gepflegtes Ambiente, faire Preise. Die Gastgeber empfangen einen mit einem Lächeln — man fühlt sich sofort zu Hause.",
+      "Cena italiana a regola d'arte, fatta con cura. È l'unico posto a Sharm dove la sera ti diverti davvero: si cena, si chiacchiera, e poi resti per la serata. Da consigliare.": "Italienisches Abendessen nach allen Regeln der Kunst, mit Sorgfalt zubereitet. Der einzige Ort in Sharm, wo der Abend wirklich Spaß macht: essen, plaudern, bleiben. Sehr zu empfehlen.",
+      "Locale stupendo, accoglienza calorosa. I gestori sono simpaticissimi, ti fanno sentire parte della loro famiglia. Cucina autentica e prezzi giusti — perfetto.": "Wunderschönes Lokal, herzlicher Empfang. Die Inhaber sind super nett, man fühlt sich sofort wie in der Familie. Authentische Küche und faire Preise — perfekt.",
+      "Cercavo sapori di casa in vacanza e li ho trovati qui. Cucina italiana vera, ambiente caldo, la serata è andata via in un lampo. Tornerò sicuro.": "Im Urlaub suchte ich nach den Aromen von zu Hause — und fand sie hier. Echte italienische Küche, warme Atmosphäre, der Abend verging wie im Flug. Ich komme sicher wieder.",
+      "Serata indimenticabile. Atmosfera elegante ma senza esagerare, ottima cena, e l'ospitalità dei titolari fa la differenza. Non un locale qualunque.": "Unvergesslicher Abend. Elegante Atmosphäre ohne Übertreibung, hervorragendes Essen, und die Gastfreundschaft der Inhaber macht den Unterschied. Kein gewöhnliches Lokal.",
+      "A Sharm c'è bisogno di posti così: cucina vera, servizio attento, prezzi onesti. Cena + serata nello stesso posto, niente spostamenti. Promosso a pieni voti.": "Sharm braucht mehr Orte wie diesen: echte Küche, aufmerksamer Service, faire Preise. Essen und Abend am selben Ort, kein Umziehen nötig. Bestnote.",
+      "Mi sono divertita un sacco. Cucina ottima, ambiente molto curato, e abbiamo fatto pure amicizia con altre coppie italiane. Il Lollapalooza è una scoperta.": "Ich hatte richtig Spaß. Tolles Essen, sehr gepflegtes Ambiente, und wir haben sogar Freundschaft mit anderen italienischen Paaren geschlossen. Das Lollapalooza ist eine Entdeckung.",
+      "Cibo italiano autentico, sapori che riportano a casa. Personale gentile, conto onesto, niente sorprese. La sera a Sharm finalmente diventa interessante.": "Authentische italienische Küche, Aromen, die einen nach Hause bringen. Freundliches Personal, faire Rechnung, keine Überraschungen. Die Abende in Sharm werden endlich spannend.",
+      "Mi aspettavo il solito locale per turisti, invece ho trovato qualità vera. Cucina che ricorda l'Italia, atmosfera rilassata, gestori meravigliosi. Da provare.": "Ich erwartete das übliche Touristenrestaurant, fand aber echte Qualität. Eine Küche, die an Italien erinnert, entspannte Atmosphäre, wundervolle Inhaber. Unbedingt ausprobieren.",
+      "Una cena come a casa e una serata che non finisce mai. Il bello è che fai amicizia subito — i titolari ti coinvolgono, gli altri ospiti italiani diventano compagnia. Bellissimo.": "Ein Abendessen wie zu Hause und ein Abend, der nicht enden will. Das Schöne: man schließt sofort Freundschaften — die Inhaber binden einen ein, die anderen italienischen Gäste werden zur Gesellschaft. Wunderbar.",
+      "Milano · in vacanza a Sharm": "Mailand · Urlaub in Sharm",
+      "Bologna · coppia": "Bologna · Paar",
+      "Firenze · gruppo amici": "Florenz · Freundesgruppe",
+      "Roma · coppia": "Rom · Paar",
+      "Verona · in vacanza": "Verona · im Urlaub",
+      "Torino · famiglia": "Turin · Familie",
+      "Padova · viaggio amici": "Padua · Freundesreise",
+      "Genova · coppia": "Genua · Paar",
+      "Trieste · in vacanza": "Triest · im Urlaub",
+      "Bergamo · gruppo amici": "Bergamo · Freundesgruppe",
+      "Aprile 2026": "April 2026", "Marzo 2026": "März 2026",
+      "Maggio 2026": "Mai 2026", "Febbraio 2026": "Februar 2026",
+      "Gennaio 2026": "Januar 2026",
+      "Prenota ora": "Jetzt reservieren",
+      "Il tuo tavolo ti <span class=\"script\">aspetta</span>": "Ihr Tisch <span class=\"script\">wartet auf Sie</span>",
+      "Scegli il giorno e dicci in quanti siete. Un messaggio su WhatsApp e ti confermiamo subito.": "Wählen Sie den Tag und sagen Sie uns, wie viele Sie sind. Eine WhatsApp-Nachricht und wir bestätigen sofort.",
+      "+39 334 382 8321 · risposta rapida": "+39 334 382 8321 · schnelle Antwort",
+      "Al Motelat · Sharm el Sheikh 2 · Egitto": "Al Motelat · Sharm el Sheikh 2 · Ägypten",
+      "Prenota un tavolo su WhatsApp": "Tisch über WhatsApp reservieren"
+    },
+    ar: {
+      "● Nuova gestione": "● إدارة جديدة",
+      "Lollapalooza · Sharm el Sheikh": "لولابالوزا · شرم الشيخ",
+      "Cucina italiana vera<span class=\"script\">qui a Sharm el Sheikh</span>": "مطبخ إيطالي أصيل<span class=\"script\">هنا في شرم الشيخ</span>",
+      "Pasta e primi italiani, antipasti all'italiana e secondi preparati a regola d'arte. Come in Italia, in vacanza.": "باستا وأطباق أولى إيطالية، مقبلات على الطريقة الإيطالية وأطباق رئيسية مُعدّة بإتقان. كأنك في إيطاليا، وأنت في إجازتك.",
+      "Prenota un tavolo": "احجز طاولة",
+      "Un messaggio su WhatsApp · ti rispondiamo subito": "رسالة واحدة على واتساب · ونردّ عليك فورًا",
+      "Autentica": "أصيلة", "Cucina italiana": "مطبخ إيطالي",
+      "Antipasti": "مقبلات", "All'italiana": "على الطريقة الإيطالية",
+      "35 anni": "35 سنة", "Di esperienza": "من الخبرة",
+      "Perché proprio qui": "لماذا هنا تحديدًا",
+      "Stanco di mangiare <span class=\"gold\">sempre uguale</span> a Sharm?": "تعبت من تناول <span class=\"gold\">نفس الأطباق</span> في شرم؟",
+      "Una settimana di villaggio e i pasti diventano tutti la stessa cosa: buffet, piatti \"internazionali\", niente che sappia davvero di casa.": "أسبوع في المنتجع وتصبح كل الوجبات متشابهة: بوفيه، أطباق \"عالمية\"، لا شيء يذكّرك بطعم البيت حقًا.",
+      "Il <b style=\"color:var(--cream)\">Lollapalooza</b> è un'altra storia. È un ristorante di <span class=\"gold\">vera cucina italiana</span>: ti siedi, ordini, e mangi come mangeresti in Italia. Pasta, secondi, taglieri — fatti bene, con ingredienti di qualità.": "<b style=\"color:var(--cream)\">لولابالوزا</b> قصة أخرى. مطعم <span class=\"gold\">مطبخ إيطالي حقيقي</span>: تجلس، تطلب، وتأكل كما لو كنت في إيطاليا. باستا، أطباق رئيسية، ألواح تقديم — مُعدّة جيدًا، بمكوّنات عالية الجودة.",
+      "In cucina": "في المطبخ",
+      "35 anni di <span class=\"script\">mestiere italiano</span>": "35 عامًا من <span class=\"script\">الحرفة الإيطالية</span>",
+      "Ai fornelli c'è una cuoca con <b style=\"color:var(--cream)\">35 anni di esperienza nella ristorazione italiana</b>. Non improvvisa: cucina italiana vera, quella di casa, fatta a regola d'arte — ogni piatto.": "خلف الموقد طاهية تتمتع بـ<b style=\"color:var(--cream)\">35 عامًا من الخبرة في المطاعم الإيطالية</b>. لا ترتجل: مطبخ إيطالي حقيقي، مطبخ البيت، يُعدّ بإتقان — في كل طبق.",
+      "Qui mangi <b>come in Italia</b>. Stesse ricette, stessi sapori, stesse mani esperte.": "هنا تأكل <b>كما في إيطاليا</b>. نفس الوصفات، نفس النكهات، نفس الأيدي الخبيرة.",
+      "La cuoca con la sua squadra · cucina del Lollapalooza": "الطاهية مع فريقها · مطبخ لولابالوزا",
+      "La nostra firma": "بصمتنا",
+      "Antipasti <span class=\"gold\">all'italiana</span>": "مقبلات <span class=\"gold\">على الطريقة الإيطالية</span>",
+      "Il modo migliore per iniziare: un tagliere da condividere, fatto con ingredienti di qualità.": "أفضل بداية: لوح تقديم للمشاركة، مُعدّ بمكوّنات عالية الجودة.",
+      "Cucina tradizionale italiana": "مطبخ إيطالي تقليدي",
+      "Il tagliere all'italiana, da condividere": "لوح التقديم على الطريقة الإيطالية، للمشاركة",
+      "Formaggi italiani, bruschette, verdure grigliate, olive: un <b>antipasto all'italiana</b> a regola d'arte, da mettere in mezzo al tavolo.": "أجبان إيطالية، بروسكيتا، خضار مشوية، زيتون: <b>مقبلات على الطريقة الإيطالية</b> مُعدّة بإتقان، في وسط الطاولة.",
+      "Tagliere all'italiana · da condividere": "لوح إيطالي · للمشاركة",
+      "A tavola": "على المائدة",
+      "Cosa trovi <span class=\"gold\">da noi</span>": "ما الذي تجده <span class=\"gold\">عندنا</span>",
+      "<b>Pasta e primi italiani</b>, a regola d'arte.": "<b>باستا وأطباق أولى إيطالية</b>، مُعدّة بإتقان.",
+      "<b>Antipasti all'italiana</b> — formaggi, bruschette, verdure grigliate.": "<b>مقبلات على الطريقة الإيطالية</b> — أجبان، بروسكيتا، خضار مشوية.",
+      "<b>Secondi di carne</b> cucinati come in una trattoria italiana.": "<b>أطباق لحم رئيسية</b> مطبوخة كما في تراتوريا إيطالية.",
+      "<b>Dolci della casa</b> per chiudere a regola d'arte.": "<b>حلويات منزلية</b> لختام يليق بك.",
+      "Ingredienti di qualità e ricette italiane, non \"internazionali\".": "مكوّنات عالية الجودة ووصفات إيطالية، لا \"عالمية\".",
+      "Una sala curata e accogliente — si sta bene, senza caos.": "صالة أنيقة ومرحّبة — تشعر فيها بالراحة، دون فوضى.",
+      "L'atmosfera": "الأجواء",
+      "Un posto dove <span class=\"script\">stare bene</span>": "مكان <span class=\"script\">تشعر فيه بالراحة</span>",
+      "Luci calde, tavoli curati, il giusto tono. Si cena con calma, si chiacchiera, ci si gode la serata. E dopo cena la musica accompagna fino a tardi — non serve spostarsi per continuare la serata.": "إضاءة دافئة، طاولات أنيقة، أجواء مناسبة. تتعشّى بهدوء، تتجاذب أطراف الحديث، وتستمتع بالأمسية. وبعد العشاء تستمر الموسيقى حتى وقت متأخر — لا حاجة للتنقل لمتابعة السهرة.",
+      "L'ingresso": "المدخل",
+      "Sala ristorante": "صالة المطعم",
+      "La serata": "السهرة",
+      "E sabato sera, c'è di più": "ومساء السبت، هناك المزيد",
+      "Sabato 16 Maggio: serata con Ahmed Sami": "السبت 16 مايو: سهرة مع أحمد سامي",
+      "Dopo cena la sala si accende con musica dal vivo. Se vieni sabato, prenota pure il tavolo come sempre — la serata è inclusa.": "بعد العشاء تنبض الصالة بموسيقى حيّة. إذا أتيت يوم السبت، احجز طاولتك كالمعتاد — السهرة مشمولة.",
+      "Cosa dicono": "ماذا يقولون",
+      "Le voci di chi <span class=\"script\">ci è già stato</span>": "أصوات من <span class=\"script\">جرّبوا المكان</span>",
+      "Recensioni dai nostri clienti italiani — scorri per leggerle tutte.": "آراء من عملائنا الإيطاليين — مرّر لقراءتها كاملةً.",
+      "Finalmente un posto a Sharm dove si mangia italiano vero. Sapori autentici, ambiente curato, prezzi onesti. I titolari ti accolgono con il sorriso — ti senti subito a casa.": "أخيرًا مكان في شرم يقدّم طعامًا إيطاليًا حقيقيًا. نكهات أصيلة، أجواء أنيقة، أسعار عادلة. الملاك يستقبلونك بابتسامة — تشعر فورًا أنك في بيتك.",
+      "Cena italiana a regola d'arte, fatta con cura. È l'unico posto a Sharm dove la sera ti diverti davvero: si cena, si chiacchiera, e poi resti per la serata. Da consigliare.": "عشاء إيطالي مُعدّ بإتقان وعناية. المكان الوحيد في شرم الذي تستمتع فيه بأمسيتك حقًا: تتعشّى، تتحدث، ثم تكمل سهرتك. أنصح به.",
+      "Locale stupendo, accoglienza calorosa. I gestori sono simpaticissimi, ti fanno sentire parte della loro famiglia. Cucina autentica e prezzi giusti — perfetto.": "مكان رائع واستقبال دافئ. الملاك لطفاء جدًا، يشعرونك وكأنك من العائلة. مطبخ أصيل وأسعار عادلة — مثالي.",
+      "Cercavo sapori di casa in vacanza e li ho trovati qui. Cucina italiana vera, ambiente caldo, la serata è andata via in un lampo. Tornerò sicuro.": "كنت أبحث عن نكهات البيت أثناء الإجازة فوجدتها هنا. مطبخ إيطالي حقيقي، أجواء دافئة، والسهرة مرّت كلمح البصر. سأعود بكل تأكيد.",
+      "Serata indimenticabile. Atmosfera elegante ma senza esagerare, ottima cena, e l'ospitalità dei titolari fa la differenza. Non un locale qualunque.": "أمسية لا تُنسى. أجواء أنيقة دون مبالغة، عشاء ممتاز، وكرم الملاك يصنع الفرق. ليس مطعمًا عاديًا.",
+      "A Sharm c'è bisogno di posti così: cucina vera, servizio attento, prezzi onesti. Cena + serata nello stesso posto, niente spostamenti. Promosso a pieni voti.": "شرم تحتاج إلى أماكن مثل هذه: مطبخ حقيقي، خدمة منتبهة، أسعار عادلة. عشاء وسهرة في المكان نفسه دون تنقّل. يستحق العلامة الكاملة.",
+      "Mi sono divertita un sacco. Cucina ottima, ambiente molto curato, e abbiamo fatto pure amicizia con altre coppie italiane. Il Lollapalooza è una scoperta.": "استمتعت كثيرًا. طعام رائع، أجواء أنيقة جدًا، وحتى تعرّفنا على أزواج إيطاليين آخرين. لولابالوزا اكتشاف حقيقي.",
+      "Cibo italiano autentico, sapori che riportano a casa. Personale gentile, conto onesto, niente sorprese. La sera a Sharm finalmente diventa interessante.": "طعام إيطالي أصيل، نكهات تعيدك إلى البيت. طاقم لطيف، فاتورة عادلة، بلا مفاجآت. أمسيات شرم باتت ممتعة أخيرًا.",
+      "Mi aspettavo il solito locale per turisti, invece ho trovato qualità vera. Cucina che ricorda l'Italia, atmosfera rilassata, gestori meravigliosi. Da provare.": "توقّعت مطعمًا سياحيًا عاديًا، فإذا بي أمام جودة حقيقية. مطبخ يذكّر بإيطاليا، أجواء مريحة، ملاك رائعون. يستحق التجربة.",
+      "Una cena come a casa e una serata che non finisce mai. Il bello è che fai amicizia subito — i titolari ti coinvolgono, gli altri ospiti italiani diventano compagnia. Bellissimo.": "عشاء وكأنك في البيت وسهرة لا تنتهي. الأجمل أنك تكوّن صداقات فورًا — الملاك يدمجونك، والضيوف الإيطاليون الآخرون يصبحون رفقة. رائع.",
+      "Milano · in vacanza a Sharm": "ميلانو · في إجازة بشرم",
+      "Bologna · coppia": "بولونيا · زوجان",
+      "Firenze · gruppo amici": "فلورنسا · مجموعة أصدقاء",
+      "Roma · coppia": "روما · زوجان",
+      "Verona · in vacanza": "فيرونا · في إجازة",
+      "Torino · famiglia": "تورينو · عائلة",
+      "Padova · viaggio amici": "بادوفا · رحلة أصدقاء",
+      "Genova · coppia": "جنوة · زوجان",
+      "Trieste · in vacanza": "تريستي · في إجازة",
+      "Bergamo · gruppo amici": "بيرغامو · مجموعة أصدقاء",
+      "Aprile 2026": "أبريل 2026", "Marzo 2026": "مارس 2026",
+      "Maggio 2026": "مايو 2026", "Febbraio 2026": "فبراير 2026",
+      "Gennaio 2026": "يناير 2026",
+      "Prenota ora": "احجز الآن",
+      "Il tuo tavolo ti <span class=\"script\">aspetta</span>": "طاولتك في <span class=\"script\">انتظارك</span>",
+      "Scegli il giorno e dicci in quanti siete. Un messaggio su WhatsApp e ti confermiamo subito.": "اختر اليوم وأخبرنا بعددكم. رسالة واحدة على واتساب ونؤكّد لك فورًا.",
+      "+39 334 382 8321 · risposta rapida": "+39 334 382 8321 · ردّ سريع",
+      "Al Motelat · Sharm el Sheikh 2 · Egitto": "المعتلات · شرم الشيخ 2 · مصر",
+      "Prenota un tavolo su WhatsApp": "احجز طاولة عبر واتساب"
+    }
+  };
+
+  // Snapshot innerHTML originale (IT)
+  var orig = new Map();
+  function snap(){
+    document.querySelectorAll(SEL).forEach(function(el){
+      orig.set(el, el.innerHTML);
+    });
+  }
+
+  // Snapshot dei text node dei bottoni WhatsApp (markup contiene SVG)
+  var btnOrig = new Map();
+  function snapBtns(){
+    document.querySelectorAll('a.btn-wa, a.btn-gold').forEach(function(a){
+      var tn = null;
+      a.childNodes.forEach(function(n){
+        if (n.nodeType === 3 && n.nodeValue.trim()) tn = n;
+      });
+      if (tn) btnOrig.set(tn, tn.nodeValue);
+    });
+  }
+
+  function applyLang(lang){
+    if (!['it','en','es','fr','de','ar'].includes(lang)) lang = 'it';
+    var dict = I18N[lang];
+    orig.forEach(function(html, el){
+      if (lang === 'it' || !dict) {
+        el.innerHTML = html;
+        return;
+      }
+      var key = norm(html);
+      // prova match esatto, poi versione normalizzata
+      var t = dict[html] || dict[key];
+      el.innerHTML = (t != null) ? t : html;
+    });
+    // text node dei bottoni
+    btnOrig.forEach(function(origText, tn){
+      if (lang === 'it' || !dict) { tn.nodeValue = origText; return; }
+      var key = norm(origText);
+      var t = dict[origText] || dict[key];
+      tn.nodeValue = (t != null) ? ' ' + t + ' ' : origText;
+    });
+    document.documentElement.lang = lang;
+    document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+    // aggiorna messaggio WhatsApp su tutti i link wa.me
+    var msg = WA_MSG[lang] || WA_MSG.it;
+    document.querySelectorAll('a[href*="wa.me/"]').forEach(function(a){
+      try {
+        var u = new URL(a.href);
+        u.searchParams.set('text', msg);
+        a.href = u.toString();
+      } catch(e){}
+    });
+    // aggiorna stato bottoni
+    document.querySelectorAll('.lang-switcher button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    try { localStorage.setItem('funnel_lang', lang); } catch(e){}
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    snap();
+    snapBtns();
+    var urlLang = new URLSearchParams(location.search).get('lang');
+    var stored = null;
+    try { stored = localStorage.getItem('funnel_lang'); } catch(e){}
+    var initial = urlLang || stored || 'it';
+    applyLang(initial);
+    document.querySelectorAll('.lang-switcher button').forEach(function(b){
+      b.addEventListener('click', function(){ applyLang(b.dataset.lang); });
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
