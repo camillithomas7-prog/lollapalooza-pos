@@ -1,7 +1,7 @@
 <?php
 // Lollapalooza POS - Config
 session_start();
-date_default_timezone_set('Europe/Rome');
+date_default_timezone_set('Africa/Cairo');
 mb_internal_encoding('UTF-8');
 
 define('APP_NAME', 'Lollapalooza POS');

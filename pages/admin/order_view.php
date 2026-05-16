@@ -74,6 +74,41 @@
                     </div>
                 </div>
 
+                <!-- Gift card -->
+                <div class="card p-5">
+                    <h3 class="font-bold mb-3">🎁 Gift card</h3>
+                    <template x-if="!order.gift_card_id">
+                        <div>
+                            <div class="relative">
+                                <input x-model="gcSearch" @input.debounce.300ms="searchGc" @focus="searchGc" placeholder="Cerca cliente o codice…" class="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm">
+                                <div x-show="gcResults.length && gcOpen" class="absolute z-10 left-0 right-0 top-full mt-1 card max-h-72 overflow-y-auto">
+                                    <template x-for="g in gcResults" :key="g.id">
+                                        <button type="button" @click="applyGc(g)" class="w-full text-left p-3 hover:bg-white/5 border-b border-white/5">
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-mono text-xs text-amber-300" x-text="g.code"></span>
+                                                <span x-show="g.valid_now" class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">VALIDA</span>
+                                                <span x-show="!g.valid_now" class="text-[10px] px-2 py-0.5 rounded bg-slate-500/20 text-slate-400">non valida ora</span>
+                                            </div>
+                                            <div class="font-semibold text-sm mt-0.5" x-text="g.customer_name"></div>
+                                            <div class="text-[11px] text-slate-400" x-text="g.window_label"></div>
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">Inserisci codice (LOL-...) o nome cliente.</p>
+                        </div>
+                    </template>
+                    <template x-if="order.gift_card_id">
+                        <div class="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                            <div class="text-xs text-emerald-300 font-bold uppercase tracking-wider">Gift card applicata</div>
+                            <div class="text-sm mt-1 flex justify-between">
+                                <span>Sconto</span>
+                                <span class="font-bold text-emerald-300" x-text="(parseFloat(order.discount_percent||0).toFixed(0)) + '% (-'+fmt(order.discount_amount)+')'"></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
                 <div class="card p-5">
                     <h3 class="font-bold mb-3">💳 Pagamento</h3>
                     <div class="grid grid-cols-2 gap-2 mb-3">
@@ -120,10 +155,39 @@
 function orderView(id) {
     return {
         id, order: null, items: [], payments: [], splitModal: false, splits: [],
+        gcSearch: '', gcResults: [], gcOpen: false,
         async load() {
             const r = await fetch('/api/orders.php?action=get&id='+this.id);
             const d = await r.json(); if (d.error) return alert(d.error);
             this.order = d.order; this.items = d.items; this.payments = d.payments;
+            // applicazione automatica gift card da query string (?apply_gc=LOL-...)
+            const params = new URLSearchParams(location.search);
+            const apply = params.get('apply_gc');
+            if (apply && !this.order.gift_card_id) {
+                params.delete('apply_gc');
+                history.replaceState(null, '', location.pathname + '?' + params.toString());
+                await this.applyGcByCode(apply);
+            }
+        },
+        async searchGc(){
+            const q = this.gcSearch.trim();
+            const r = await fetch('/api/gift_cards.php?action=search&q='+encodeURIComponent(q));
+            this.gcResults = (await r.json()).gift_cards || [];
+            this.gcOpen = true;
+        },
+        async applyGc(g){
+            this.gcOpen = false;
+            this.gcSearch = '';
+            await this.applyGcByCode(g.code);
+        },
+        async applyGcByCode(code){
+            const r = await fetch('/api/gift_cards.php?action=apply_to_order', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({code, order_id: this.id})
+            });
+            const d = await r.json();
+            if (d.error){ alert(d.error); return; }
+            this.load();
         },
         hasDraft() { return this.items.some(i=>i.status==='draft'); },
         async sendOrder() {

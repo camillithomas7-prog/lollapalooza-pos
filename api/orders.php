@@ -99,6 +99,23 @@ switch ($action) {
         $pays->execute([$oid]);
         json_response(['order' => $order, 'items' => $items->fetchAll(), 'payments' => $pays->fetchAll()]);
 
+    case 'quick_create':
+        // Apre un nuovo ordine al banco/take-away (per cassa).
+        // Parametri: table_id (opzionale), type ('bar'|'dine_in'|'takeaway'), guests (default 1)
+        $tableId = !empty($in['table_id']) ? (int)$in['table_id'] : null;
+        $type    = $in['type'] ?? ($tableId ? 'dine_in' : 'bar');
+        $guests  = (int)($in['guests'] ?? 1);
+        $code = 'O' . date('ymdHis') . rand(10,99);
+        db()->prepare('INSERT INTO orders (tenant_id, code, table_id, waiter_id, type, status, guests, created_at) VALUES (?,?,?,?,?,?,?,?)')
+            ->execute([$t, $code, $tableId, user()['id'], $type, 'open', $guests, date('Y-m-d H:i:s')]);
+        $oid = (int)db()->lastInsertId();
+        if ($tableId) {
+            db()->prepare('UPDATE tables SET status="occupied", occupied_since=? WHERE id=?')
+                ->execute([date('Y-m-d H:i:s'), $tableId]);
+        }
+        audit('quick_create_order', 'orders', $oid, ['type' => $type]);
+        json_response(['ok' => true, 'order_id' => $oid, 'code' => $code]);
+
     case 'list':
         $where = 'o.tenant_id=?';
         $params = [$t];

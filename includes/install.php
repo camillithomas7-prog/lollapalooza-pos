@@ -25,6 +25,42 @@ try {
     if ($upd->rowCount() > 0) echo "✓ Tenant aggiornati a valuta EGP (Lira Egiziana): " . $upd->rowCount() . "\n";
 } catch (Throwable $e) {}
 
+// Migrazione: aggiunge gift_card_id e discount_percent a orders
+try {
+    if (DB_DRIVER === 'mysql') {
+        $has = $pdo->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'orders' AND column_name = 'gift_card_id'")->fetchColumn();
+        if (!$has) {
+            $pdo->exec("ALTER TABLE orders ADD COLUMN gift_card_id INT NULL");
+            $pdo->exec("ALTER TABLE orders ADD COLUMN discount_percent DECIMAL(5,2) DEFAULT 0");
+            $pdo->exec("ALTER TABLE orders ADD COLUMN discount_amount DECIMAL(10,2) DEFAULT 0");
+            echo "✓ Aggiunte colonne gift_card_id, discount_percent, discount_amount a orders\n";
+        }
+    } else {
+        $cols = $pdo->query("PRAGMA table_info(orders)")->fetchAll(PDO::FETCH_ASSOC);
+        $names = array_column($cols, 'name');
+        if (!in_array('gift_card_id', $names))    $pdo->exec("ALTER TABLE orders ADD COLUMN gift_card_id INTEGER");
+        if (!in_array('discount_percent', $names)) $pdo->exec("ALTER TABLE orders ADD COLUMN discount_percent REAL DEFAULT 0");
+        if (!in_array('discount_amount', $names))  $pdo->exec("ALTER TABLE orders ADD COLUMN discount_amount REAL DEFAULT 0");
+    }
+} catch (Throwable $e) { /* gestito */ }
+
+// Migrazione: aggiunge orari validità alla tabella gift_cards
+try {
+    if (DB_DRIVER === 'mysql') {
+        $has = $pdo->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'gift_cards' AND column_name = 'valid_from_hour'")->fetchColumn();
+        if (!$has) {
+            $pdo->exec("ALTER TABLE gift_cards ADD COLUMN valid_from_hour TIME DEFAULT '20:00:00'");
+            $pdo->exec("ALTER TABLE gift_cards ADD COLUMN valid_to_hour TIME DEFAULT '03:00:00'");
+            echo "✓ Aggiunte colonne valid_from_hour, valid_to_hour a gift_cards\n";
+        }
+    } else {
+        $cols = $pdo->query("PRAGMA table_info(gift_cards)")->fetchAll(PDO::FETCH_ASSOC);
+        $names = array_column($cols, 'name');
+        if (!in_array('valid_from_hour', $names)) $pdo->exec("ALTER TABLE gift_cards ADD COLUMN valid_from_hour TEXT DEFAULT '20:00:00'");
+        if (!in_array('valid_to_hour', $names))   $pdo->exec("ALTER TABLE gift_cards ADD COLUMN valid_to_hour TEXT DEFAULT '03:00:00'");
+    }
+} catch (Throwable $e) { /* tabella non ancora esistente — gestito dal blocco successivo */ }
+
 // Migrazione: crea tabella gift_cards se mancante
 try {
     if (DB_DRIVER === 'mysql') {

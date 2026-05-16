@@ -30,9 +30,24 @@
                 <input x-model="form.phone" placeholder="+39..." class="w-full mt-1 px-3 py-2.5 rounded-lg bg-white/5 border border-white/10">
             </div>
             <div>
-                <label class="text-xs text-slate-400 uppercase tracking-wider">Data valida *</label>
+                <label class="text-xs text-slate-400 uppercase tracking-wider">Data della visita *</label>
                 <input type="date" x-model="form.valid_date" :min="today" class="w-full mt-1 px-3 py-2.5 rounded-lg bg-white/5 border border-white/10">
             </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mt-3">
+            <div>
+                <label class="text-xs text-slate-400 uppercase tracking-wider">Valida dalle ore</label>
+                <input type="time" x-model="form.valid_from_hour" class="w-full mt-1 px-3 py-2.5 rounded-lg bg-white/5 border border-white/10">
+            </div>
+            <div>
+                <label class="text-xs text-slate-400 uppercase tracking-wider">Valida fino alle ore</label>
+                <input type="time" x-model="form.valid_to_hour" class="w-full mt-1 px-3 py-2.5 rounded-lg bg-white/5 border border-white/10">
+            </div>
+        </div>
+        <div class="mt-2 text-xs text-slate-400">
+            ⏰ Orari in <b>ora egiziana (Africa/Cairo)</b>. Se l'ora di fine è inferiore all'ora di inizio
+            (es. 20:00 → 03:00), la finestra di validità copre <b>anche la notte successiva</b>.
+            Default: <span class="text-amber-300">20:00 → 03:00</span> (locale serale).
         </div>
         <div class="mt-4 flex gap-2">
             <button @click="create" :disabled="busy" class="px-5 py-2.5 rounded-lg btn-primary font-semibold disabled:opacity-50">
@@ -113,6 +128,7 @@
                     <div class="flex-1 min-w-[200px]">
                         <div class="font-bold" x-text="gc.customer_name"></div>
                         <div class="text-xs text-slate-400 font-mono" x-text="gc.code"></div>
+                        <div class="text-xs text-amber-300/70" x-text="'⏰ '+fmtWindow(gc)"></div>
                         <div x-show="gc.phone" class="text-xs text-slate-400" x-text="'📞 '+gc.phone"></div>
                     </div>
                     <div class="px-2 py-1 rounded-lg text-xs font-bold" :class="statusBadge(gc.status)">
@@ -137,7 +153,7 @@
 <script>
 function gcPage(){return {
     cards: [], stats: {}, busy: false,
-    form: { customer_name:'', phone:'', valid_date: new Date().toISOString().slice(0,10) },
+    form: { customer_name:'', phone:'', valid_date: new Date().toISOString().slice(0,10), valid_from_hour:'20:00', valid_to_hour:'03:00' },
     today: new Date().toISOString().slice(0,10),
     filterFrom: new Date(Date.now()-30*86400000).toISOString().slice(0,10),
     filterTo:   new Date(Date.now()+60*86400000).toISOString().slice(0,10),
@@ -171,7 +187,7 @@ function gcPage(){return {
         } catch(e){ alert('Errore: '+e.message); }
         finally { this.busy = false; }
     },
-    resetForm(){ this.form = { customer_name:'', phone:'', valid_date: this.today }; },
+    resetForm(){ this.form = { customer_name:'', phone:'', valid_date: this.today, valid_from_hour:'20:00', valid_to_hour:'03:00' }; },
     async copyImageLink(){
         try { await navigator.clipboard.writeText(this.result.image_url); this.copied = true; setTimeout(()=>this.copied=false, 1500); } catch(e){ alert(this.result.image_url); }
     },
@@ -211,6 +227,12 @@ function gcPage(){return {
         this.load();
     },
     fmtDate(s){ return s ? s.split('-').reverse().join('/') : ''; },
+    fmtWindow(gc){
+        const from = (gc.valid_from_hour||'20:00:00').slice(0,5);
+        const to   = (gc.valid_to_hour||'03:00:00').slice(0,5);
+        const next = parseInt(to.slice(0,2),10) < parseInt(from.slice(0,2),10);
+        return next ? `${from} → ${to} (notte)` : `${from} → ${to}`;
+    },
     fmtDay(s){ return s ? new Date(s).getDate() : ''; },
     fmtDayName(s){ return s ? new Date(s).toLocaleDateString('it-IT',{weekday:'short'}) : ''; },
     statusLabel(s){ return ({issued:'Emessa', used:'Usata', expired:'Scaduta', cancelled:'Annullata'})[s] || s; },

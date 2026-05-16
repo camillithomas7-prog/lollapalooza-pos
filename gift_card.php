@@ -139,19 +139,29 @@ text_centered($im, $F_DISPLAY, $nameSize, 830, $name, $cream, $W);
 // === Validità (BEN EVIDENTE) ===============================================
 $dateFmt = date('d/m/Y', strtotime($g['valid_date']));
 $weekday = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'][date('w', strtotime($g['valid_date']))];
+$from_h  = substr($g['valid_from_hour'] ?? '20:00:00', 0, 5);
+$to_h    = substr($g['valid_to_hour']   ?? '03:00:00', 0, 5);
+$crosses_midnight = ((int)substr($to_h,0,2)) < ((int)substr($from_h,0,2));
 
-// box rosso con scritta valida solo per la data
-$boxY1 = 900;
-$boxY2 = 1050;
-$boxX1 = 110;
-$boxX2 = $W - 110;
-// sfondo box (translucido oro)
+// box con scritta validità completa
+$boxY1 = 880;
+$boxY2 = 1070;
+$boxX1 = 80;
+$boxX2 = $W - 80;
 imagefilledrectangle($im, $boxX1, $boxY1, $boxX2, $boxY2, $panel);
 imagesetthickness($im, 2);
 imagerectangle($im, $boxX1, $boxY1, $boxX2, $boxY2, $gold);
 
-text_centered($im, $F_BOLD, 16, $boxY1 + 35, '⚠  VALIDA SOLO PER QUESTA DATA', $gold_l, $W);
-text_centered($im, $F_DISPLAY, 44, $boxY1 + 100, $weekday . ' ' . $dateFmt, $cream, $W);
+text_centered($im, $F_BOLD, 15, $boxY1 + 30, '⚠  VALIDA SOLO IN QUESTA FASCIA ORARIA', $gold_l, $W);
+text_centered($im, $F_DISPLAY, 36, $boxY1 + 80, $weekday . ' ' . $dateFmt, $cream, $W);
+if ($crosses_midnight) {
+    text_centered($im, $F_BOLD, 22, $boxY1 + 125, 'dalle ' . $from_h . ' alle ' . $to_h . ' (notte)', $gold_l, $W);
+    $dateNext = date('d/m/Y', strtotime($g['valid_date'] . ' +1 day'));
+    text_centered($im, $F_REG, 12, $boxY1 + 155, '(fino al ' . $dateNext . ' ' . $to_h . ' · ora egiziana)', $muted, $W);
+} else {
+    text_centered($im, $F_BOLD, 22, $boxY1 + 125, 'dalle ' . $from_h . ' alle ' . $to_h, $gold_l, $W);
+    text_centered($im, $F_REG, 12, $boxY1 + 155, '(ora egiziana · Africa/Cairo)', $muted, $W);
+}
 
 // === Codice ================================================================
 text_centered($im, $F_REG, 12, 1110, 'CODICE GIFT CARD', $gold, $W);
