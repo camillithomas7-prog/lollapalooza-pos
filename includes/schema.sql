@@ -332,6 +332,24 @@ CREATE TABLE IF NOT EXISTS funnels (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_funnels_slug ON funnels(slug);
 
+CREATE TABLE IF NOT EXISTS gift_cards (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tenant_id INTEGER,
+    code TEXT NOT NULL UNIQUE,
+    customer_name TEXT NOT NULL,
+    phone TEXT,
+    valid_date TEXT NOT NULL,
+    percent REAL DEFAULT 10.0,
+    note TEXT,
+    status TEXT DEFAULT 'issued',
+    used_at TEXT,
+    used_by_user INTEGER,
+    issued_by_user INTEGER,
+    created_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_gc_code ON gift_cards(code);
+CREATE INDEX IF NOT EXISTS idx_gc_date ON gift_cards(tenant_id, valid_date, status);
+
 CREATE TABLE IF NOT EXISTS transfers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tenant_id INTEGER,

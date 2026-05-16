@@ -352,6 +352,24 @@ CREATE TABLE IF NOT EXISTS funnels (
     updated_at DATETIME
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS gift_cards (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tenant_id INT,
+    code VARCHAR(40) NOT NULL UNIQUE,
+    customer_name VARCHAR(255) NOT NULL,
+    phone VARCHAR(50),
+    valid_date DATE NOT NULL,
+    percent DECIMAL(5,2) DEFAULT 10.00,
+    note VARCHAR(255),
+    status ENUM('issued','used','expired','cancelled') DEFAULT 'issued',
+    used_at DATETIME NULL,
+    used_by_user INT NULL,
+    issued_by_user INT NULL,
+    created_at DATETIME,
+    INDEX idx_gc_code (code),
+    INDEX idx_gc_date (tenant_id, valid_date, status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS transfers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     tenant_id INT,

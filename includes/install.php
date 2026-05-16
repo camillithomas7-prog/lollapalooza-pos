@@ -25,6 +25,47 @@ try {
     if ($upd->rowCount() > 0) echo "✓ Tenant aggiornati a valuta EGP (Lira Egiziana): " . $upd->rowCount() . "\n";
 } catch (Throwable $e) {}
 
+// Migrazione: crea tabella gift_cards se mancante
+try {
+    if (DB_DRIVER === 'mysql') {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS gift_cards (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            tenant_id INT,
+            code VARCHAR(40) NOT NULL UNIQUE,
+            customer_name VARCHAR(255) NOT NULL,
+            phone VARCHAR(50),
+            valid_date DATE NOT NULL,
+            percent DECIMAL(5,2) DEFAULT 10.00,
+            note VARCHAR(255),
+            status VARCHAR(20) DEFAULT 'issued',
+            used_at DATETIME NULL,
+            used_by_user INT NULL,
+            issued_by_user INT NULL,
+            created_at DATETIME,
+            INDEX idx_gc_code (code),
+            INDEX idx_gc_date (tenant_id, valid_date, status)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    } else {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS gift_cards (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            tenant_id INTEGER,
+            code TEXT NOT NULL UNIQUE,
+            customer_name TEXT NOT NULL,
+            phone TEXT,
+            valid_date TEXT NOT NULL,
+            percent REAL DEFAULT 10.0,
+            note TEXT,
+            status TEXT DEFAULT 'issued',
+            used_at TEXT,
+            used_by_user INTEGER,
+            issued_by_user INTEGER,
+            created_at TEXT
+        )");
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_gc_code ON gift_cards(code)");
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_gc_date ON gift_cards(tenant_id, valid_date, status)");
+    }
+} catch (Throwable $e) { echo "⚠ Errore migrazione gift_cards: " . $e->getMessage() . "\n"; }
+
 // Migrazione: aggiunge return_when e return_status a transfers
 try {
     if (DB_DRIVER === 'mysql') {

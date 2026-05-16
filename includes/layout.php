@@ -212,6 +212,7 @@ function sidebar_links(string $role): array {
             ['staff', 'Personale', '👥'],
             ['reservations', 'Prenotazioni', '📅'],
             ['transfers', 'Transfer', '🚗'],
+            ['giftcards', 'Gift Card', '🎁'],
             ['customers', 'Clienti', '⭐'],
             ['reports', 'Report', '📄'],
             ['funnels', 'Funnel', '🎯'],
@@ -228,6 +229,7 @@ function sidebar_links(string $role): array {
             ['staff', 'Personale', '👥'],
             ['reservations', 'Prenotazioni', '📅'],
             ['transfers', 'Transfer', '🚗'],
+            ['giftcards', 'Gift Card', '🎁'],
             ['reports', 'Report', '📄'],
             ['funnels', 'Funnel', '🎯'],
             ['qrcodes', 'QR Tavoli', '📱'],
@@ -236,6 +238,7 @@ function sidebar_links(string $role): array {
             ['cash', 'Cassa', '💰'],
             ['orders', 'Ordini', '🧾'],
             ['tables', 'Tavoli', '🪑'],
+            ['giftcards', 'Gift Card', '🎁'],
         ],
         'cameriere' => [
             ['waiter', 'Tavoli', '🪑'],
