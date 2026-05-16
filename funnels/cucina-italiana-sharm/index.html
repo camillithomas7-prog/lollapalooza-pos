@@ -131,23 +131,22 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
     padding:3px 9px;border-radius:99px;
   }
 
-  /* box ospite speciale (sabato) */
-  .special-guest{
-    margin:18px auto 0;max-width:520px;
-    background:linear-gradient(135deg,rgba(201,162,75,.18),rgba(201,162,75,.04));
-    border:1px solid var(--gold-d);border-radius:14px;
-    padding:14px 16px;text-align:center;position:relative;
+  /* box evento variante hero (locandina centrata sopra, testo sotto) */
+  .event.event-hero{
+    flex-direction:column;text-align:center;
+    margin:22px auto 0;max-width:520px;padding:24px 22px;
+    background:linear-gradient(135deg,rgba(201,162,75,.12),rgba(201,162,75,.02));
+    border:1px solid var(--gold-d);
   }
-  .special-guest .sg-tag{
-    display:inline-block;font-size:10.5px;letter-spacing:2.2px;text-transform:uppercase;
-    color:var(--gold);font-weight:700;margin-bottom:6px;
+  .event.event-hero img{
+    width:200px;flex:0 0 auto;aspect-ratio:3/4;
+    border-radius:14px;border:1px solid var(--line);
+    box-shadow:0 12px 30px rgba(0,0,0,.55);margin:0 auto 4px;
   }
-  .special-guest .sg-h{
-    font-family:'Fraunces',serif;font-weight:600;color:var(--cream);
-    font-size:clamp(17px,4.4vw,21px);line-height:1.25;
-  }
-  .special-guest .sg-h b{color:var(--gold-l);}
-  .special-guest .sg-sub{font-size:12px;color:var(--muted);margin-top:6px;letter-spacing:.3px;}
+  .event.event-hero .ev-tag{margin-top:8px;}
+  .event.event-hero h3{font-size:clamp(20px,5vw,24px);margin:8px 0 6px;color:var(--cream);}
+  .event.event-hero h3 b{color:var(--gold-l);font-weight:600;}
+  .event.event-hero p{color:var(--muted);font-size:14.5px;line-height:1.5;}
 
   /* tre bottoni cta */
   .three-ctas{
@@ -488,10 +487,11 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
 
     <img src="assets/pasta-funghi.jpg" alt="Pasta italiana — primo piatto" class="hero-img">
 
-    <div class="special-guest">
-      <div class="sg-tag sg-tag-t">★ Questo sabato · ospite speciale</div>
-      <div class="sg-h sg-h-t">DJ <b>Ahmed Sami</b> in consolle</div>
-      <div class="sg-sub sg-sub-t">Sabato 16 maggio · dopocena con musica dal vivo</div>
+    <div class="event event-hero">
+      <img src="assets/locandina-v2.jpg" alt="Locandina Ahmed Sami Party Night">
+      <div class="ev-tag">E sabato sera, c'è di più</div>
+      <h3>Sabato 16 Maggio: serata con Ahmed Sami</h3>
+      <p>Dopo cena la sala si accende con musica dal vivo. Se vieni sabato, prenota pure il tavolo come sempre — la serata è inclusa.</p>
     </div>
 
     <div class="promo-strip">
@@ -616,16 +616,6 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
       </figure>
     </div>
 
-    <!-- Box evento — secondario, in fondo -->
-    <div class="event">
-      <img src="assets/locandina-v2.jpg" alt="Locandina Ahmed Sami Party Night">
-      <div>
-        <div class="ev-tag">E sabato sera, c'è di più</div>
-        <h3>Sabato 16 Maggio: serata con Ahmed Sami</h3>
-        <p>Dopo cena la sala si accende con musica dal vivo. Se vieni sabato, prenota
-           pure il tavolo come sempre — la serata è inclusa.</p>
-      </div>
-    </div>
   </div>
 </section>
 
