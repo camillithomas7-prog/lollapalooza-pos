@@ -417,3 +417,68 @@ try {
 } catch (Throwable $e) {
     echo "⚠ Errore registrazione funnel: " . $e->getMessage() . "\n";
 }
+
+// Migrazione: crea tabella events (calendario serate/eventi a tema)
+try {
+    if (DB_DRIVER === 'mysql') {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS events (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            tenant_id INT,
+            title VARCHAR(255) NOT NULL,
+            description TEXT,
+            category VARCHAR(50) DEFAULT 'tema',
+            event_date DATE NULL,
+            weekday TINYINT NULL,
+            start_time TIME DEFAULT '20:00:00',
+            end_time TIME DEFAULT '03:00:00',
+            is_recurring TINYINT(1) DEFAULT 0,
+            active TINYINT(1) DEFAULT 1,
+            color VARCHAR(20) DEFAULT 'amber',
+            notes TEXT,
+            created_at DATETIME,
+            updated_at DATETIME,
+            INDEX idx_events_date (tenant_id, event_date),
+            INDEX idx_events_weekday (tenant_id, weekday, is_recurring)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    } else {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            tenant_id INTEGER,
+            title TEXT NOT NULL,
+            description TEXT,
+            category TEXT DEFAULT 'tema',
+            event_date TEXT,
+            weekday INTEGER,
+            start_time TEXT DEFAULT '20:00:00',
+            end_time TEXT DEFAULT '03:00:00',
+            is_recurring INTEGER DEFAULT 0,
+            active INTEGER DEFAULT 1,
+            color TEXT DEFAULT 'amber',
+            notes TEXT,
+            created_at TEXT,
+            updated_at TEXT
+        )");
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_events_date ON events(tenant_id, event_date)");
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_events_weekday ON events(tenant_id, weekday, is_recurring)");
+    }
+} catch (Throwable $e) { echo "⚠ Errore migrazione events: " . $e->getMessage() . "\n"; }
+
+// Seed eventi settimanali ricorrenti (solo se tabella vuota)
+try {
+    $cnt = (int) $pdo->query("SELECT COUNT(*) FROM events WHERE tenant_id=1")->fetchColumn();
+    if ($cnt === 0) {
+        $now = date('Y-m-d H:i:s');
+        // weekday: 0=Dom, 1=Lun, 2=Mar, 3=Mer, 4=Gio, 5=Ven, 6=Sab (compat con JS getDay)
+        $seeds = [
+            ['Serata Orientale con ballerina', 'Spettacolo di danza del ventre',           'spettacolo',  2, '21:00:00', '03:00:00', 'rose'],
+            ['Anni 60/70 — Serata Italiana',   'Musica italiana intramontabile',          'tema',        3, '21:00:00', '03:00:00', 'amber'],
+            ['Serata Latino',                  'Salsa, bachata, reggaeton',                'tema',        5, '22:00:00', '03:00:00', 'emerald'],
+            ['Disco + Sassofonista a cena',    'Sassofonista durante la cena, poi disco', 'musica_live', 6, '20:00:00', '03:00:00', 'sky'],
+        ];
+        $stmt = $pdo->prepare("INSERT INTO events (tenant_id, title, description, category, weekday, start_time, end_time, is_recurring, active, color, created_at, updated_at) VALUES (1,?,?,?,?,?,?,1,1,?,?,?)");
+        foreach ($seeds as $s) {
+            $stmt->execute([$s[0], $s[1], $s[2], $s[3], $s[4], $s[5], $s[6], $now, $now]);
+        }
+        echo "✓ Seed eventi ricorrenti (" . count($seeds) . ")\n";
+    }
+} catch (Throwable $e) { echo "⚠ Errore seed events: " . $e->getMessage() . "\n"; }

@@ -104,6 +104,7 @@ $pages = [
     'finance' => ['admin/finance.php', ['admin','manager']],
     'staff' => ['admin/staff.php', ['admin','manager']],
     'reservations' => ['admin/reservations.php', ['admin','manager']],
+    'events' => ['admin/events.php', ['admin','manager']],
     'transfers' => ['admin/transfers.php', ['admin','manager']],
     'giftcards' => ['admin/gift_cards.php', ['admin','manager','cassiere']],
     'customers' => ['admin/customers.php', ['admin','manager']],
