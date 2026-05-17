@@ -463,22 +463,27 @@ try {
     }
 } catch (Throwable $e) { echo "⚠ Errore migrazione events: " . $e->getMessage() . "\n"; }
 
-// Seed eventi settimanali ricorrenti (solo se tabella vuota)
+// Seed eventi settimanali Lollapalooza (idempotente per titolo)
 try {
-    $cnt = (int) $pdo->query("SELECT COUNT(*) FROM events WHERE tenant_id=1")->fetchColumn();
-    if ($cnt === 0) {
-        $now = date('Y-m-d H:i:s');
-        // weekday: 0=Dom, 1=Lun, 2=Mar, 3=Mer, 4=Gio, 5=Ven, 6=Sab (compat con JS getDay)
-        $seeds = [
-            ['Serata Orientale con ballerina', 'Spettacolo di danza del ventre',           'spettacolo',  2, '21:00:00', '03:00:00', 'rose'],
-            ['Anni 60/70 — Serata Italiana',   'Musica italiana intramontabile',          'tema',        3, '21:00:00', '03:00:00', 'amber'],
-            ['Serata Latino',                  'Salsa, bachata, reggaeton',                'tema',        5, '22:00:00', '03:00:00', 'emerald'],
-            ['Disco + Sassofonista a cena',    'Sassofonista durante la cena, poi disco', 'musica_live', 6, '20:00:00', '03:00:00', 'sky'],
-        ];
-        $stmt = $pdo->prepare("INSERT INTO events (tenant_id, title, description, category, weekday, start_time, end_time, is_recurring, active, color, created_at, updated_at) VALUES (1,?,?,?,?,?,?,1,1,?,?,?)");
-        foreach ($seeds as $s) {
-            $stmt->execute([$s[0], $s[1], $s[2], $s[3], $s[4], $s[5], $s[6], $now, $now]);
+    $now = date('Y-m-d H:i:s');
+    // weekday: 0=Dom, 1=Lun, 2=Mar, 3=Mer, 4=Gio, 5=Ven, 6=Sab (compat con JS getDay)
+    // Tutti gli eventi iniziano alle 22:00
+    $seeds = [
+        ['Serata Orientale con ballerina', 'Spettacolo di danza del ventre',           'spettacolo',  2, '22:00:00', '03:00:00', 'rose'],
+        ['Anni 60/70 — Serata Italiana',   'Musica italiana intramontabile',           'tema',        3, '22:00:00', '03:00:00', 'amber'],
+        ['Serata Latino',                  'Salsa, bachata, reggaeton',                 'tema',        5, '22:00:00', '03:00:00', 'emerald'],
+        ['Disco + Sassofonista a cena',    'Sassofonista durante la cena, poi disco',  'musica_live', 6, '22:00:00', '03:00:00', 'sky'],
+    ];
+    $check = $pdo->prepare("SELECT id FROM events WHERE tenant_id=1 AND title=? LIMIT 1");
+    $ins   = $pdo->prepare("INSERT INTO events (tenant_id, title, description, category, weekday, start_time, end_time, is_recurring, active, color, created_at, updated_at) VALUES (1,?,?,?,?,?,?,1,1,?,?,?)");
+    $added = 0;
+    foreach ($seeds as $s) {
+        $check->execute([$s[0]]);
+        if (!$check->fetchColumn()) {
+            $ins->execute([$s[0], $s[1], $s[2], $s[3], $s[4], $s[5], $s[6], $now, $now]);
+            $added++;
         }
-        echo "✓ Seed eventi ricorrenti (" . count($seeds) . ")\n";
     }
+    if ($added > 0) echo "✓ Aggiunti $added eventi ricorrenti Lollapalooza\n";
+    else            echo "ℹ Eventi Lollapalooza già presenti\n";
 } catch (Throwable $e) { echo "⚠ Errore seed events: " . $e->getMessage() . "\n"; }
